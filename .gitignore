@@ -2,6 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+.vs
 [Bb]in
 [Oo]bj
 PerfLogs
@@ -9,3 +10,5 @@ PerfLogs
 *.sap
 *.user
 packages
+*.lock.json
+*~
