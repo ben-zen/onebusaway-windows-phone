@@ -25,7 +25,7 @@ using System.Windows.Shapes;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.Device.Location;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public interface ILocationModel
     {

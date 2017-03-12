@@ -13,23 +13,14 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Windows.Threading;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public class StopsMapVM : AViewModel
     {
@@ -38,7 +29,7 @@ namespace OneBusAway.WP7.ViewModel
         // this is just a map of id -> stop that mirrors StopsForLocation.
         // used to do lookups.  too bad we can't bind directly to this object's Values property.
         private IDictionary<string, Stop> stopsForLocationIndex;
-        private GeoCoordinate previousQuery;
+        private Geocoordinate previousQuery;
 
         #region Constructors
 

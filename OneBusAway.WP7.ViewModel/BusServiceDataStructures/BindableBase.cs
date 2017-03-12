@@ -18,7 +18,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     /// <summary>
     /// Base class for bindable objects.

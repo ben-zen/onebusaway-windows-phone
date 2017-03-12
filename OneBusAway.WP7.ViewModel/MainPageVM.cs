@@ -20,12 +20,12 @@ using System.Device.Location;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Threading;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using OneBusAway.WP7.ViewModel.EventArgs;
-using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
+using OneBusAway.ViewModel.AppDataDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.EventArgs;
+using OneBusAway.ViewModel.LocationServiceDataStructures;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public class MainPageVM : AViewModel
     {

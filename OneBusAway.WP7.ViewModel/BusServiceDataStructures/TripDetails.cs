@@ -13,14 +13,11 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Device.Location;
 using System.Runtime.Serialization;
 using System.ComponentModel;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
     public class TripDetails : INotifyPropertyChanged
@@ -64,7 +61,7 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             }
         }
 
-        public GeoCoordinate location
+        public Geocoordinate location
         {
             get
             {

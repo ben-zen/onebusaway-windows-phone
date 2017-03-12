@@ -24,7 +24,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     /// <summary>
     /// A "double buffer" container for a data object.

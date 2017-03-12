@@ -22,11 +22,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using OneBusAway.ViewModel.AppDataDataStructures;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.ViewModel.EventArgs;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public enum FavoriteType
     {

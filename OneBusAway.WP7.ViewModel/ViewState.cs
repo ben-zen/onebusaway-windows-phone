@@ -19,7 +19,7 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public class ViewState : INotifyPropertyChanged
     {

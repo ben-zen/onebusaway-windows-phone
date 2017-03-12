@@ -19,8 +19,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OneBusAway.WP7.ViewModel")]
-[assembly: AssemblyDescription("OneBusAway for Windows Phone 7")]
+[assembly: AssemblyTitle("OneBusAway.ViewModel")]
+[assembly: AssemblyDescription("OneBusAway for Windows Phone")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("http://onebusawaywp7.codeplex.com/")]
 [assembly: AssemblyProduct("OneBusAway")]

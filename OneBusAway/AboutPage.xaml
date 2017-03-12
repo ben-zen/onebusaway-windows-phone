@@ -13,59 +13,44 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<phone:PhoneApplicationPage 
-    x:Class="OneBusAway.WP7.View.AboutPage"
+<Page
+    x:Class="OneBusAway.View.AboutPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
-    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:tilt="clr-namespace:ControlTiltEffect"
-    tilt:TiltEffect.IsTiltEnabled="True"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource OBAForegroundBrush}"
-    SupportedOrientations="Portrait" Orientation="Portrait"
-    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
-    shell:SystemTray.IsVisible="True">
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480">
 
-    <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
+  <!--LayoutRoot is the root grid where all page content is placed-->
+  <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        <Image 
-            HorizontalAlignment="Center"  
-            Stretch="None" 
-            VerticalAlignment="Top" 
-            Source="/SplashImage.png" 
-            />
-        <Button 
-            BorderBrush="{StaticResource OBAForegroundBrush}" 
-            Foreground="{StaticResource OBAForegroundBrush}" 
+    <Image 
+      HorizontalAlignment="Center"  
+      Stretch="None" 
+      VerticalAlignment="Top" 
+      Source="/SplashImage.png" />
+    <HyperlinkButton 
             Content="send feedback" 
             Height="72" 
             HorizontalAlignment="Left" 
             Margin="121,520,0,0" 
             Name="FeedbackButton" 
             VerticalAlignment="Top" 
-            Width="236" 
-            Click="FeedbackButton_Click" 
+            Width="236"
+            NavigateUri="mailto:wp7@onebusaway.org?subject=OneBusAway%20for%20Windows%20Phone"
             />
-        <TextBlock 
-            Foreground="{StaticResource OBAForegroundBrush}" 
+    <HyperlinkButton 
             Height="73" 
             HorizontalAlignment="Left" 
             Margin="63,374,0,0" 
             Name="AddressBlock" 
-            Text="onebusaway.org" 
+            NavigateUri="https://onebusaway.org" 
             VerticalAlignment="Top" 
             FontSize="48" 
-            Width="350" 
-            MouseLeftButtonUp="AddressBlock_MouseLeftButtonUp" 
+            Width="350"
             />
-        <StackPanel VerticalAlignment="Bottom">
-            <TextBlock 
-                Foreground="{StaticResource OBAForegroundBrush}" 
+    <StackPanel VerticalAlignment="Bottom">
+      <TextBlock
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 Text=
@@ -73,20 +58,25 @@
                 TextWrapping="Wrap"
                 Margin="10,10,10,0"
                 />
-            <TextBlock 
-                Foreground="{StaticResource OBAForegroundBrush}" 
+      <HyperlinkButton 
                 HorizontalAlignment="Center" 
-                Text="https://github.com/OneBusAway/onebusaway-windows-phone" 
+              Content="Github Project Page"
+                NavigateUri="https://github.com/OneBusAway/onebusaway-windows-phone" 
 				FontSize="15.5"
-                MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" 
                 Margin="10"
                 />
-        </StackPanel>
-        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Right" Margin="0,10,14,0" Name="VersionTextBlock" Text="Version 1.0" VerticalAlignment="Top" />
-    </Grid>
+    </StackPanel>
+    <TextBlock 
+          Height="30"
+          HorizontalAlignment="Right"
+          Margin="0,10,14,0"
+          Name="VersionTextBlock"
+          Text="Version 1.0"
+          VerticalAlignment="Top" />
+  </Grid>
 
-    <!--Sample code showing usage of ApplicationBar-->
-    <!--<phone:PhoneApplicationPage.ApplicationBar>
+  <!--Sample code showing usage of ApplicationBar-->
+  <!--<phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton IconUri="/Images/appbar_button1.png" Text="Button 1"/>
             <shell:ApplicationBarIconButton IconUri="/Images/appbar_button2.png" Text="Button 2"/>
@@ -97,4 +87,4 @@
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>-->
 
-</phone:PhoneApplicationPage>
+</Page>

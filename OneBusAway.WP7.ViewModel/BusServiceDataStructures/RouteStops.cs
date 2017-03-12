@@ -17,9 +17,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
-using System.Device.Location;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
     public class RouteStops
@@ -51,9 +51,9 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 
     public class RouteStopsDistanceComparer : IComparer<RouteStops>
     {
-        private GeoCoordinate center;
+        private Geocoordinate center;
 
-        public RouteStopsDistanceComparer(GeoCoordinate center)
+        public RouteStopsDistanceComparer(Geocoordinate center)
         {
             this.center = center;
         }

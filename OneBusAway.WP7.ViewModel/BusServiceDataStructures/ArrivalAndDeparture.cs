@@ -19,7 +19,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
     public class ArrivalAndDeparture : INotifyPropertyChanged

@@ -16,17 +16,17 @@ using System;
 using System.Net;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Device.Location;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using OneBusAway.ViewModel.AppDataDataStructures;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Threading;
 using System.Threading;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public class RouteDetailsVM : AViewModel
     {

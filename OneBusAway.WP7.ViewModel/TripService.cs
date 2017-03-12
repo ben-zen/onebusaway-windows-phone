@@ -21,14 +21,12 @@ using System.IO.IsolatedStorage;
 using System.Net;
 using System.Windows;
 using System.Xml.Linq;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Notification;
-using System.Windows.Threading;
+using Windows.Networking.PushNotifications;
 
 // TODO this file should probably live in the Model.
 // Plumbing through dependencies was getting tricky...
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     /// <summary>
     /// The bit field flags that hold what type of request to make to the Tile web service
@@ -88,7 +86,7 @@ namespace OneBusAway.WP7.ViewModel
         /// <summary>
         /// The active channel to the notification service
         /// </summary>
-        private HttpNotificationChannel HttpChannel;
+        private PushNotificationChannel HttpChannel;
 
         /// <summary>
         /// The default server base address
@@ -360,9 +358,9 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         /// <returns>The notification channel</returns>
         /// <remarks>The channel may not be active on return.</remarks>
-        private HttpNotificationChannel EstablishChannel()
+        private PushNotificationChannel EstablishChannel()
         {
-            HttpNotificationChannel httpChannel = null;
+            PushNotificationChannel httpChannel = null;
 
             try
             {
@@ -370,7 +368,7 @@ namespace OneBusAway.WP7.ViewModel
                 // First, try to pick up existing channel
                 //
 
-                httpChannel = HttpNotificationChannel.Find(ChannelName);
+                httpChannel = PushNotificationChannel.Find(ChannelName);
 
                 if (httpChannel != null)
                 {
@@ -431,7 +429,7 @@ namespace OneBusAway.WP7.ViewModel
         /// Subscribe to all the notification channel events
         /// </summary>
         /// <param name="channel">The active notification channel</param>
-        private void SubscribeToChannelEvents(HttpNotificationChannel channel)
+        private void SubscribeToChannelEvents(PushNotificationChannel channel)
         {
             //
             // Register to UriUpdated event - occurs when channel successfully opens
@@ -443,7 +441,7 @@ namespace OneBusAway.WP7.ViewModel
             // Subscribed to Raw Notification
             //
 
-            channel.HttpNotificationReceived += new EventHandler<HttpNotificationEventArgs>(httpChannel_HttpNotificationReceived);
+            channel.PushNotificationReceived += new EventHandler<PushNotificationReceivedEventArgs>(httpChannel_HttpNotificationReceived);
 
             //
             // general error handling for push channel

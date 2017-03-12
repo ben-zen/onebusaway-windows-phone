@@ -23,14 +23,14 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Windows.Threading;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public class BusDirectionVM : AViewModel
     {

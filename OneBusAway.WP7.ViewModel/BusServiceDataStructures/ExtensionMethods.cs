@@ -19,7 +19,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     public static class ExtensionMethods
     {

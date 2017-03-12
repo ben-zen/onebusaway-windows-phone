@@ -19,7 +19,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     /// <summary>
     /// Keeps track of multiple pending asynchronous operations.

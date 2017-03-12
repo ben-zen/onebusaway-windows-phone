@@ -12,125 +12,107 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.IO.IsolatedStorage;
 using System.Collections.ObjectModel;
+using Windows.Storage;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
-    public enum MainPagePivots : int
+  public enum MainPagePivots : int
+  {
+    LastUsed = -100,
+    Routes = 0,
+    Stops = 1,
+    Recents = 2,
+    Favorites = 3
+  };
+
+  public class SettingsVM : AViewModel
+  {
+
+    #region Constructors
+    public SettingsVM()
+        : base()
     {
-        LastUsed = -100,
-        Routes = 0,
-        Stops = 1,
-        Recents = 2,
-        Favorites = 3
-    };
+    }
 
-    public class SettingsVM : AViewModel
+    public SettingsVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+        : base(busServiceModel, appDataModel)
     {
+    }
 
-        #region Constructors
-        public SettingsVM()
-            : base()
+    #endregion
+
+    public bool FeedbackEnabled
+    {
+      get
+      {
+        var settings = ApplicationData.Current.LocalSettings;
+        if (settings.Values.ContainsKey("FeedbackEnabled"))
         {
+          return (bool)settings.Values["FeedbackEnabled"];
         }
-
-        public SettingsVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
-            : base(busServiceModel, appDataModel)
+        else
         {
+          // Default to true if no user setting exists
+          return true;
         }
-        
-        #endregion
+      }
 
-        public bool FeedbackEnabled
+      set
+      {
+        ApplicationData.Current.LocalSettings.Values["FeedbackEnabled"] = value;
+        OnPropertyChanged("FeedbackEnabled");
+      }
+    }
+
+    public bool UseLocation
+    {
+      get
+      {
+        var settings = ApplicationData.Current.LocalSettings;
+        if (settings.Values.ContainsKey("UseLocation"))
         {
-            get
-            {
-                if (IsolatedStorageSettings.ApplicationSettings.Contains("FeedbackEnabled") == true)
-                {
-                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"].ToString());
-                }
-                else
-                {
-                    // Default to true if no user setting exists
-                    return true;
-                }
-            }
-
-            set
-            {
-                IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"] = value;
-                IsolatedStorageSettings.ApplicationSettings.Save();
-                OnPropertyChanged("FeedbackEnabled");
-            }
+          return (bool)settings.Values["UseLocation"];
         }
-
-        public bool UseLocation
+        else
         {
-            get
-            {
-                if (IsolatedStorageSettings.ApplicationSettings.Contains("UseLocation") == true)
-                {
-                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["UseLocation"].ToString());
-                }
-                else
-                {
-                    // Default to true if no user setting exists
-                    return true;
-                }
-            }
-
-            set
-            {
-                IsolatedStorageSettings.ApplicationSettings["UseLocation"] = value;
-                IsolatedStorageSettings.ApplicationSettings.Save();
-                OnPropertyChanged("UseLocation");
-            }
+          // Default to true if no user setting exists
+          return true;
         }
+      }
 
-        public bool UseNativeTheme
+      set
+      {
+        ApplicationData.Current.LocalSettings.Values["UseLocation"] = value;
+        OnPropertyChanged("UseLocation");
+      }
+    }
+
+    public bool UseNativeTheme
+    {
+      get
+      {
+        object theme;
+        var settings = ApplicationData.Current.LocalSettings;
+        if (!settings.Values.TryGetValue("Theme", out theme))
         {
-            get
-            {
-                string theme;
-
-                if (IsolatedStorageSettings.ApplicationSettings.TryGetValue<string>("Theme", out theme) == false)
-                {
-                    return false; // defaults to the OBA theme
-                }
-                return (theme == "Native");
-            }
-            set
-            {
-                if (value)
-                {
-                    IsolatedStorageSettings.ApplicationSettings["Theme"] = "Native";
-                }
-                else
-                {
-                    IsolatedStorageSettings.ApplicationSettings["Theme"] = "OBA";
-                }
-                IsolatedStorageSettings.ApplicationSettings.Save();
-                OnPropertyChanged("UseNativeTheme");
-            }
+          return false; // defaults to the OBA theme
         }
+        return ((string)theme == "Native");
+      }
+      set
+      {
+        ApplicationData.Current.LocalSettings.Values["Theme"] = (value) ? "Native" : "OBA";
+        OnPropertyChanged("UseNativeTheme");
+      }
+    }
 
-        public ObservableCollection<MainPagePivots> MainPagePivotOptions
-        {
-            get
-            {
-                // Enum.GetValues() isn't supported, so guess I have to hardcode this
-                ObservableCollection<MainPagePivots> list = new ObservableCollection<MainPagePivots>()
+    public ObservableCollection<MainPagePivots> MainPagePivotOptions
+    {
+      get
+      {
+        // Enum.GetValues() isn't supported, so guess I have to hardcode this
+        ObservableCollection<MainPagePivots> list = new ObservableCollection<MainPagePivots>()
                 {
                     MainPagePivots.LastUsed,
                     MainPagePivots.Routes,
@@ -139,37 +121,37 @@ namespace OneBusAway.WP7.ViewModel
                     MainPagePivots.Recents
                 };
 
-                return list;
-            }
-        }
-
-        public MainPagePivots SelectedMainPagePivot
-        {
-            get
-            {
-                if (IsolatedStorageSettings.ApplicationSettings.Contains("DefaultMainPagePivot") == true)
-                {
-                    return (MainPagePivots)IsolatedStorageSettings.ApplicationSettings["DefaultMainPagePivot"];
-                }
-                else
-                {
-                    // Default to LastUsed
-                    return MainPagePivots.LastUsed;
-                }
-            }
-
-            set
-            {
-                IsolatedStorageSettings.ApplicationSettings["DefaultMainPagePivot"] = value;
-                IsolatedStorageSettings.ApplicationSettings.Save();
-                OnPropertyChanged("SelectedPageOption");
-            }
-        }
-
-        public void Clear()
-        {
-            this.appDataModel.DeleteAllFavorites(FavoriteType.Recent);
-            this.busServiceModel.ClearCache();
-        }
+        return list;
+      }
     }
+
+    public MainPagePivots SelectedMainPagePivot
+    {
+      get
+      {
+        var settings = ApplicationData.Current.LocalSettings;
+        if (settings.Values.ContainsKey("DefaultMainPagePivot"))
+        {
+          return (MainPagePivots)settings.Values["DefaultMainPagePivot"];
+        }
+        else
+        {
+          // Default to LastUsed
+          return MainPagePivots.LastUsed;
+        }
+      }
+
+      set
+      {
+        ApplicationData.Current.LocalSettings.Values["DefaultMainPagePivot"] = value;
+        OnPropertyChanged("SelectedPageOption");
+      }
+    }
+
+    public void Clear()
+    {
+      this.appDataModel.DeleteAllFavorites(FavoriteType.Recent);
+      this.busServiceModel.ClearCache();
+    }
+  }
 }

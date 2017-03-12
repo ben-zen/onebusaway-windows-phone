@@ -30,10 +30,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.ViewModel.EventArgs;
 using System.Windows.Threading;
 
-namespace OneBusAway.WP7.ViewModel
+namespace OneBusAway.ViewModel
 {
     public abstract class AViewModel : INotifyPropertyChanged
     {
