@@ -13,20 +13,19 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
+using OneBusAway.ViewModel.BusServiceDataStructures;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel.EventArgs
+namespace OneBusAway.ViewModel.EventArgs
 {
     public class SearchForRoutesEventArgs : AModelEventArgs
     {
         public List<Route> routes { get; private set; }
-        public GeoCoordinate location { get; private set; }
+        public Geocoordinate location { get; private set; }
         public string query { get; private set; }
 
-        public SearchForRoutesEventArgs(List<Route> routes, GeoCoordinate location, string query, Exception error)
+        public SearchForRoutesEventArgs(List<Route> routes, Geocoordinate location, string query, Exception error)
             : base(error)
         {
             this.routes = routes;

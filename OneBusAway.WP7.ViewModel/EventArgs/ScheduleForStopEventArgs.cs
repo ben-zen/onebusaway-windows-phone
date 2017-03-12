@@ -15,9 +15,9 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 
-namespace OneBusAway.WP7.ViewModel.EventArgs
+namespace OneBusAway.ViewModel.EventArgs
 {
     public class ScheduleForStopEventArgs : AModelEventArgs
     {

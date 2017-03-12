@@ -13,22 +13,15 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
 using System.Collections.ObjectModel;
-using System.Reflection;
 using OneBusAway.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OneBusAway.ViewModel.AppDataDataStructures;
-using System.ComponentModel;
-using System.Linq;
-using System.Windows.Threading;
-using System.Threading;
 
 namespace OneBusAway.ViewModel
 {
-    public class RouteDetailsVM : AViewModel
+  public class RouteDetailsVM : AViewModel
     {
 
         #region Private Variables

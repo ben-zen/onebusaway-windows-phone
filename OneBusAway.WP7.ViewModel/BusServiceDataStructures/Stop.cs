@@ -13,20 +13,11 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.Collections.Generic;
-using System.Device.Location;
 using System.Runtime.Serialization;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
     public class Stop
@@ -41,13 +32,13 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember]
         public Coordinate coordinate { get; set; }
 
-        public GeoCoordinate location
+        public Geocoordinate location
         {
             get
             {
                 if (coordinate != null)
                 {
-                    return new GeoCoordinate
+                    return new Geocoordinate
                     {
                         Latitude = coordinate.Latitude,
                         Longitude = coordinate.Longitude
@@ -78,7 +69,7 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 
         private const double kmPerMile = 1.60934400000644;
 
-        public double CalculateDistanceInMiles(GeoCoordinate location2)
+        public double CalculateDistanceInMiles(Geocoordinate location2)
         {
             double meters = location.GetDistanceTo(location2);
             return meters / (1000.0 * kmPerMile);

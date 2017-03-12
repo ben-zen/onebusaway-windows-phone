@@ -12,28 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.ViewModel.LocationServiceDataStructures;
 using System;
-using System.Net;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
-using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.ViewModel.EventArgs
+namespace OneBusAway.ViewModel.EventArgs
 {
-    public class LocationForAddressEventArgs : AModelEventArgs
+  public class LocationForAddressEventArgs : AModelEventArgs
     {
         public List<LocationForQuery> locations { get; private set; }
         public string query { get; private set; }
-        public GeoCoordinate searchNearLocation { get; private set; }
+        public Geocoordinate searchNearLocation { get; private set; }
 
-        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, GeoCoordinate searchNearLocation, Exception error)
+        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geocoordinate searchNearLocation, Exception error)
             : this(locations, query, searchNearLocation, error, null)
         {
 
         }
 
-        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, GeoCoordinate searchNearLocation, Exception error, object state)
+        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geocoordinate searchNearLocation, Exception error, object state)
             : base(error, state)
         {
             this.query = query;

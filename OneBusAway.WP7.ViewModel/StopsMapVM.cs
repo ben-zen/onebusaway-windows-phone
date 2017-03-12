@@ -14,10 +14,9 @@
  */
 using System;
 using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Windows.Threading;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.ViewModel
@@ -51,7 +50,7 @@ namespace OneBusAway.ViewModel
             stopsForLocationLock = new Object();
             stopsForLocationIndex = new Dictionary<string, Stop>();
             StopsForLocation = new ObservableCollection<Stop>();
-            previousQuery = new GeoCoordinate();
+            previousQuery = new Geocoordinate();
         }
 
         #endregion
@@ -60,7 +59,7 @@ namespace OneBusAway.ViewModel
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
 
-        public void LoadStopsForLocation(GeoCoordinate center)
+        public void LoadStopsForLocation(Geocoordinate center)
         {
             // If the two queries are being rounded to the same coordinate, no 
             // reason to re-parse the data out of the cache

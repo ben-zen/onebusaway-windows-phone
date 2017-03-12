@@ -13,11 +13,10 @@
  * limitations under the License.
  */
 using System;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Threading;
-using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
+using OneBusAway.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.ViewModel
 {

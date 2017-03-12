@@ -14,51 +14,51 @@
  */
 using System;
 using System.Net;
-using System.Device.Location;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.EventArgs;
 using System.Collections.Generic;
+using Windows.Devices.Geolocation;
 
 namespace OneBusAway.ViewModel
 {
     public interface IBusServiceModel
     {
-        double DistanceFromClosestSupportedRegion(GeoCoordinate location);
-        bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2);
+        double DistanceFromClosestSupportedRegion(Geocoordinate location);
+        bool AreLocationsEquivalent(Geocoordinate location1, Geocoordinate location2);
 
         event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
-        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters);
-        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
-        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
+        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters);
+        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
+        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
 
         event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
-        void StopsForLocation(GeoCoordinate location, int radiusInMeters);
-        void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
-        void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
+        void StopsForLocation(Geocoordinate location, int radiusInMeters);
+        void StopsForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
+        void StopsForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
 
         event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
-        void RoutesForLocation(GeoCoordinate location, int radiusInMeters);
-        void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
-        void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
+        void RoutesForLocation(Geocoordinate location, int radiusInMeters);
+        void RoutesForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
+        void RoutesForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
 
         event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
-        void StopsForRoute(GeoCoordinate location, Route route);
+        void StopsForRoute(Geocoordinate location, Route route);
 
         event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
-        void ArrivalsForStop(GeoCoordinate location, Stop stop);
+        void ArrivalsForStop(Geocoordinate location, Stop stop);
 
         event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
-        void ScheduleForStop(GeoCoordinate location, Stop stop);
+        void ScheduleForStop(Geocoordinate location, Stop stop);
 
         event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
-        void TripDetailsForArrivals(GeoCoordinate location, List<ArrivalAndDeparture> arrivals);
+        void TripDetailsForArrivals(Geocoordinate location, List<ArrivalAndDeparture> arrivals);
 
         event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
-        void SearchForRoutes(GeoCoordinate location, string query);
-        void SearchForRoutes(GeoCoordinate location, string query, int radiusInMeters, int maxCount);
+        void SearchForRoutes(Geocoordinate location, string query);
+        void SearchForRoutes(Geocoordinate location, string query, int radiusInMeters, int maxCount);
 
         event EventHandler<SearchForStopsEventArgs> SearchForStops_Completed;
-        void SearchForStops(GeoCoordinate location, string query);
+        void SearchForStops(Geocoordinate location, string query);
 
         void Initialize();
         void ClearCache();

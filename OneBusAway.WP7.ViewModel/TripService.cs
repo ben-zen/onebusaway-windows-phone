@@ -17,9 +17,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Net;
-using System.Windows;
 using System.Xml.Linq;
 using Windows.Networking.PushNotifications;
 

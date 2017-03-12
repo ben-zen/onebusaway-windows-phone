@@ -12,18 +12,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Device.Location;
-using System.Diagnostics;
-using System.Threading;
-using System.Windows.Threading;
 using OneBusAway.ViewModel.AppDataDataStructures;
 using OneBusAway.ViewModel.BusServiceDataStructures;
 using OneBusAway.ViewModel.EventArgs;
 using OneBusAway.ViewModel.LocationServiceDataStructures;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using Windows.Devices.Geolocation;
 
 namespace OneBusAway.ViewModel
 {
@@ -129,7 +127,7 @@ namespace OneBusAway.ViewModel
             DisplayRouteForLocation.Working.Clear();
 
             operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
-            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            locationTracker.RunWhenLocationKnown(delegate(Geocoordinate location)
             {
                 busServiceModel.CombinedInfoForLocation(location, defaultSearchRadius, -1, invalidateCache);
             });
@@ -159,7 +157,7 @@ namespace OneBusAway.ViewModel
             operationTracker.WaitForOperation("SearchByRoute", string.Format("Searching for route {0}...", routeNumber));
 
             busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
-            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            locationTracker.RunWhenLocationKnown(delegate(Geocoordinate location)
                 {
                     busServiceModel.SearchForRoutes(location, routeNumber);
                 });
@@ -171,7 +169,7 @@ namespace OneBusAway.ViewModel
             operationTracker.WaitForOperation("SearchByStop", string.Format("Searching for stop {0}...", stopNumber));
 
             busServiceModel.SearchForStops_Completed += new SearchByStopCompleted(callback, busServiceModel, this).SearchByStop_Completed;
-            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            locationTracker.RunWhenLocationKnown(delegate(Geocoordinate location)
             {
                 busServiceModel.SearchForStops(location, stopNumber);
             });
@@ -188,7 +186,7 @@ namespace OneBusAway.ViewModel
         public delegate void CheckForLocalTransitData_Callback(bool hasData);
         public void CheckForLocalTransitData(CheckForLocalTransitData_Callback callback)
         {
-            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            locationTracker.RunWhenLocationKnown(delegate(Geocoordinate location)
             {
                 bool hasData;
                 // Ensure that their current location is within ~150km of a supported region

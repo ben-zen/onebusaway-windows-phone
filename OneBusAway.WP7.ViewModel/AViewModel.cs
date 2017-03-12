@@ -13,25 +13,12 @@
  * limitations under the License.
  */
 using System;
-using System.IO.IsolatedStorage;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Device.Location;
-using Microsoft.Devices;
-using System.Collections.Generic;
-using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
 using OneBusAway.ViewModel.EventArgs;
-using System.Windows.Threading;
+using Windows.Devices.Geolocation;
+using Windows.Storage;
 
 namespace OneBusAway.ViewModel
 {
@@ -90,7 +77,7 @@ namespace OneBusAway.ViewModel
             {
                 if (lazyBusServiceModel == null)
                 {
-                    lazyBusServiceModel = (IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
+                    lazyBusServiceModel = (IBusServiceModel)Assembly.Load(new AssemblyName("OneBusAway.WP7.Model"))
                         .GetType("OneBusAway.WP7.Model.BusServiceModel")
                         .GetField("Singleton")
                         .GetValue(null);
@@ -107,7 +94,7 @@ namespace OneBusAway.ViewModel
             {
                 if (lazyAppDataModel == null)
                 {
-                    lazyAppDataModel = (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                    lazyAppDataModel = (IAppDataModel)Assembly.Load(new AssemblyName("OneBusAway.WP7.Model"))
                         .GetType("OneBusAway.WP7.Model.AppDataModel")
                         .GetField("Singleton")
                         .GetValue(null);
@@ -123,7 +110,7 @@ namespace OneBusAway.ViewModel
             {
                 if (lazyLocationModel == null)
                 {
-                    lazyLocationModel = (ILocationModel)Assembly.Load("OneBusAway.WP7.Model")
+                    lazyLocationModel = (ILocationModel)Assembly.Load(new AssemblyName("OneBusAway.WP7.Model"))
                         .GetType("OneBusAway.WP7.Model.LocationModel")
                         .GetField("Singleton")
                         .GetValue(null);
@@ -241,7 +228,7 @@ namespace OneBusAway.ViewModel
 				}
 				try
 				{
-					var isoStor = IsolatedStorageSettings.ApplicationSettings.Contains("asasdasd");
+					var isoStor = ApplicationData.Current.LocalSettings.Values.ContainsKey("asasdasd");
 					isInDesignModeStatic = false;
 					return isInDesignModeStatic.Value;
 				}
@@ -260,10 +247,10 @@ namespace OneBusAway.ViewModel
         /// Registers all event handlers with the model.  Call this when 
         /// the page is first loaded.
         /// </summary>
-        public virtual void RegisterEventHandlers(Dispatcher dispatcher)
+        public virtual void RegisterEventHandlers(Windows.UI.Core.CoreDispatcher dispatcher)
         {
             // Set the UI Actions to occur on the UI thread
-            UIAction = (uiAction => dispatcher.BeginInvoke(() => uiAction()));
+            UIAction = (uiAction => dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => uiAction()));
 
             locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             locationTracker.Initialize(operationTracker);
