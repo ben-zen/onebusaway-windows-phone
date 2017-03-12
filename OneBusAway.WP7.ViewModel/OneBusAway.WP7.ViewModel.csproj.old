@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D6F263F1-4036-4685-B5B3-79ECC3618FD7}</ProjectGuid>
+    <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OneBusAway.WP7.ViewModel</RootNamespace>
+    <AssemblyName>OneBusAway.WP7.ViewModel</AssemblyName>
+    <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+    <SilverlightVersion>
+    </SilverlightVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_ScreenShot|AnyCPU'">
+    <OutputPath>bin\Release_ScreenShot\</OutputPath>
+    <DefineConstants>TRACE;SCREENSHOT</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget />
+    <OutputPath>Bin\x86\Debug</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget />
+    <OutputPath>Bin\x86\Release</OutputPath>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <PlatformTarget />
+    <OutputPath>Bin\ARM\Debug</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <PlatformTarget />
+    <OutputPath>Bin\ARM\Release</OutputPath>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
+    <Compile Include="AppDataDataStructures\RecentRouteAndStop.cs" />
+    <Compile Include="AsyncOperationTracker.cs" />
+    <Compile Include="BufferedReference.cs" />
+    <Compile Include="BusDirectionVM.cs" />
+    <Compile Include="BusServiceDataStructures\Agency.cs" />
+    <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
+    <Compile Include="BusServiceDataStructures\BindableBase.cs" />
+    <Compile Include="BusServiceDataStructures\ExtensionMethods.cs" />
+    <Compile Include="BusServiceDataStructures\Region.cs" />
+    <Compile Include="BusServiceDataStructures\RegionBounds.cs" />
+    <Compile Include="BusServiceDataStructures\ScheduleStopTime.cs" />
+    <Compile Include="EventArgs\SearchForStopsEventArgs.cs" />
+    <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />
+    <Compile Include="BusServiceDataStructures\PolyLine.cs" />
+    <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
+    <Compile Include="EventArgs\AModelEventArgs.cs" />
+    <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
+    <Compile Include="EventArgs\ErrorHandlerEventArgs.cs" />
+    <Compile Include="EventArgs\FavoritesChangedEventArgs.cs" />
+    <Compile Include="EventArgs\LocationForAddressEventArgs.cs" />
+    <Compile Include="EventArgs\ScheduleForStopEventArgs.cs" />
+    <Compile Include="EventArgs\SearchForRoutesEventArgs.cs" />
+    <Compile Include="EventArgs\StopsForRouteEventArgs.cs" />
+    <Compile Include="EventArgs\RoutesForLocationEventArgs.cs" />
+    <Compile Include="EventArgs\StopsForLocationEventArgs.cs" />
+    <Compile Include="EventArgs\TripDetailsForArrivalEventArgs.cs" />
+    <Compile Include="ILocationModel.cs" />
+    <Compile Include="StopsMapVM.cs" />
+    <Compile Include="IAppDataModel.cs" />
+    <Compile Include="IBusServiceModel.cs" />
+    <Compile Include="BusServiceDataStructures\DirectionSchedule.cs" />
+    <Compile Include="BusServiceDataStructures\Route.cs" />
+    <Compile Include="BusServiceDataStructures\RouteStops.cs" />
+    <Compile Include="BusServiceDataStructures\RouteSchedule.cs" />
+    <Compile Include="BusServiceDataStructures\Stop.cs" />
+    <Compile Include="BusServiceDataStructures\TripDetails.cs" />
+    <Compile Include="AViewModel.cs" />
+    <Compile Include="LocationTracker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MainPageVM.cs" />
+    <Compile Include="RouteDetailsVM.cs" />
+    <Compile Include="SettingsVM.cs" />
+    <Compile Include="TripService.cs" />
+    <Compile Include="TripServiceFactory.cs" />
+    <Compile Include="ViewState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OneBusAway.WP7.Model.licenseheader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Phone.Controls.Maps, Version=8.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
+  <ProjectExtensions />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
