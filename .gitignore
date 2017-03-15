@@ -12,3 +12,6 @@ PerfLogs
 packages
 *.lock.json
 *~
+/OneBusAway.ViewModel/Class1.cs
+/OneBusAway.ViewModel/Properties/OneBusAway.ViewModel.rd.xml
+/OneBusAway.ViewModel

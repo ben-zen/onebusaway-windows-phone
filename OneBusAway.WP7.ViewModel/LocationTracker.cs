@@ -16,19 +16,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using OneBusAway.ViewModel.EventArgs;
 using System.Diagnostics;
 using Windows.Devices.Geolocation;
+using Windows.Foundation;
 using Windows.Storage;
 
 
 namespace OneBusAway.ViewModel
 {
-  internal static class LocationTrackerStatic
+  internal class LocationTrackerStatic
   {
+
     private static Geolocator locationWatcher;
 
-    public static Geocoordinate LastKnownLocation { get; set; }
+    public static Geopoint LastKnownLocation { get; set; }
     public static PositionStatus LocationStatus
     {
       get
@@ -89,20 +92,19 @@ namespace OneBusAway.ViewModel
     private Object methodsRequiringLocationLock;
     private List<RequiresKnownLocation> methodsRequiringLocation;
     private AsyncOperationTracker operationTracker;
-#if DEBUG
-    private Timer timer = null;
-#endif
+    private Geolocator locator;
+
+    private static object m_trackerLock = new object();
+    private static LocationTracker m_tracker = null;
+
 
     #endregion
 
     #region Constructor & Initializers
 
-    public LocationTracker()
+    private LocationTracker()
     {
       locationLoading = false;
-
-      // Set up the default action, just execute in the same thread
-      UIAction = (uiAction => uiAction());
 
       methodsRequiringLocation = new List<RequiresKnownLocation>();
       methodsRequiringLocationLock = new Object();
@@ -110,38 +112,26 @@ namespace OneBusAway.ViewModel
       methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
     }
 
-    public void Initialize(AsyncOperationTracker operationTracker)
+    public async void Initialize(AsyncOperationTracker operationTracker)
     {
+      var accessStatus = await Geolocator.RequestAccessAsync();
+
+      switch (accessStatus)
+      {
+        case GeolocationAccessStatus.Allowed:
+          locator = new Geolocator { };
+          locator.PositionChanged += new TypedEventHandler<Geolocator, PositionChangedEventArgs>(locationWatcher_PositionChanged_NotifyPropertyChanged);
+          locator.StatusChanged += new TypedEventHandler<Geolocator, StatusChangedEventArgs>(LocationWatcher_StatusChanged);
+          break;
+        case GeolocationAccessStatus.Denied:
+          break;
+        case GeolocationAccessStatus.Unspecified:
+          break;
+      }
+
       this.operationTracker = operationTracker;
 
-      //#if DEBUG
-      //            if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-      //            {
-      //                //LocationTrackerStatic.LastKnownLocation = null;
-      //                Random random = new Random();
-      //                int timeoutMs = random.Next(0, 5000);
-      //                timer = new Timer(param =>
-      //                {
-      //                    UIAction(() =>
-      //                    {
-      //                        LocationTrackerStatic.LastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
-      //                        GeoPositionChangedEventArgs<GeoCoordinate> args =
-      //                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, LocationTrackerStatic.LastKnownLocation));
-      //                        LocationWatcher_LocationKnown(
-      //                            this,
-      //                            args
-      //                            );
-      //                        locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
-      //                    });
-      //                },
-      //                    null,
-      //                    timeoutMs,
-      //                    Timeout.Infinite
-      //                    );
-      //            }
-      //#endif
 
-      LocationTrackerStatic.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
 
       if (LocationKnown == false)
       {
@@ -158,14 +148,19 @@ namespace OneBusAway.ViewModel
         {
           operationTracker.WaitForOperation("LoadLocation", "Finding your location...");
           locationLoading = true;
-          LocationTrackerStatic.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
-          LocationTrackerStatic.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
+          LocationTrackerStatic.PositionChanged += new EventHandler<PositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
+          LocationTrackerStatic.StatusChanged += new EventHandler<PositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
         }
       }
       else
       {
-        locationWatcher_PositionChanged_NotifyPropertyChanged(this, new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, CurrentLocation)));
+        locationWatcher_PositionChanged_NotifyPropertyChanged(this, new PositionChangedEventArgs(CurrentLocation));
       }
+    }
+
+    public async Task<Geopoint> GetLocationAsync()
+    {
+      throw new NotImplementedException();
     }
 
     public void Uninitialize()
@@ -179,22 +174,31 @@ namespace OneBusAway.ViewModel
 
     #region Public Members
 
-    public Action<Action> UIAction { get; set; }
-    public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
-
-    public Geocoordinate CurrentLocation
+    public static LocationTracker Tracker
     {
       get
       {
-#if !DEBUG
-                if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-                {
-                    //return new GeoCoordinate(47.645181, -122.140825); // Micorosft Studios
-                    return new GeoCoordinate(47.675888, -122.320763); // Greenlake P&R
-                    //return new GeoCoordinate(30.266, -97.742); // Austin, TX
-                }
-#endif
+        if (m_tracker == null)
+        {
+          lock (m_trackerLock)
+          {
+            // If we somehow have two threads try to create this object at the same time, one of them got here first and created the tracker. Don't overwrite the object.
+            if (m_tracker == null)
+            {
+              m_tracker = new LocationTracker();
+            }
+          }
+        }
+        return m_tracker;
+      }
+    }
 
+    public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
+
+    public Geopoint CurrentLocation
+    {
+      get
+      {
         if (LocationTrackerStatic.LastKnownLocation != null)
         {
           return LocationTrackerStatic.LastKnownLocation;
@@ -208,13 +212,6 @@ namespace OneBusAway.ViewModel
     {
       get
       {
-#if !DEBUG
-                if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-                {
-                    return true;
-                }
-#endif
-
         return LocationTrackerStatic.LastKnownLocation != null;
       }
     }
@@ -223,15 +220,15 @@ namespace OneBusAway.ViewModel
     /// Returns a default location to use when our current location is
     /// unavailable.  This is downtown Seattle.
     /// </summary>
-    public Geocoordinate DefaultLocation
+    public Geopoint DefaultLocation
     {
       get
       {
-        return new Geocoordinate(47.60621, -122.332071);
+        return new Geopoint(new BasicGeoposition { Latitude = 47.60621, Longitude = -122.332071 });
       }
     }
 
-    public Geocoordinate CurrentLocationSafe
+    public Geopoint CurrentLocationSafe
     {
       get
       {
@@ -252,9 +249,12 @@ namespace OneBusAway.ViewModel
 
     private void LocationWatcher_StatusChanged(object sender, StatusChangedEventArgs e)
     {
-      if (e.Status == PositionStatus.Disabled)
+      switch (e.Status)
       {
-        LocationDisabled(true);
+        case PositionStatus.NotAvailable:
+        case PositionStatus.Disabled:
+          LocationDisabled(true);
+          break;
       }
     }
 
@@ -328,7 +328,7 @@ namespace OneBusAway.ViewModel
         UIAction(() =>
         {
                   // Check again in case it has changed while we waited to execute on the UI thread
-                  if (PropertyChanged != null)
+                   if (PropertyChanged != null)
           {
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
           }
@@ -389,7 +389,7 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    public delegate void RequiresKnownLocation(Geocoordinate location);
+    public delegate void RequiresKnownLocation(Geopoint location);
     public void RunWhenLocationKnown(RequiresKnownLocation method)
     {
       if (LocationKnown == true)

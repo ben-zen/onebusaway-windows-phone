@@ -61,17 +61,17 @@ namespace OneBusAway.ViewModel.BusServiceDataStructures
             }
         }
 
-        public Geocoordinate location
+        public Geopoint location
         {
             get
             {
                 if (coordinate == null) return null;
 
-                return new GeoCoordinate
+                return new Geopoint (new BasicGeoposition
                 {
                     Latitude = coordinate.Latitude,
                     Longitude = coordinate.Longitude
-                };
+                });
             }
 
             set
@@ -80,8 +80,8 @@ namespace OneBusAway.ViewModel.BusServiceDataStructures
                 {
                     coordinate = new Coordinate
                     {
-                        Latitude = value.Latitude,
-                        Longitude = value.Longitude
+                        Latitude = value.Position.Latitude,
+                        Longitude = value.Position.Longitude
                     };
                 }
                 else

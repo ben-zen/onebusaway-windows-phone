@@ -14,102 +14,84 @@
  */
 using System;
 using System.Net;
+using System.Threading.Tasks;
 using OneBusAway.ViewModel.BusServiceDataStructures;
-using OneBusAway.ViewModel.EventArgs;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.ViewModel
 {
-    public interface IBusServiceModel
+  public interface IBusServiceModel
+  {
+    double DistanceFromClosestSupportedRegion(Geopoint location);
+    bool AreLocationsEquivalent(Geopoint location1, Geopoint location2);
+    Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters);
+    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters, int maxCount);
+    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters);
+    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters, int maxCount);
+    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters);
+    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters, int maxCount);
+    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<RouteStops>> StopsForRoute(Geopoint location, Route route);
+    Task<List<ArrivalAndDeparture>> ArrivalsForStop(Geopoint location, Stop stop);
+    Task<List<RouteSchedule>> ScheduleForStop(Geopoint location, Stop stop);
+    Task<List<TripDetails>> TripDetailsForArrivals(Geopoint location, List<ArrivalAndDeparture> arrivals);
+    Task<List<Route>> SearchForRoutes(Geopoint location, string query);
+    Task<List<Route>> SearchForRoutes(Geopoint location, string query, int radiusInMeters, int maxCount);
+    Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query);
+
+    void Initialize();
+    void ClearCache();
+  }
+
+  public class WebserviceParsingException : Exception
+  {
+    public string RequestUrl { get; private set; }
+    public string ServerResponse { get; private set; }
+
+    public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
+        : base("There was an error parsing the server response", innerException)
     {
-        double DistanceFromClosestSupportedRegion(Geocoordinate location);
-        bool AreLocationsEquivalent(Geocoordinate location1, Geocoordinate location2);
-
-        event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
-        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters);
-        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
-        void CombinedInfoForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
-
-        event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
-        void StopsForLocation(Geocoordinate location, int radiusInMeters);
-        void StopsForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
-        void StopsForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
-
-        event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
-        void RoutesForLocation(Geocoordinate location, int radiusInMeters);
-        void RoutesForLocation(Geocoordinate location, int radiusInMeters, int maxCount);
-        void RoutesForLocation(Geocoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
-
-        event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
-        void StopsForRoute(Geocoordinate location, Route route);
-
-        event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
-        void ArrivalsForStop(Geocoordinate location, Stop stop);
-
-        event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
-        void ScheduleForStop(Geocoordinate location, Stop stop);
-
-        event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
-        void TripDetailsForArrivals(Geocoordinate location, List<ArrivalAndDeparture> arrivals);
-
-        event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
-        void SearchForRoutes(Geocoordinate location, string query);
-        void SearchForRoutes(Geocoordinate location, string query, int radiusInMeters, int maxCount);
-
-        event EventHandler<SearchForStopsEventArgs> SearchForStops_Completed;
-        void SearchForStops(Geocoordinate location, string query);
-
-        void Initialize();
-        void ClearCache();
+      this.RequestUrl = requestUrl;
+      this.ServerResponse = serverResponse;
     }
 
-    public class WebserviceParsingException : Exception
+    public override string ToString()
     {
-        public string RequestUrl { get; private set; }
-        public string ServerResponse { get; private set; }
+      return string.Format(
+          "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
+          base.ToString(),
+          RequestUrl,
+          ServerResponse
+          );
+    }
+  }
 
-        public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
-            : base("There was an error parsing the server response", innerException)
-        {
-            this.RequestUrl = requestUrl;
-            this.ServerResponse = serverResponse;
-        }
+  public class WebserviceResponseException : Exception
+  {
+    public string RequestUrl { get; private set; }
+    public string ServerResponse { get; private set; }
+    public HttpStatusCode ServerStatusCode { get; private set; }
 
-        public override string ToString()
-        {
-            return string.Format(
-                "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
-                base.ToString(),
-                RequestUrl,
-                ServerResponse
-                );
-        }
+    public WebserviceResponseException(HttpStatusCode serverStatusCode, string requestUrl, string serverResponse, Exception innerException)
+        : base("We were able to contact the webservice but the service returned an error", innerException)
+    {
+      this.RequestUrl = requestUrl;
+      this.ServerResponse = serverResponse;
+      this.ServerStatusCode = serverStatusCode;
     }
 
-    public class WebserviceResponseException : Exception
+    public override string ToString()
     {
-        public string RequestUrl { get; private set; }
-        public string ServerResponse { get; private set; }
-        public HttpStatusCode ServerStatusCode { get; private set; }
-
-        public WebserviceResponseException(HttpStatusCode serverStatusCode, string requestUrl, string serverResponse, Exception innerException)
-            : base("We were able to contact the webservice but the service returned an error", innerException)
-        {
-            this.RequestUrl = requestUrl;
-            this.ServerResponse = serverResponse;
-            this.ServerStatusCode = serverStatusCode;
-        }
-
-        public override string ToString()
-        {
-            return string.Format(
-                "{0}\r\nHttpErrorCode: '{1}'\r\nRequestURL: '{2}'\r\nResponse:\r\n{3}",
-                base.ToString(),
-                ServerStatusCode,
-                RequestUrl,
-                ServerResponse
-                );
-        }
+      return string.Format(
+          "{0}\r\nHttpErrorCode: '{1}'\r\nRequestURL: '{2}'\r\nResponse:\r\n{3}",
+          base.ToString(),
+          ServerStatusCode,
+          RequestUrl,
+          ServerResponse
+          );
     }
+  }
 }

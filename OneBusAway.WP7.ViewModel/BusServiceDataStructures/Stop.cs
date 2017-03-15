@@ -32,17 +32,17 @@ namespace OneBusAway.ViewModel.BusServiceDataStructures
         [DataMember]
         public Coordinate coordinate { get; set; }
 
-        public Geocoordinate location
+        public Geopoint location
         {
             get
             {
                 if (coordinate != null)
                 {
-                    return new Geocoordinate
+                    return new Geopoint (new BasicGeoposition
                     {
                         Latitude = coordinate.Latitude,
                         Longitude = coordinate.Longitude
-                    };
+                    });
                 }
                 else
                 {
@@ -56,8 +56,8 @@ namespace OneBusAway.ViewModel.BusServiceDataStructures
                 {
                     coordinate = new Coordinate
                     {
-                        Latitude = value.Latitude,
-                        Longitude = value.Longitude
+                        Latitude = value.Position.Latitude,
+                        Longitude = value.Position.Longitude
                     };
                 }
                 else
@@ -98,9 +98,9 @@ namespace OneBusAway.ViewModel.BusServiceDataStructures
 
     public class StopDistanceComparer : IComparer<Stop>
     {
-        private GeoCoordinate center;
+        private Geopoint center;
 
-        public StopDistanceComparer(GeoCoordinate center)
+        public StopDistanceComparer(Geopoint center)
         {
             this.center = center;
         }

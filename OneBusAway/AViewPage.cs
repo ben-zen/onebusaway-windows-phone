@@ -16,7 +16,7 @@ using System;
 using System.Net;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
-using OneBusAway.WP7.ViewModel;
+using OneBusAway.ViewModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;

@@ -14,7 +14,6 @@
  */
 using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
-using Windows.UI.Xaml.Controls.Maps;
 
 namespace OneBusAway.ViewModel.LocationServiceDataStructures
 {
