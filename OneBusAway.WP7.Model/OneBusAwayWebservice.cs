@@ -21,13 +21,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
-using OneBusAway.WP7.ViewModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Reflection;
 using System.Threading;
 using System.IO.IsolatedStorage;
 
-namespace OneBusAway.WP7.Model
+namespace OneBusAway.Model
 {
     internal class OneBusAwayWebservice
     {
@@ -153,7 +153,7 @@ namespace OneBusAway.WP7.Model
                             if (regionsDoc == null)
                             {
                                 Assembly assembly = typeof(OneBusAwayWebservice).Assembly;
-                                using (var streamReader = new StreamReader(assembly.GetManifestResourceStream("OneBusAway.WP7.Model.Regions.xml")))
+                                using (var streamReader = new StreamReader(assembly.GetManifestResourceStream("OneBusAway.Model.Regions.xml")))
                                 {
                                     string xml = streamReader.ReadToEnd();
                                     regionsDoc = XDocument.Parse(xml);

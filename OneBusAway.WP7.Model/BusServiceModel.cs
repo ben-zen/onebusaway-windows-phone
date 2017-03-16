@@ -22,39 +22,23 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using OneBusAway.WP7.ViewModel;
+using OneBusAway.ViewModel;
 using System.Device.Location;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.IO;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.ViewModel.EventArgs;
 using Microsoft.Phone.Controls.Maps;
-using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
+using OneBusAway.ViewModel.LocationServiceDataStructures;
 
-namespace OneBusAway.WP7.Model
+namespace OneBusAway.Model
 {
     public class BusServiceModel : IBusServiceModel
     {
         private OneBusAwayWebservice webservice;
-
-        #region Events
-
-        public event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
-        public event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
-        public event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
-        public event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
-        public event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
-        public event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
-        public event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
-        public event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
-        public event EventHandler<SearchForStopsEventArgs> SearchForStops_Completed;
-        public event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
-
-
-        #endregion
 
         #region Constructor/Singleton
 
@@ -74,7 +58,7 @@ namespace OneBusAway.WP7.Model
         /// <param name="stops"></param>
         /// <param name="location">Center location used to find closestStop on each route.</param>
         /// <returns></returns>
-        private List<Route> GetRoutesFromStops(List<Stop> stops, GeoCoordinate location)
+        private List<Route> GetRoutesFromStops(List<Stop> stops, Geopoint location)
         {
             IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
             stops.Sort(new StopDistanceComparer(location));
@@ -102,27 +86,27 @@ namespace OneBusAway.WP7.Model
             webservice = new OneBusAwayWebservice();
         }
 
-        public double DistanceFromClosestSupportedRegion(GeoCoordinate location)
+        public double DistanceFromClosestSupportedRegion(Geopoint location)
         {
             return OneBusAwayWebservice.ClosestRegion(location).DistanceFrom(location.Latitude, location.Longitude);
         }
 
-        public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
+        public bool AreLocationsEquivalent(Geopoint location1, Geopoint location2)
         {
             return OneBusAwayWebservice.GetRoundedLocation(location1) == OneBusAwayWebservice.GetRoundedLocation(location2);
         }
 
-        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters)
+        public Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters)
         {
-            CombinedInfoForLocation(location, radiusInMeters, -1);
+            return CombinedInfoForLocationAsync(location, radiusInMeters, -1);
         }
 
-        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        public Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount)
         {
-            CombinedInfoForLocation(location, radiusInMeters, maxCount, false);
+            return CombinedInfoForLocationAsync(location, radiusInMeters, maxCount, false);
         }
 
-        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        public Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache)
         {
             webservice.StopsForLocation(
                 location,
@@ -156,45 +140,36 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters)
+        public Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters)
         {
-            StopsForLocation(location, radiusInMeters, -1);
+            return StopsForLocationAsync(location, radiusInMeters, -1);
         }
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        public Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount)
         {
-            StopsForLocation(location, radiusInMeters, maxCount, false);
+            return StopsForLocationAsync(location, radiusInMeters, maxCount, false);
         }
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        public Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache)
         {
-            webservice.StopsForLocation(
-                location,
-                null,
-                radiusInMeters,
-                maxCount,
-                invalidateCache,
-                delegate(List<Stop> stops, bool limitExceeded, Exception error)
-                {
-                    if (StopsForLocation_Completed != null)
-                    {
-                        StopsForLocation_Completed(this, new ViewModel.EventArgs.StopsForLocationEventArgs(stops, location, limitExceeded, error));
-                    }
-                }
-            );
+            return webservice.StopsForLocation(location,
+					       null,
+					       radiusInMeters,
+					       maxCount,
+					       invalidateCache);
         }
 
-        public void RoutesForLocation(GeoCoordinate location, int radiusInMeters)
+        public Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters)
         {
-            RoutesForLocation(location, radiusInMeters, -1);
+            return RoutesForLocationAsync(location, radiusInMeters, -1);
         }
 
-        public void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        public Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount)
         {
-            RoutesForLocation(location, radiusInMeters, maxCount, false);
+            return RoutesForLocationAsync(location, radiusInMeters, maxCount, false);
         }
 
-        public void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        public Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache)
         {
             webservice.StopsForLocation(
                 location,
@@ -228,52 +203,25 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void StopsForRoute(GeoCoordinate location, Route route)
+        public Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route)
         {
-            webservice.StopsForRoute(
-                location,
-                route,
-                delegate(List<RouteStops> routeStops, Exception error)
-                {
-                    if (StopsForRoute_Completed != null)
-                    {
-                        StopsForRoute_Completed(this, new ViewModel.EventArgs.StopsForRouteEventArgs(route, routeStops, error));
-                    }
-                }
-            );
+            return webservice.StopsForRoute(location,
+					    route);
         }
 
-        public void ArrivalsForStop(GeoCoordinate location, Stop stop)
+        public Task<List<ArrivalAndDeparture>> ArrivalsForStopAsync(Geopoint location, Stop stop)
         {
-            webservice.ArrivalsForStop(
-                location,
-                stop,
-                delegate(List<ArrivalAndDeparture> arrivals, Exception error)
-                {
-                    if (ArrivalsForStop_Completed != null)
-                    {
-                        ArrivalsForStop_Completed(this, new ViewModel.EventArgs.ArrivalsForStopEventArgs(stop, arrivals, error));
-                    }
-                }
-            );
+            return webservice.ArrivalsForStop(location,
+					      stop);
         }
 
-        public void ScheduleForStop(GeoCoordinate location, Stop stop)
+        public Task<List<RouteSchedule>> ScheduleForStopAsync(Geopoint location, Stop stop)
         {
-            webservice.ScheduleForStop(
-                location,
-                stop,
-                delegate(List<RouteSchedule> schedule, Exception error)
-                {
-                    if (ScheduleForStop_Completed != null)
-                    {
-                        ScheduleForStop_Completed(this, new ViewModel.EventArgs.ScheduleForStopEventArgs(stop, schedule, error));
-                    }
-                }
-            );
+            return webservice.ScheduleForStop(location,
+					      stop);
         }
 
-        public void TripDetailsForArrivals(GeoCoordinate location, List<ArrivalAndDeparture> arrivals)
+        public Task<List<TripDetails>> TripDetailsForArrivalsAsync(Geopoint location, List<ArrivalAndDeparture> arrivals)
         {
             int count = 0;
             List<TripDetails> tripDetails = new List<TripDetails>(arrivals.Count);
@@ -320,52 +268,34 @@ namespace OneBusAway.WP7.Model
             }
         }
 
-        public void SearchForRoutes(GeoCoordinate location, string query)
+        public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query)
         {
-            SearchForRoutes(location, query, 1000000, -1);
+            return SearchForRoutesAsync(location, query, 1000000, -1);
         }
 
-        public void SearchForRoutes(GeoCoordinate location, string query, int radiusInMeters, int maxCount)
+        public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
         {
-            webservice.RoutesForLocation(
-                location,
-                query,
-                radiusInMeters,
-                maxCount,
-                delegate(List<Route> routes, Exception error)
-                {
-                    if (SearchForRoutes_Completed != null)
-                    {
-                        SearchForRoutes_Completed(this, new ViewModel.EventArgs.SearchForRoutesEventArgs(routes, location, query, error));
-                    }
-                }
-            );
+            return webservice.RoutesForLocation(location,
+						query,
+						radiusInMeters,
+						maxCount);
         }
 
-        public void SearchForStops(GeoCoordinate location, string query)
+        public Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query)
         {
-            SearchForStops(location, query, 1000000, -1);
+            return SearchForStopsAsync(location, query, 1000000, -1);
         }
 
-        public void SearchForStops(GeoCoordinate location, string query, int radiusInMeters, int maxCount)
+        public Task<List<Stop>> SearchForStops(Geopoint location, string query, int radiusInMeters, int maxCount)
         {
-            webservice.StopsForLocation(
-                location,
-                query,
-                radiusInMeters,
-                maxCount,
-                false,
-                delegate(List<Stop> stops, bool limitExceeded, Exception error)
-                {
-                    if (SearchForStops_Completed != null)
-                    {
-                        SearchForStops_Completed(this, new ViewModel.EventArgs.SearchForStopsEventArgs(stops, location, query, error));
-                    }
-                }
-            );
+	  return webservice.StopsForLocation(location,
+					     query,
+					     radiusInMeters,
+					     maxCount,
+					     false);
         }
 
-        public void LocationForAddress(string query, GeoCoordinate searchNearLocation)
+        public void LocationForAddress(string query, Geopoint searchNearLocation)
         {
             string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations";
             string requestUrl = string.Format(
@@ -423,7 +353,7 @@ namespace OneBusAway.WP7.Model
                         locations = (from location in xmlDoc.Descendants(ns + "Location")
                                select new LocationForQuery
                                {
-                                   location = new GeoCoordinate(
+                                   location = new Geopoint(
                                        Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Latitude").Value),
                                        Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Longitude").Value)
                                        ),

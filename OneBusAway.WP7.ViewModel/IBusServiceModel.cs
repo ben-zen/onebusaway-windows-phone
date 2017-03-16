@@ -25,21 +25,21 @@ namespace OneBusAway.ViewModel
   {
     double DistanceFromClosestSupportedRegion(Geopoint location);
     bool AreLocationsEquivalent(Geopoint location1, Geopoint location2);
-    Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters);
-    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters, int maxCount);
-    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
-    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters);
-    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters, int maxCount);
-    Task<List<Stop>> StopsForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
-    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters);
-    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters, int maxCount);
-    Task<List<Route>> RoutesForLocation(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
-    Task<List<RouteStops>> StopsForRoute(Geopoint location, Route route);
-    Task<List<ArrivalAndDeparture>> ArrivalsForStop(Geopoint location, Stop stop);
-    Task<List<RouteSchedule>> ScheduleForStop(Geopoint location, Stop stop);
-    Task<List<TripDetails>> TripDetailsForArrivals(Geopoint location, List<ArrivalAndDeparture> arrivals);
-    Task<List<Route>> SearchForRoutes(Geopoint location, string query);
-    Task<List<Route>> SearchForRoutes(Geopoint location, string query, int radiusInMeters, int maxCount);
+    Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters);
+    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
+    Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters);
+    Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
+    Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters);
+    Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
+    Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
+    Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route);
+    Task<List<ArrivalAndDeparture>> ArrivalsForStopAsync(Geopoint location, Stop stop);
+    Task<List<RouteSchedule>> ScheduleForStopAsync(Geopoint location, Stop stop);
+    Task<List<TripDetails>> TripDetailsForArrivalsAsync(Geopoint location, List<ArrivalAndDeparture> arrivals);
+    Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query);
+    Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query, int radiusInMeters, int maxCount);
     Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query);
 
     void Initialize();
