@@ -18,7 +18,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     /// <summary>
     /// Base class for bindable objects.

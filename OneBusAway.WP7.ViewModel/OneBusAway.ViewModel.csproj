@@ -107,22 +107,6 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
-    <Compile Include="AppDataDataStructures\RecentRouteAndStop.cs" />
-    <Compile Include="BusServiceDataStructures\Agency.cs" />
-    <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
-    <Compile Include="BusServiceDataStructures\BindableBase.cs" />
-    <Compile Include="BusServiceDataStructures\DirectionSchedule.cs" />
-    <Compile Include="BusServiceDataStructures\ExtensionMethods.cs" />
-    <Compile Include="BusServiceDataStructures\PolyLine.cs" />
-    <Compile Include="BusServiceDataStructures\Region.cs" />
-    <Compile Include="BusServiceDataStructures\RegionBounds.cs" />
-    <Compile Include="BusServiceDataStructures\Route.cs" />
-    <Compile Include="BusServiceDataStructures\RouteSchedule.cs" />
-    <Compile Include="BusServiceDataStructures\RouteStops.cs" />
-    <Compile Include="BusServiceDataStructures\ScheduleStopTime.cs" />
-    <Compile Include="BusServiceDataStructures\Stop.cs" />
-    <Compile Include="BusServiceDataStructures\TripDetails.cs" />
     <Compile Include="EventArgs\AModelEventArgs.cs" />
     <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
     <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
@@ -136,7 +120,6 @@
     <Compile Include="EventArgs\StopsForLocationEventArgs.cs" />
     <Compile Include="EventArgs\StopsForRouteEventArgs.cs" />
     <Compile Include="EventArgs\TripDetailsForArrivalEventArgs.cs" />
-    <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />
     <Compile Include="AsyncOperationTracker.cs" />
     <Compile Include="AViewModel.cs" />
     <Compile Include="BufferedReference.cs" />

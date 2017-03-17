@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     /// <summary>
     /// Represents a region that OBA supports.

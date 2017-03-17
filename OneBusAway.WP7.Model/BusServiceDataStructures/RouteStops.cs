@@ -19,7 +19,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     [DataContract()]
     public class RouteStops

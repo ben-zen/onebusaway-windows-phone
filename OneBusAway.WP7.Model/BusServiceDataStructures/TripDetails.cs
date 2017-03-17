@@ -17,7 +17,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     [DataContract()]
     public class TripDetails : INotifyPropertyChanged

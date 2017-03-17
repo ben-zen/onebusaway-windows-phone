@@ -13,12 +13,12 @@
  * limitations under the License.
  */
 using System;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.AppDataDataStructures
+namespace OneBusAway.Model.AppDataDataStructures
 {
     [DataContract()]
     public class FavoriteRouteAndStop

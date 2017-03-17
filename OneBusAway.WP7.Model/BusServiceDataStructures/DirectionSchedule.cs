@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     [DataContract()]
     public class DirectionSchedule

@@ -13,23 +13,24 @@
  * limitations under the License.
  */
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Runtime.Serialization;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     [DataContract()]
-    public class ScheduleStopTime
+    public class Agency
     {
         [DataMember()]
-        public DateTime arrivalTime { get; set; }
-
+        public string id { get; set; }
         [DataMember()]
-        public DateTime departureTime { get; set ;}
+        public string name { get; set; }
 
-        [DataMember()]
-        public string serviceId { get; set; }
-
-        [DataMember()]
-        public string tripId { get; set; }
+        public override string ToString()
+        {
+            return string.Format("Agency: name='{0}'", name);
+        }
     }
 }

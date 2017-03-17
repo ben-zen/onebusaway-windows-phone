@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     /// <summary>
     /// Represents a regions bounds.

@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace OneBusAway.ViewModel.AppDataDataStructures
+namespace OneBusAway.Model.AppDataDataStructures
 {
     [DataContract()]
     public class RecentRouteAndStop : FavoriteRouteAndStop
