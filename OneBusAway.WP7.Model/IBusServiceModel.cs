@@ -19,7 +19,7 @@ using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel
+namespace OneBusAway.Model
 {
   public interface IBusServiceModel
   {

@@ -13,14 +13,12 @@
  * limitations under the License.
  */
 using System;
-using OneBusAway.ViewModel.EventArgs;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel
+namespace OneBusAway.Model
 {
     public interface ILocationModel
     {
-        event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
         void LocationForAddress(string addressString, Geocoordinate searchNearLocation);
         void LocationForAddress(string addressString, Geocoordinate searchNearLocation, object state);
     }
