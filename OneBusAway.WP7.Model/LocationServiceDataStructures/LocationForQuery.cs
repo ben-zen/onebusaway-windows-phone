@@ -15,7 +15,7 @@
 using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.LocationServiceDataStructures
+namespace OneBusAway.Model.LocationServiceDataStructures
 {
     public enum Confidence : int
     { 

@@ -13,28 +13,16 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using OneBusAway.WP7.ViewModel;
 using dev.virtualearth.net.webservices.v1.geocode;
 using dev.virtualearth.net.webservices.v1.common;
-using System.Device.Location;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.Model.EventArgs;
 using System.Diagnostics;
-using Microsoft.Phone.Controls.Maps;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
-using System.ServiceModel.Channels;
+using OneBusAway.Model.LocationServiceDataStructures;
 using System.ServiceModel;
+using Windows.Devices.Geolocation;
 
-namespace OneBusAway.WP7.Model
+namespace OneBusAway.Model
 {
     public class LocationModel : ILocationModel
     {
@@ -62,14 +50,14 @@ namespace OneBusAway.WP7.Model
 
         #region Public Members
 
-        public event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
+        public event EventHandler<LocationForAddressEventArgs> LocationForAddressCompleted;
 
-        public void LocationForAddress(string addressString, GeoCoordinate searchNearLocation)
+        public void LocationForAddress(string addressString, Geopoint searchNearLocation)
         {
             LocationForAddress(addressString, searchNearLocation, null);
         }
 
-        public void LocationForAddress(string addressString, GeoCoordinate searchNearLocation, object callerState)
+        public void LocationForAddress(string addressString, Geopoint searchNearLocation, object callerState)
         {
             GeocodeRequest request = new GeocodeRequest();
             request.Credentials = new dev.virtualearth.net.webservices.v1.common.Credentials()
@@ -81,8 +69,8 @@ namespace OneBusAway.WP7.Model
             {
                 CurrentLocation = new UserLocation()
                 {
-                    Latitude = searchNearLocation.Latitude,
-                    Longitude = searchNearLocation.Longitude
+                    Latitude = searchNearLocation.Position.Latitude,
+                    Longitude = searchNearLocation.Position.Longitude
                 },
                 DistanceUnit = DistanceUnit.Mile,
                 DeviceType = DeviceType.Mobile,
@@ -110,7 +98,7 @@ namespace OneBusAway.WP7.Model
         private struct GeocodeState
         {
             public string Query { get; set; }
-            public GeoCoordinate SearchNearLocation { get; set; }
+            public Geopoint SearchNearLocation { get; set; }
             public object CallerState { get; set; }
         }
 

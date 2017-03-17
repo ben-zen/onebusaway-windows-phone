@@ -13,24 +13,19 @@
  * limitations under the License.
  */
 using System;
+using System.Collections.Generic;
+using OneBusAway.Model.AppDataDataStructures;
 
-namespace OneBusAway.ViewModel.EventArgs
+namespace OneBusAway.Model.EventArgs
 {
-    public class AModelEventArgs : System.EventArgs
+    public class FavoritesChangedEventArgs : AModelEventArgs
     {
-        public Exception error { get; private set; }
-        public object state { get; private set; }
+        public List<FavoriteRouteAndStop> newFavorites { get; private set; }
 
-        public AModelEventArgs(Exception error)
-            : this(error, null)
+        public FavoritesChangedEventArgs(List<FavoriteRouteAndStop> newFavorites, Exception error)
+            : base(error)
         {
-
-        }
-
-        public AModelEventArgs(Exception error, object state)
-        {
-            this.error = error;
-            this.state = state;
+            this.newFavorites = newFavorites;
         }
     }
 }

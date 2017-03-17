@@ -13,26 +13,16 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using OneBusAway.ViewModel;
-using System.Device.Location;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.IO;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
 using System.Diagnostics;
-using OneBusAway.ViewModel.EventArgs;
-using Microsoft.Phone.Controls.Maps;
-using OneBusAway.ViewModel.LocationServiceDataStructures;
+using System.Threading.Tasks;
+using OneBusAway.Model.EventArgs;
+using OneBusAway.Model.LocationServiceDataStructures;
+using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
@@ -88,7 +78,7 @@ namespace OneBusAway.Model
 
         public double DistanceFromClosestSupportedRegion(Geopoint location)
         {
-            return OneBusAwayWebservice.ClosestRegion(location).DistanceFrom(location.Latitude, location.Longitude);
+            return OneBusAwayWebservice.ClosestRegion(location).DistanceFrom(location.Position.Latitude, location.Position.Longitude);
         }
 
         public bool AreLocationsEquivalent(Geopoint location1, Geopoint location2)

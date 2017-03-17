@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 using System;
-using OneBusAway.ViewModel.AppDataDataStructures;
+using OneBusAway.Model.AppDataDataStructures;
 using System.Collections.Generic;
-using OneBusAway.ViewModel.EventArgs;
+using OneBusAway.Model.EventArgs;
 
-namespace OneBusAway.ViewModel
+namespace OneBusAway.Model
 {
     public enum FavoriteType
     {
@@ -28,9 +28,9 @@ namespace OneBusAway.ViewModel
     public interface IAppDataModel
     {
 
-        event EventHandler<FavoritesChangedEventArgs> Favorites_Changed;
+        event EventHandler<FavoritesChangedEventArgs> FavoritesChanged;
 
-        event EventHandler<FavoritesChangedEventArgs> Recents_Changed;
+        event EventHandler<FavoritesChangedEventArgs> RecentsChanged;
 
         void AddFavorite(FavoriteRouteAndStop favorite, FavoriteType type);
 

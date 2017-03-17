@@ -123,6 +123,9 @@
     <Compile Include="BusServiceDataStructures\ScheduleStopTime.cs" />
     <Compile Include="BusServiceDataStructures\Stop.cs" />
     <Compile Include="BusServiceDataStructures\TripDetails.cs" />
+    <Compile Include="EventArgs\AModelEventArgs.cs" />
+    <Compile Include="EventArgs\FavoritesChangedEventArgs.cs" />
+    <Compile Include="EventArgs\LocationForAddressEventArgs.cs" />
     <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />
     <Compile Include="AppDataModel.cs" />
     <Compile Include="BusServiceModel.cs" />

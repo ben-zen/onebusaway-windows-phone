@@ -15,7 +15,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 

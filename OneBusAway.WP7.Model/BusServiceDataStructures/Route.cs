@@ -20,7 +20,7 @@ using System.Runtime.Serialization;
 using System.Collections;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.BusServiceDataStructures
+namespace OneBusAway.Model.BusServiceDataStructures
 {
     [DataContract()]
     public class Route

@@ -19,8 +19,8 @@ namespace OneBusAway.Model
 {
     public interface ILocationModel
     {
-        void LocationForAddress(string addressString, Geocoordinate searchNearLocation);
-        void LocationForAddress(string addressString, Geocoordinate searchNearLocation, object state);
+        void LocationForAddress(string addressString, Geopoint searchNearLocation);
+        void LocationForAddress(string addressString, Geopoint searchNearLocation, object state);
     }
 
 }

@@ -13,25 +13,15 @@
  * limitations under the License.
  */
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using OneBusAway.WP7.ViewModel;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using OneBusAway.Model.AppDataDataStructures;
 using System.IO.IsolatedStorage;
 using System.IO;
 using System.Diagnostics;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.Model.EventArgs;
 
-namespace OneBusAway.WP7.Model
+namespace OneBusAway.Model
 {
     public class AppDataModel : IAppDataModel
     {
@@ -47,8 +37,8 @@ namespace OneBusAway.WP7.Model
 
         #region Events
 
-        public event EventHandler<FavoritesChangedEventArgs> Favorites_Changed;
-        public event EventHandler<FavoritesChangedEventArgs> Recents_Changed;
+        public event EventHandler<FavoritesChangedEventArgs> FavoritesChanged;
+        public event EventHandler<FavoritesChangedEventArgs> RecentsChanged;
 
         #endregion
 

@@ -12,20 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model.BusServiceDataStructures;
 using System;
 using System.Collections.Generic;
-using System.Device.Location;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
-using OneBusAway.ViewModel;
-using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Reflection;
 using System.Threading;
 using System.IO.IsolatedStorage;
+using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
@@ -293,7 +292,7 @@ namespace OneBusAway.Model
             public abstract void ParseResults(XDocument result, Exception error);
         }
 
-        public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
+        public void RoutesForLocation(Geopoint location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
@@ -358,9 +357,9 @@ namespace OneBusAway.Model
         }
 
 
-        public void StopsForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
+        public void StopsForLocation(Geopoint location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
         {
-            GeoCoordinate roundedLocation = GetRoundedLocation(location);
+            Geopoint roundedLocation = GetRoundedLocation(location);
 
             // ditto for the search radius -- nearest 50 meters for caching
             int roundedRadius = (int)(Math.Round(radiusInMeters / 50.0) * 50);
@@ -458,7 +457,7 @@ namespace OneBusAway.Model
             }
         }
 
-        public void StopsForRoute(GeoCoordinate location, Route route, StopsForRoute_Callback callback)
+        public void StopsForRoute(Geopoint location, Route route, StopsForRoute_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&Version={4}",
@@ -557,7 +556,7 @@ namespace OneBusAway.Model
             }
         }
 
-        public void ArrivalsForStop(GeoCoordinate location, Stop stop, ArrivalsForStop_Callback callback)
+        public void ArrivalsForStop(Geopoint location, Stop stop, ArrivalsForStop_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?minutesAfter={3}&key={4}&Version={5}",
@@ -611,7 +610,7 @@ namespace OneBusAway.Model
             }
         }
 
-        public void ScheduleForStop(GeoCoordinate location, Stop stop, ScheduleForStop_Callback callback)
+        public void ScheduleForStop(Geopoint location, Stop stop, ScheduleForStop_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&Version={4}",
@@ -683,7 +682,7 @@ namespace OneBusAway.Model
 
         }
 
-        public void TripDetailsForArrival(GeoCoordinate location, ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
+        public void TripDetailsForArrival(Geopoint location, ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&includeSchedule={4}",
@@ -788,10 +787,11 @@ namespace OneBusAway.Model
 
                         if (statusElement.Element("position") != null)
                         {
-                            tripDetails.location = new GeoCoordinate(
-                                double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
-                                double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
-                                );
+                            tripDetails.location = new Geopoint(new BasicGeoposition
+                            {
+                                Latitude = double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
+                                Longitude = double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
+                            });
                         }
                     }
                 }
@@ -878,10 +878,10 @@ namespace OneBusAway.Model
             {
                 id = SafeGetValue(stop.Element("id")),
                 direction = SafeGetValue(stop.Element("direction")),
-                location = new GeoCoordinate(
-                    double.Parse(SafeGetValue(stop.Element("lat")), NumberFormatInfo.InvariantInfo),
-                    double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
-                    ),
+                location = new Geopoint(new BasicGeoposition {
+                    Latitude = double.Parse(SafeGetValue(stop.Element("lat")), NumberFormatInfo.InvariantInfo),
+                    Longitude = double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
+                }),
                 name = SafeGetValue(stop.Element("name")),
                 routes = routes
             };
@@ -933,7 +933,7 @@ namespace OneBusAway.Model
         /// Connects to the regions webservice to find the URL of the closets server to us so
         /// that we can support multiple regions.
         /// </summary>
-        public static string WebServiceUrlForLocation(GeoCoordinate location)
+        public static string WebServiceUrlForLocation(Geopoint location)
         {
             // Find the region closets to us and return it's URL:
             return ClosestRegion(location).RegionUrl;
@@ -942,26 +942,28 @@ namespace OneBusAway.Model
         /// <summary>
         /// Finds the closest region to the current location.
         /// </summary>
-        public static Region ClosestRegion(GeoCoordinate location)
+        public static Region ClosestRegion(Geopoint location)
         {
             return (from region in Regions
-                    let distance = region.DistanceFrom(location.Latitude, location.Longitude)
+                    let distance = region.DistanceFrom(location.Position.Latitude, location.Position.Longitude)
                     orderby distance ascending
                     select region).First();
         }
 
-        public static GeoCoordinate GetRoundedLocation(GeoCoordinate location)
+        public static Geopoint GetRoundedLocation(Geopoint location)
         {
             //// Round off coordinates so that we can exploit caching
-            double lat = Math.Round(location.Latitude * multiplier, roundingLevel) / multiplier;
-            double lon = Math.Round(location.Longitude * multiplier, roundingLevel) / multiplier;
+            double lat = Math.Round(location.Position.Latitude * multiplier, roundingLevel) / multiplier;
+            double lon = Math.Round(location.Position.Longitude * multiplier, roundingLevel) / multiplier;
 
             // Round off the extra decimal places to prevent double precision issues
             // from causing multiple cache entires
-            GeoCoordinate roundedLocation = new GeoCoordinate(
-                Math.Round(lat, roundingLevel + 1),
-                Math.Round(lon, roundingLevel + 1)
-            );
+            Geopoint roundedLocation = 
+                new Geopoint(new BasicGeoposition
+                    {
+                        Latitude = Math.Round(lat, roundingLevel + 1),
+                        Longitude = Math.Round(lon, roundingLevel + 1)
+                    });
 
             return roundedLocation;
         }

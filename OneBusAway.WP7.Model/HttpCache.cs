@@ -6,11 +6,9 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
 using System.Threading;
-//using System.Xml.Serialization;
-using OneBusAway.WP7.ViewModel;
 using System.Runtime.Serialization;
 
-namespace OneBusAway.WP7.Model
+namespace OneBusAway.Model
 {
     /// <summary>
     /// A cache for HTTP GET requests, backed by IsolatedStorage.

@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using OneBusAway.ViewModel.LocationServiceDataStructures;
+using OneBusAway.Model.LocationServiceDataStructures;
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 
-namespace OneBusAway.ViewModel.EventArgs
+namespace OneBusAway.Model.EventArgs
 {
   public class LocationForAddressEventArgs : AModelEventArgs
     {
