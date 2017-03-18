@@ -20,9 +20,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.IO.IsolatedStorage;
 using Windows.Devices.Geolocation;
 
@@ -56,6 +58,8 @@ namespace OneBusAway.Model
         private HttpCache stopsCache;
         private HttpCache directionCache;
 
+        private HttpClient client;
+
         #endregion
 
         #region Delegates
@@ -75,6 +79,7 @@ namespace OneBusAway.Model
         {
             stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
             directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(15).TotalSeconds, 100);
+            client = new HttpClient();
         }
 
         #endregion
@@ -292,15 +297,15 @@ namespace OneBusAway.Model
             public abstract void ParseResults(XDocument result, Exception error);
         }
 
-        public void RoutesForLocation(Geopoint location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
+        public async Task<List<Route>> RoutesForLocationAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
         {
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
                 WebServiceUrlForLocation(location),
                 "routes-for-location",
                 KEY,
-                location.Latitude.ToString(NumberFormatInfo.InvariantInfo),
-                location.Longitude.ToString(NumberFormatInfo.InvariantInfo),
+                location.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
+                location.Position.Longitude.ToString(NumberFormatInfo.InvariantInfo),
                 radiusInMeters,
                 APIVERSION
                 );
@@ -315,49 +320,24 @@ namespace OneBusAway.Model
                 requestUrl += string.Format("&maxCount={0}", maxCount);
             }
 
-            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetRoutesForLocationCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
-        }
-
-        private class GetRoutesForLocationCompleted : ACallCompleted
-        {
-            private RoutesForLocation_Callback callback;
-
-            public GetRoutesForLocationCompleted(string requestUrl, RoutesForLocation_Callback callback) : base(requestUrl)
+            var response = await client.GetStringAsync(requestUrl);
+            var routes = new List<Route>();
+            try
             {
-                this.callback = callback;
+                var xmlResponse = XDocument.Parse(response);
+                routes.AddRange(from route in xmlResponse.Descendants("route")
+                                select ParseRoute(route, xmlResponse.Descendants("agency")));
             }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
+            catch (Exception ex)
             {
-                List<Route> routes = new List<Route>();
-                if (xmlDoc == null || error != null)
-                {
-                    callback(routes, error);
-                }
-                else
-                {
-                    try
-                    {
-                        routes.AddRange(from route in xmlDoc.Descendants("route")
-                                        select ParseRoute(route, xmlDoc.Descendants("agency")));
-                    }
-                    catch (Exception ex)
-                    {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                    }
-
-                    Debug.Assert(error == null);
-
-                    callback(routes, error);
-                }
+                throw new WebserviceParsingException(requestUrl, response, ex);
             }
+            return routes;
         }
 
 
-        public void StopsForLocation(Geopoint location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
+
+        public async Task<List<Stop>> StopsForLocationAsync(Geopoint location, string query, int radiusInMeters, int maxCount, bool invalidateCache)
         {
             Geopoint roundedLocation = GetRoundedLocation(location);
 
@@ -369,13 +349,13 @@ namespace OneBusAway.Model
                 WebServiceUrlForLocation(location),
                 "stops-for-location",
                 KEY,
-                roundedLocation.Latitude.ToString(NumberFormatInfo.InvariantInfo),
-                roundedLocation.Longitude.ToString(NumberFormatInfo.InvariantInfo),
+                roundedLocation.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
+                roundedLocation.Position.Longitude.ToString(NumberFormatInfo.InvariantInfo),
                 roundedRadius,
                 APIVERSION
                 );
 
-            if (string.IsNullOrEmpty(query) == false)
+            if (!string.IsNullOrEmpty(query))
             {
                 requestString += string.Format("&query={0}", query);
             }
@@ -390,6 +370,7 @@ namespace OneBusAway.Model
             {
                 stopsCache.Invalidate(requestUri);
             }
+
 
             stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, stopsCache, callback).HttpCache_Completed);
         }
@@ -457,7 +438,7 @@ namespace OneBusAway.Model
             }
         }
 
-        public void StopsForRoute(Geopoint location, Route route, StopsForRoute_Callback callback)
+        public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route, StopsForRoute_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&Version={4}",
@@ -467,7 +448,8 @@ namespace OneBusAway.Model
                 KEY,
                 APIVERSION
                 );
-            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route.id, directionCache, callback).HttpCache_Completed);
+            var response = directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route.id, directionCache, callback).HttpCache_Completed);
+            
         }
 
         private class GetDirectionsForRouteCompleted : ACallCompleted

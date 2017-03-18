@@ -28,11 +28,7 @@ namespace OneBusAway.Model
     Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters);
     Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
     Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
-    Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters);
-    Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
     Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
-    Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters);
-    Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);
     Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache);
     Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route);
     Task<List<ArrivalAndDeparture>> ArrivalsForStopAsync(Geopoint location, Stop stop);
