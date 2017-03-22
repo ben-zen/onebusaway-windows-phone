@@ -25,8 +25,8 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.IO.IsolatedStorage;
 using Windows.Devices.Geolocation;
+using Windows.Storage;
 
 namespace OneBusAway.Model
 {
@@ -37,8 +37,8 @@ namespace OneBusAway.Model
 
         private const string REGIONS_XML_FILE = "Regions.xml";
         private static readonly object regionsLock = new object();
-        private static Region[] discoveredRegions;
-        
+        private static List<Region> discoveredRegions;
+
         /// <summary>
         /// This is the URL of the regions web service.
         /// </summary>
@@ -62,118 +62,13 @@ namespace OneBusAway.Model
 
         #endregion
 
-        #region Delegates
-
-        public delegate void StopsForLocation_Callback(List<Stop> stops, bool limitExceeded, Exception error);
-        public delegate void RoutesForLocation_Callback(List<Route> routes, Exception error);
-        public delegate void StopsForRoute_Callback(List<RouteStops> routeStops, Exception error);
-        public delegate void ArrivalsForStop_Callback(List<ArrivalAndDeparture> arrivals, Exception error);
-        public delegate void ScheduleForStop_Callback(List<RouteSchedule> schedules, Exception error);
-        public delegate void TripDetailsForArrival_Callback(TripDetails tripDetail, Exception error);
-
-        #endregion
-
         #region Constructor
 
         public OneBusAwayWebservice()
         {
-            stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
+            stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
             directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(15).TotalSeconds, 100);
             client = new HttpClient();
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// An array of regions supported by OneBusAway.org.
-        /// </summary>
-        internal static Region[] Regions
-        {
-            get
-            {
-                if (discoveredRegions == null)
-                {
-                    lock (regionsLock)
-                    {
-                        if (discoveredRegions == null)
-                        {
-                            XDocument regionsDoc = null;
-                            AutoResetEvent resetEvent = new AutoResetEvent(false);
-                            try
-                            {
-                                // First try and read the regions.xml file from isolated storage:
-                                using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-                                {
-                                    if (appStorage.FileExists(REGIONS_XML_FILE) == true)
-                                    {
-                                        var creationTime = appStorage.GetCreationTime(REGIONS_XML_FILE);
-                                        if ((DateTime.Now - creationTime).TotalDays <= 7)
-                                        {
-                                            using (var streamReader = new StreamReader(appStorage.OpenFile(REGIONS_XML_FILE, FileMode.Open)))
-                                            {
-                                                string xml = streamReader.ReadToEnd();
-                                                regionsDoc = XDocument.Parse(xml);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (regionsDoc == null)
-                                {
-                                    var webRequest = HttpWebRequest.Create(REGIONS_SERVICE_URI);                                    
-                                    var asyncResult = webRequest.BeginGetResponse(result => resetEvent.Set(), webRequest);
-
-                                    // Not the best wy to handle this...but we shouldn't block for long.
-                                    resetEvent.WaitOne(5000);
-                                    var response = (HttpWebResponse)webRequest.EndGetResponse(asyncResult);
-
-                                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                                    {
-                                        string xml = streamReader.ReadToEnd();
-                                        regionsDoc = XDocument.Parse(xml);
-                                    }
-
-                                    // Save the regions.xml file to isolated storage:
-                                    using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-                                    {
-                                        using (var streamWriter = new StreamWriter(appStorage.OpenFile(REGIONS_XML_FILE, FileMode.OpenOrCreate)))
-                                        {
-                                            regionsDoc.Save(streamWriter);
-                                        }
-                                    }
-                                }
-                            }
-                            catch
-                            {
-                            }
-                            finally
-                            {
-                                resetEvent.Dispose();
-                            }
-
-                            // If we make it here, use the backup regions.xml file:
-                            if (regionsDoc == null)
-                            {
-                                Assembly assembly = typeof(OneBusAwayWebservice).Assembly;
-                                using (var streamReader = new StreamReader(assembly.GetManifestResourceStream("OneBusAway.Model.Regions.xml")))
-                                {
-                                    string xml = streamReader.ReadToEnd();
-                                    regionsDoc = XDocument.Parse(xml);
-                                }
-                            }
-
-                            discoveredRegions = (from regionElement in regionsDoc.Descendants("region")
-                                                 let region = new Region(regionElement)
-                                                 where region.IsActive && region.SupportsObaRealtimeApis && region.SupportsObaDiscoveryApis
-                                                 select region).ToArray();
-                        }
-                    }
-                }
-
-                return discoveredRegions;
-            }
         }
 
         #endregion
@@ -232,7 +127,7 @@ namespace OneBusAway.Model
             {
                 Exception error = e.Error;
                 XDocument xmlDoc = null;
-                
+
                 if (error == null)
                 {
                     try
@@ -274,10 +169,6 @@ namespace OneBusAway.Model
 
                     throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, xmlResponse.ReadToEnd(), e);
                 }
-                finally
-                {
-                    xmlResponse.Close();
-                }
 
                 if (code != HttpStatusCode.OK)
                 {
@@ -301,7 +192,7 @@ namespace OneBusAway.Model
         {
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
-                WebServiceUrlForLocation(location),
+                WebServiceUrlForLocationAsync(location),
                 "routes-for-location",
                 KEY,
                 location.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
@@ -335,8 +226,6 @@ namespace OneBusAway.Model
             return routes;
         }
 
-
-
         public async Task<List<Stop>> StopsForLocationAsync(Geopoint location, string query, int radiusInMeters, int maxCount, bool invalidateCache)
         {
             Geopoint roundedLocation = GetRoundedLocation(location);
@@ -346,7 +235,7 @@ namespace OneBusAway.Model
 
             string requestString = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
-                WebServiceUrlForLocation(location),
+                WebServiceUrlForLocationAsync(location),
                 "stops-for-location",
                 KEY,
                 roundedLocation.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
@@ -371,178 +260,105 @@ namespace OneBusAway.Model
                 stopsCache.Invalidate(requestUri);
             }
 
+            var response = await client.GetStringAsync(requestString);
 
-            stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, stopsCache, callback).HttpCache_Completed);
-        }
-
-        private class GetStopsForLocationCompleted : ACallCompleted
-        {
-            private StopsForLocation_Callback callback;
-            private HttpCache stopsCache;
-
-            public GetStopsForLocationCompleted(string requestUrl, HttpCache stopsCache, StopsForLocation_Callback callback) : base(requestUrl)
+            var xResponse = XDocument.Parse(response);
+            IEnumerable<XElement> descendants = xResponse.Descendants("data");
+            bool limitExceeded = false;
+            if (descendants.Count() != 0)
             {
-                this.callback = callback;
-                this.stopsCache = stopsCache;
+                limitExceeded = bool.Parse(SafeGetValue(descendants.First().Element("limitExceeded")));
             }
 
-            public override void ParseResults(XDocument xmlDoc, Exception error)
+            var stops = new List<Stop>();
+            try
             {
-                List<Stop> stops = new List<Stop>(); ;
-                bool limitExceeded = false;
 
-                if (xmlDoc == null || error != null)
-                {
-                    callback(stops, limitExceeded, error);
-                }
-                else
-                {
-                    try
-                    {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
+                IDictionary<string, Route> routesMap = ParseAllRoutes(xResponse);
 
-                        stops.AddRange(from stop in xmlDoc.Descendants("stop")
-                                       select ParseStop(
-                                       stop,
-                                       (from routeId in stop.Element("routeIds").Descendants("string")
-                                        select routesMap[SafeGetValue(routeId)]).ToList<Route>()));                                        
+                stops.AddRange(from stop in xResponse.Descendants("stop")
+                               select ParseStop(
+                               stop,
+                               (from routeId in stop.Element("routeIds").Descendants("string")
+                                select routesMap[SafeGetValue(routeId)]).ToList<Route>()));
 
-                        IEnumerable<XElement> descendants = xmlDoc.Descendants("data");
-                        if (descendants.Count() != 0)
-                        {
-                            limitExceeded = bool.Parse(SafeGetValue(descendants.First().Element("limitExceeded")));
-                        }
-
-                        Debug.Assert(limitExceeded == false);
-                    }
-                    catch (WebserviceResponseException ex)
-                    {
-                        error = ex;
-                    }
-                    catch (Exception ex)
-                    {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                    }
-                }
-
-                Debug.Assert(error == null);
-
-                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
-                // invalid server data in the cache
-                if (error != null)
-                {
-                    stopsCache.Invalidate(new Uri(requestUrl));
-                }
-
-                callback(stops, limitExceeded, error);
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return stops;
         }
 
-        public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route, StopsForRoute_Callback callback)
+        public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&Version={4}",
-                WebServiceUrlForLocation(location),
+                await WebServiceUrlForLocationAsync(location),
                 "stops-for-route",
                 route.id,
                 KEY,
                 APIVERSION
                 );
-            var response = directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route.id, directionCache, callback).HttpCache_Completed);
-            
+            var response = await client.GetStringAsync(requestUrl);
+            var routeStops = new List<RouteStops>();
+            var xResponse = XDocument.Parse(response);
+            try
+            {
+                var routesMap = ParseAllRoutes(xResponse);
+
+                // parse all the stops, using previously parsed Route objects
+                var stops =
+                    (from stop in xResponse.Descendants("stop")
+                     select ParseStop(stop,
+                         (from routeId in stop.Element("routeIds").Descendants("string")
+                          select routesMap[SafeGetValue(routeId)]
+                              ).ToList<Route>()
+                     )).ToList<Stop>();
+
+                var stopsMap = new Dictionary<string, Stop>();
+                foreach (Stop s in stops)
+                {
+                    stopsMap.Add(s.id, s);
+                }
+
+                // and put it all together
+                routeStops.AddRange
+                    (from stopGroup in xResponse.Descendants("stopGroup")
+                     where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
+                     select new RouteStops
+                     {
+                         name = SafeGetValue(stopGroup.Descendants("names").First().Element("string")),
+                         encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
+                                             select new PolyLine
+                                             {
+                                                 pointsString = SafeGetValue(poly.Element("points")),
+                                                 length = SafeGetValue(poly.Element("length"))
+                                             }).ToList<PolyLine>(),
+                         stops =
+                             (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
+                              select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
+
+                         route = routesMap[route.id]
+
+                     });
+            }
+            catch (WebserviceResponseException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new WebserviceParsingException(requestUrl, xResponse.ToString(), ex);
+            }
+            return routeStops;
         }
 
-        private class GetDirectionsForRouteCompleted : ACallCompleted
-        {
-            private StopsForRoute_Callback callback;
-            private string routeId;
-            private HttpCache directionCache;
-
-            public GetDirectionsForRouteCompleted(string requestUrl, string routeId, HttpCache directionCache, StopsForRoute_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-                this.routeId = routeId;
-                this.directionCache = directionCache;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<RouteStops> routeStops = new List<RouteStops>();
-
-                if (xmlDoc == null || error != null)
-                {
-                    callback(routeStops, error);
-                }
-                else
-                {
-                    try
-                    {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
-
-                        // parse all the stops, using previously parsed Route objects
-                        IList<Stop> stops =
-                            (from stop in xmlDoc.Descendants("stop")
-                             select ParseStop(stop,
-                                 (from routeId in stop.Element("routeIds").Descendants("string")
-                                  select routesMap[SafeGetValue(routeId)]
-                                      ).ToList<Route>()
-                             )).ToList<Stop>();
-
-                        IDictionary<string, Stop> stopsMap = new Dictionary<string, Stop>();
-                        foreach (Stop s in stops)
-                        {
-                            stopsMap.Add(s.id, s);
-                        }
-
-                        // and put it all together
-                        routeStops.AddRange
-                            (from stopGroup in xmlDoc.Descendants("stopGroup")
-                             where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
-                             select new RouteStops
-                             {
-                                 name = SafeGetValue(stopGroup.Descendants("names").First().Element("string")),
-                                 encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
-                                                     select new PolyLine
-                                                     {
-                                                         pointsString = SafeGetValue(poly.Element("points")),
-                                                         length = SafeGetValue(poly.Element("length"))
-                                                     }).ToList<PolyLine>(),
-                                 stops =
-                                     (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
-                                      select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
-
-                                 route = routesMap[routeId]
-
-                             });
-                    }
-                    catch (WebserviceResponseException ex)
-                    {
-                        error = ex;
-                    }
-                    catch (Exception ex)
-                    {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                    }
-                }
-
-                Debug.Assert(error == null);
-
-                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
-                // invalid server data in the cache
-                if (error != null)
-                {
-                    directionCache.Invalidate(new Uri(requestUrl));
-                }
-
-                callback(routeStops, error);
-            }
-        }
-
-        public void ArrivalsForStop(Geopoint location, Stop stop, ArrivalsForStop_Callback callback)
+        public async Task<List<ArrivalAndDeparture>> GetArrivalsForStopAsync(Geopoint location, Stop stop)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?minutesAfter={3}&key={4}&Version={5}",
-                WebServiceUrlForLocation(location),
+                await WebServiceUrlForLocationAsync(location),
                 "arrivals-and-departures-for-stop",
                 stop.id,
                 60,
@@ -550,153 +366,85 @@ namespace OneBusAway.Model
                 APIVERSION
                 );
 
-            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetArrivalsForStopCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
+            var response = await client.GetStringAsync(requestUrl);
+            var arrivals = new List<ArrivalAndDeparture>();
+            try
+            {
+                var xmlResponse = XDocument.Parse(response);
+                arrivals.AddRange(from arrival in xmlResponse.Descendants("arrivalAndDeparture")
+                                  select ParseArrivalAndDeparture(arrival));
+            }
+            catch (Exception ex)
+            {
+                throw new WebserviceParsingException(requestUrl, response, ex);
+            }
+            return arrivals;
         }
 
-        private class GetArrivalsForStopCompleted : ACallCompleted
-        {
-            private ArrivalsForStop_Callback callback;
-
-            public GetArrivalsForStopCompleted(string requestUrl, ArrivalsForStop_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<ArrivalAndDeparture> arrivals = new List<ArrivalAndDeparture>();
-
-                if (xmlDoc == null || error != null)
-                {
-                    callback(arrivals, error);
-                }
-                else
-                {
-                    try
-                    {
-                        arrivals.AddRange(from arrival in xmlDoc.Descendants("arrivalAndDeparture")
-                                          select ParseArrivalAndDeparture(arrival));
-                    }
-                    catch (Exception ex)
-                    {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                    }
-                }
-
-                Debug.Assert(error == null);
-
-                callback(arrivals, error);
-            }
-        }
-
-        public void ScheduleForStop(Geopoint location, Stop stop, ScheduleForStop_Callback callback)
+        public async Task<List<RouteSchedule>> GetScheduleForStopAsync(Geopoint location, Stop stop)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&Version={4}",
-                WebServiceUrlForLocation(location),
+                await WebServiceUrlForLocationAsync(location),
                 "schedule-for-stop",
                 stop.id,
                 KEY,
                 APIVERSION
                 );
 
-            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetScheduleForStopCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
-        }
-
-        private class GetScheduleForStopCompleted : ACallCompleted
-        {
-            private ScheduleForStop_Callback callback;
-
-            public GetScheduleForStopCompleted(string requestUrl, ScheduleForStop_Callback callback) : base(requestUrl)
+            var response = await client.GetStringAsync(requestUrl);
+            var schedules = new List<RouteSchedule>();
+            try
             {
-                this.callback = callback;
+                var xmlResponse = XDocument.Parse(response);
+                var routes = ParseAllRoutes(xmlResponse);
+                schedules.AddRange(from schedule in xmlResponse.Descendants("stopRouteSchedule")
+                                   select new RouteSchedule
+                                   {
+                                       route = routes[schedule.Element("routeId").Value],
+                                       directions = (from direction in schedule.Descendants("stopRouteDirectionSchedule")
+                                                     select new DirectionSchedule
+                                                     {
+                                                         tripHeadsign = direction.Element("tripHeadsign").Value,
+                                                         trips = (from trip in direction.Descendants("scheduleStopTime")
+                                                                  select ParseScheduleStopTime(trip)).ToList()
+                                                     }).ToList()
+                                   });
             }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
+            catch (Exception ex)
             {
-                List<RouteSchedule> schedules = new List<RouteSchedule>();
-
-                if (xmlDoc == null || error != null)
-                {
-                    callback(schedules, error);
-                }
-                else
-                {
-                    try
-                    {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
-
-                        schedules.AddRange
-                            (from schedule in xmlDoc.Descendants("stopRouteSchedule")
-                             select new RouteSchedule
-                             {
-                                 route = routesMap[SafeGetValue(schedule.Element("routeId"))],
-
-                                 directions =
-                                     (from direction in schedule.Descendants("stopRouteDirectionSchedule")
-                                      select new DirectionSchedule
-                                      {
-                                          tripHeadsign = SafeGetValue(direction.Element("tripHeadsign")),
-
-                                          trips =
-                                          (from trip in direction.Descendants("scheduleStopTime")
-                                           select ParseScheduleStopTime(trip)).ToList<ScheduleStopTime>()
-                                      }).ToList<DirectionSchedule>()
-
-                             });
-                    }
-                    catch (Exception ex)
-                    {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                    }
-                }
-
-                Debug.Assert(error == null);
-
-                callback(schedules, error);
-                    }
-
+                throw new WebserviceParsingException(requestUrl, response, ex);
+            }
+            return schedules;
         }
-
-        public void TripDetailsForArrival(Geopoint location, ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
+ 
+        public async Task<TripDetails> TripDetailsForArrivalAsync(Geopoint location, ArrivalAndDeparture arrival)
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&includeSchedule={4}",
-                WebServiceUrlForLocation(location),
+                await WebServiceUrlForLocationAsync(location),
                 "trip-details",
                 arrival.tripId,
                 KEY,
                 "false"
                 );
 
-            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new TripDetailsForArrivalCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
+            var response = await client.GetStringAsync(requestUrl);
+            var xmlResponse = XDocument.Parse(response);
+            var detail = (from trip in xmlResponse.Descendants("entry")
+                          select ParseTripDetails(trip)).First();
+            return detail;
         }
 
-        private class TripDetailsForArrivalCompleted : ACallCompleted
+        private class TripDetailsForArrivalCompleted
         {
-            private TripDetailsForArrival_Callback callback;
-
-            public TripDetailsForArrivalCompleted(string requestUrl, TripDetailsForArrival_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
+            public void ParseResults(string requestUrl, XDocument xmlDoc, Exception error)
             {
                 TripDetails tripDetail = new TripDetails();
 
                 if (xmlDoc == null || error != null)
                 {
-                    callback(tripDetail, error);
+
                 }
                 else
                 {
@@ -718,8 +466,6 @@ namespace OneBusAway.Model
                 }
 
                 Debug.Assert(error == null);
-
-                callback(tripDetail, error);
             }
         }
 
@@ -834,7 +580,7 @@ namespace OneBusAway.Model
         {
             IList<Route> routes =
                 (from route in xmlDoc.Descendants("route")
-                    select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
+                 select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
             IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
             foreach (Route r in routes)
             {
@@ -860,7 +606,8 @@ namespace OneBusAway.Model
             {
                 id = SafeGetValue(stop.Element("id")),
                 direction = SafeGetValue(stop.Element("direction")),
-                location = new Geopoint(new BasicGeoposition {
+                location = new Geopoint(new BasicGeoposition
+                {
                     Latitude = double.Parse(SafeGetValue(stop.Element("lat")), NumberFormatInfo.InvariantInfo),
                     Longitude = double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
                 }),
@@ -896,37 +643,102 @@ namespace OneBusAway.Model
         }
 
         internal void ClearCache()
-                {
+        {
             stopsCache.Clear();
             directionCache.Clear();
-                }
+        }
 
         internal void SaveCache()
-                {
+        {
             stopsCache.Save();
             directionCache.Save();
         }
 
+        /// <summary>
+        /// An array of regions supported by OneBusAway.org.
+        /// </summary>
+        internal static async Task<List<Region>> GetRegionsAsync()
+        {
+            if (discoveredRegions == null)
+            {
+                XDocument regionsDoc = null;
+                try
+                {
+                    // First try and read the regions.xml file from the local cache:
+                    var appStorage = ApplicationData.Current.LocalCacheFolder;
+                    var cachedRegionsItem = await ApplicationData.Current.LocalCacheFolder.TryGetItemAsync(REGIONS_XML_FILE);
+                    if (cachedRegionsItem != null)
+                    {
+                        if (cachedRegionsItem.DateCreated.CompareTo(DateTimeOffset.Now.AddDays(-7)) >= 0)
+                        {
+                            using (var streamReader = new StreamReader(await (cachedRegionsItem as StorageFile).OpenStreamForReadAsync()))
+                            {
+                                string xml = streamReader.ReadToEnd();
+                                regionsDoc = XDocument.Parse(xml);
+                            }
+                        }
+                    }
+
+                    // If we've failed to find a cache file (either because it wasn't there, or because it was too old,
+                    // request the regions file from 
+                    if (regionsDoc == null)
+                    {
+                        var client = new HttpClient();
+                        var response = await client.GetStringAsync(REGIONS_SERVICE_URI);
+                        regionsDoc = XDocument.Parse(response);
+
+                        // Save the regions.xml file to isolated storage:
+                        var cachedRegions = await appStorage.CreateFileAsync(REGIONS_XML_FILE, CreationCollisionOption.ReplaceExisting);
+                        using (var streamWriter = new StreamWriter(await cachedRegions.OpenStreamForWriteAsync()))
+                        {
+                            regionsDoc.Save(streamWriter);
+                        }
+                    }
+                }
+                catch
+                {
+                }
+
+                // If we make it here, use the backup regions.xml file:
+                if (regionsDoc == null)
+                {
+                    var cachedRegions = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///OneBusAway.Model.Regions.xml"));
+                    using (var streamReader = new StreamReader(await cachedRegions.OpenStreamForReadAsync()))
+                    {
+                        string xml = streamReader.ReadToEnd();
+                        regionsDoc = XDocument.Parse(xml);
+                    }
+                }
+
+                discoveredRegions = (from regionElement in regionsDoc.Descendants("region")
+                                     let region = new Region(regionElement)
+                                     where region.IsActive && region.SupportsObaRealtimeApis && region.SupportsObaDiscoveryApis
+                                     select region).ToList();
+
+            }
+            return discoveredRegions;
+        }
         #endregion
 
-        # region Public static methods
+        #region Public static methods
 
         /// <summary>
         /// Connects to the regions webservice to find the URL of the closets server to us so
         /// that we can support multiple regions.
         /// </summary>
-        public static string WebServiceUrlForLocation(Geopoint location)
+        public static async Task<string> WebServiceUrlForLocationAsync(Geopoint location)
         {
             // Find the region closets to us and return it's URL:
-            return ClosestRegion(location).RegionUrl;
+            return (await ClosestRegionAsync(location)).RegionUrl;
         }
 
         /// <summary>
         /// Finds the closest region to the current location.
         /// </summary>
-        public static Region ClosestRegion(Geopoint location)
+        public static async Task<Region> ClosestRegionAsync(Geopoint location)
         {
-            return (from region in Regions
+            var regions = await GetRegionsAsync();
+            return (from region in regions
                     let distance = region.DistanceFrom(location.Position.Latitude, location.Position.Longitude)
                     orderby distance ascending
                     select region).First();
@@ -940,12 +752,12 @@ namespace OneBusAway.Model
 
             // Round off the extra decimal places to prevent double precision issues
             // from causing multiple cache entires
-            Geopoint roundedLocation = 
+            Geopoint roundedLocation =
                 new Geopoint(new BasicGeoposition
-                    {
-                        Latitude = Math.Round(lat, roundingLevel + 1),
-                        Longitude = Math.Round(lon, roundingLevel + 1)
-                    });
+                {
+                    Latitude = Math.Round(lat, roundingLevel + 1),
+                    Longitude = Math.Round(lon, roundingLevel + 1)
+                });
 
             return roundedLocation;
         }

@@ -31,7 +31,7 @@ namespace OneBusAway.Model.LocationServiceDataStructures
         [DataMember]
         public string name { get; set; }
         [DataMember]
-        public Geocoordinate location { get; set; }
+        public Geopoint location { get; set; }
         [DataMember]
         public Confidence confidence { get; set; }
         [DataMember]
