@@ -14,8 +14,8 @@
  */
 using System;
 using System.Collections.ObjectModel;
-using OneBusAway.ViewModel.BusServiceDataStructures;
-using System.Diagnostics;
+using OneBusAway.Model;
+using OneBusAway.Model.BusServiceDataStructures;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 
@@ -38,7 +38,7 @@ namespace OneBusAway.ViewModel
       Initialize();
     }
 
-    public StopsMapVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+    public StopsMapVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
         : base(busServiceModel, appDataModel)
     {
       Initialize();
@@ -63,7 +63,7 @@ namespace OneBusAway.ViewModel
     {
       // If the two queries are being rounded to the same coordinate, no 
       // reason to re-parse the data out of the cache
-      if (busServiceModel.AreLocationsEquivalent(previousQuery, center) == true)
+      if (BusServiceModel.AreLocationsEquivalent(previousQuery, center) == true)
       {
         return;
       }
@@ -74,7 +74,7 @@ namespace OneBusAway.ViewModel
 
       try
       {
-        var stops = await busServiceModel.StopsForLocation(center, defaultSearchRadius);
+        var stops = await BusServiceModel.StopsForLocationAsync(center, defaultSearchRadius);
         var newStops = new Dictionary<string, Stop>();
         foreach (var stop in stops)
         {

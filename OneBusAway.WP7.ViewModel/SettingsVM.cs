@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model;
 using System.Collections.ObjectModel;
 using Windows.Storage;
 
@@ -35,7 +36,7 @@ namespace OneBusAway.ViewModel
     {
     }
 
-    public SettingsVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+    public SettingsVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
         : base(busServiceModel, appDataModel)
     {
     }
@@ -151,7 +152,7 @@ namespace OneBusAway.ViewModel
     public void Clear()
     {
       this.appDataModel.DeleteAllFavorites(FavoriteType.Recent);
-      this.busServiceModel.ClearCache();
+      this.BusServiceModel.ClearCache();
     }
   }
 }

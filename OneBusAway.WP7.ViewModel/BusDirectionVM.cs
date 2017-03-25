@@ -65,7 +65,7 @@ namespace OneBusAway.ViewModel
             foreach(Route route in routes)
             {
                 operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
-                busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, route);
+                BusServiceModel.StopsForRoute(LocationTracker.CurrentLocation, route);
             }
         }
 
@@ -111,14 +111,14 @@ namespace OneBusAway.ViewModel
         {
             base.RegisterEventHandlers(dispatcher);
 
-            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+            this.BusServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
 
         public override void UnregisterEventHandlers()
         {
             base.UnregisterEventHandlers();
 
-            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+            this.BusServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
             this.operationTracker.ClearOperations();
         }
     }

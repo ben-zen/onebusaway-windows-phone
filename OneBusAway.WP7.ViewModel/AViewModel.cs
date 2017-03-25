@@ -16,6 +16,7 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Diagnostics;
+using OneBusAway.Model;
 using OneBusAway.ViewModel.EventArgs;
 using Windows.Devices.Geolocation;
 using Windows.Storage;
@@ -25,33 +26,13 @@ namespace OneBusAway.ViewModel
     public abstract class AViewModel : INotifyPropertyChanged
     {
         #region Constructors
-
-        public AViewModel()
-            :   this(null,null,null)
+        public AViewModel(BusServiceModel busServiceModel = null, IAppDataModel appDataModel = null, ILocationModel locationModel = null)
         {
-
-        }
-
-        public AViewModel(IBusServiceModel busServiceModel)
-            : this(busServiceModel, null)
-        {
-
-        }
-
-        public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
-            : this(busServiceModel, appDataModel, null)
-        {
-
-        }
-
-        public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel, ILocationModel locationModel)
-        {
-            this.lazyBusServiceModel = busServiceModel;
+            this._busServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
 
 	        if (!IsInDesignMode)
 	        {
-		        locationTracker = new LocationTracker();
 		        operationTracker = new AsyncOperationTracker();
 	        }
 
@@ -70,20 +51,17 @@ namespace OneBusAway.ViewModel
         // exceed the 100 stop limit, even downtown.
         protected int defaultSearchRadius = 500;
 
-        private IBusServiceModel lazyBusServiceModel;
-        protected IBusServiceModel busServiceModel
+        private BusServiceModel _busServiceModel;
+        protected BusServiceModel BusServiceModel
         {
             get
             {
-                if (lazyBusServiceModel == null)
+                if (_busServiceModel == null)
                 {
-                    lazyBusServiceModel = (IBusServiceModel)Assembly.Load(new AssemblyName("OneBusAway.WP7.Model"))
-                        .GetType("OneBusAway.WP7.Model.BusServiceModel")
-                        .GetField("Singleton")
-                        .GetValue(null);
-                    lazyBusServiceModel.Initialize();
+                    _busServiceModel = BusServiceModel.Singleton;
+                    _busServiceModel.Initialize();
                 }
-                return lazyBusServiceModel;
+                return _busServiceModel;
             }
         }
  
@@ -131,8 +109,6 @@ namespace OneBusAway.ViewModel
         /// Subclasses should queue and dequeue their async calls onto this object to tie into the Loading property.
         /// </summary>
         public AsyncOperationTracker operationTracker { get; private set; }
-
-        protected LocationTracker locationTracker;
 
         private bool eventsRegistered;
 
@@ -189,7 +165,6 @@ namespace OneBusAway.ViewModel
 
                 // Set the ViewState's UIAction
                 CurrentViewState.UIAction = uiAction;
-                locationTracker.UIAction = uiAction;
                 operationTracker.UIAction = uiAction;
             }
         }
@@ -210,7 +185,7 @@ namespace OneBusAway.ViewModel
         { 
             get 
             { 
-                return locationTracker; 
+                return LocationTracker.Tracker;
             } 
         }
 
@@ -251,10 +226,6 @@ namespace OneBusAway.ViewModel
         {
             // Set the UI Actions to occur on the UI thread
             UIAction = (uiAction => dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => uiAction()));
-
-            locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
-            locationTracker.Initialize(operationTracker);
-
             Debug.Assert(eventsRegistered == false);
             eventsRegistered = true;
         }
@@ -265,9 +236,6 @@ namespace OneBusAway.ViewModel
         /// </summary>
         public virtual void UnregisterEventHandlers()
         {
-            locationTracker.Uninitialize();
-            locationTracker.ErrorHandler -= new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
-
             Debug.Assert(eventsRegistered == true);
             eventsRegistered = false;
         }

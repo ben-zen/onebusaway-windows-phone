@@ -41,7 +41,7 @@ namespace OneBusAway.View
     {
       InitializeComponent();
 
- 
+
       firstLoad = true;
       navigatedAway = false;
       navigationLock = new Object();
@@ -88,14 +88,14 @@ namespace OneBusAway.View
       {
         Dispatcher.BeginInvoke(() =>
                   {
-                if (hasData == false)
-                {
-                  MessageBox.Show(
-                            "Currently the OneBusAway service does not support your location." +
-                            "Many functions of this app will not work."
-                            );
-                }
-              });
+                    if (hasData == false)
+                    {
+                      MessageBox.Show(
+                                "Currently the OneBusAway service does not support your location." +
+                                "Many functions of this app will not work."
+                                );
+                    }
+                  });
       });
 
       viewModel.LocationTracker.RunWhenLocationKnown(delegate (Geopoint location)
@@ -315,17 +315,20 @@ namespace OneBusAway.View
       }
     }
 
-    private void ProcessSearch(string searchString)
+    private async void ProcessSearch(string searchString)
     {
-      int routeNumber = 0;
-
-      bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+      int number = 0;
+      bool canConvert = int.TryParse(searchString, out number); //check if it's a number
       if (canConvert == true) //it's a route or stop number
       {
-        int number = int.Parse(searchString);
         if (number < 1000) //route number
         {
-          viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+          var routeFound = await viewModel.SearchByRouteAsync(searchString);
+
+          if (routeFound)
+          {
+            Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+          }
         }
         else //stop number
         {
@@ -336,11 +339,8 @@ namespace OneBusAway.View
       {
         viewModel.SearchByAddress(searchString, SearchByLocationCallback);
       }
-
-      SearchStoryboard.Seek(TimeSpan.Zero);
-      SearchStoryboard.Stop();
-      this.Focus();
     }
+
 
     private void appbar_settings_Click(object sender, EventArgs e)
     {

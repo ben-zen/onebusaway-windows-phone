@@ -12,15 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using OneBusAway.ViewModel.AppDataDataStructures;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model;
+using OneBusAway.Model.AppDataDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.Model.EventArgs;
+using OneBusAway.Model.LocationServiceDataStructures;
 using OneBusAway.ViewModel.EventArgs;
-using OneBusAway.ViewModel.LocationServiceDataStructures;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.ViewModel
@@ -44,7 +48,7 @@ namespace OneBusAway.ViewModel
       Initialize();
     }
 
-    public MainPageVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+    public MainPageVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
         : base(busServiceModel, appDataModel)
     {
       Initialize();
@@ -129,8 +133,8 @@ namespace OneBusAway.ViewModel
       operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
       try
       {
-        var location = await locationTracker.GetLocationAsync();
-        var info = await busServiceModel.CombinedInfoForLocation(location, defaultSearchRadius, -1, invalidateCache);
+        var location = await LocationTracker.Tracker.GetLocationAsync();
+        var info = await BusServiceModel.CombinedInfoForLocationAsync(location, defaultSearchRadius, -1, invalidateCache);
       }
       catch (Exception e)
       {
@@ -138,7 +142,7 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    public void LoadFavorites()
+    public async void LoadFavorites()
     {
       Favorites.Clear();
       List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites(FavoriteType.Favorite);
@@ -146,7 +150,7 @@ namespace OneBusAway.ViewModel
       // but fallback to running without location if it times out
       if (LocationTracker.LocationKnown == true)
       {
-        favorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
+        favorites.Sort(new FavoriteDistanceComparer(await LocationTracker.Tracker.GetLocationAsync()));
       }
       favorites.ForEach(favorite => Favorites.Add(favorite));
 
@@ -157,15 +161,13 @@ namespace OneBusAway.ViewModel
     }
 
     public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
-    public void SearchByRoute(string routeNumber, SearchByRoute_Callback callback)
+    public async Task<bool> SearchByRouteAsync(string routeNumber)
     {
-      operationTracker.WaitForOperation("SearchByRoute", string.Format("Searching for route {0}...", routeNumber));
-
-      busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
-      locationTracker.RunWhenLocationKnown(delegate (Geocoordinate location)
-          {
-            busServiceModel.SearchForRoutes(location, routeNumber);
-          });
+      var location = await LocationTracker.Tracker.GetLocationAsync();
+      var routes = await BusServiceModel.SearchForRoutesAsync(location, routeNumber);
+      routes.Sort(new RouteDistanceComparer(location));
+      CurrentViewState.CurrentRoutes = routes;
+      return routes.Count != 0;
     }
 
     public delegate void SearchByStop_Callback(List<Stop> stops, Exception error);
@@ -173,10 +175,10 @@ namespace OneBusAway.ViewModel
     {
       operationTracker.WaitForOperation("SearchByStop", string.Format("Searching for stop {0}...", stopNumber));
 
-      busServiceModel.SearchForStops_Completed += new SearchByStopCompleted(callback, busServiceModel, this).SearchByStop_Completed;
+      BusServiceModel.SearchForStops_Completed += new SearchByStopCompleted(callback, BusServiceModel, this).SearchByStop_Completed;
       locationTracker.RunWhenLocationKnown(delegate (Geopoint location)
       {
-        busServiceModel.SearchForStops(location, stopNumber);
+        BusServiceModel.SearchForStops(location, stopNumber);
       });
     }
 
@@ -194,8 +196,8 @@ namespace OneBusAway.ViewModel
       locationTracker.RunWhenLocationKnown(delegate (Geopoint location)
       {
         bool hasData;
-              // Ensure that their current location is within ~150km of a supported region
-              if (busServiceModel.DistanceFromClosestSupportedRegion(LocationTracker.CurrentLocation) > 150000)
+        // Ensure that their current location is within ~150km of a supported region
+        if (BusServiceModel.DistanceFromClosestSupportedRegion(LocationTracker.CurrentLocation) > 150000)
         {
           hasData = false;
         }
@@ -212,8 +214,8 @@ namespace OneBusAway.ViewModel
     {
       base.RegisterEventHandlers(dispatcher);
 
-      this.busServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
-      this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+      this.BusServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
+      this.BusServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
       this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
       this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -225,8 +227,8 @@ namespace OneBusAway.ViewModel
     {
       base.UnregisterEventHandlers();
 
-      this.busServiceModel.CombinedInfoForLocation_Completed -= new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
-      this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+      this.BusServiceModel.CombinedInfoForLocation_Completed -= new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
+      this.BusServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
       this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
       this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -432,7 +434,7 @@ namespace OneBusAway.ViewModel
             directionHelper[r.Route.id] = r.RouteStops;
 
             operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
-            busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, r.Route);
+            BusServiceModel.StopsForRoute(LocationTracker.CurrentLocation, r.Route);
           }
         }
       }

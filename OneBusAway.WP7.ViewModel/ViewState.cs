@@ -12,11 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.Model.LocationServiceDataStructures;
 using System;
-using OneBusAway.ViewModel.BusServiceDataStructures;
 using System.Collections.Generic;
 using System.ComponentModel;
-using OneBusAway.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.ViewModel
 {
