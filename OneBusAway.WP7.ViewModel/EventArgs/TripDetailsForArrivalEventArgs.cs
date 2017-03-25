@@ -13,7 +13,8 @@
  * limitations under the License.
  */
 using System;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.Model.EventArgs;
 using System.Collections.Generic;
 
 namespace OneBusAway.ViewModel.EventArgs

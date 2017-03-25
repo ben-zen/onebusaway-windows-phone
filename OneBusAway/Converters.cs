@@ -12,37 +12,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model.AppDataDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.ViewModel;
 using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.Windows.Data;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
-using OneBusAway.WP7.ViewModel;
-using Microsoft.Phone.Controls.Maps;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using Windows.Devices.Geolocation;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 
-namespace OneBusAway.WP7.View
+
+namespace OneBusAway.View
 {
     public class LowercaseConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             string str = value as string;
 
             return str.ToLower();
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +43,7 @@ namespace OneBusAway.WP7.View
 
     public class StopRoutesConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             Stop stop = value as Stop;
 
@@ -63,7 +56,7 @@ namespace OneBusAway.WP7.View
             return routes.Substring(0, routes.Length - 2); // remove the trailing ", "
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -71,7 +64,7 @@ namespace OneBusAway.WP7.View
 
     public class DistanceConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value == null)
             {
@@ -100,7 +93,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -108,7 +101,7 @@ namespace OneBusAway.WP7.View
 
     public class ShortDistanceConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value == null)
             {
@@ -137,7 +130,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -145,7 +138,7 @@ namespace OneBusAway.WP7.View
 
     public class DateTimeDeltaConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value != null)
             {
@@ -170,7 +163,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -178,7 +171,7 @@ namespace OneBusAway.WP7.View
 
     public class DateTimeConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is DateTime)
             {
@@ -186,11 +179,11 @@ namespace OneBusAway.WP7.View
 
                 if (parameter is string && string.IsNullOrEmpty((string)parameter) == false)
                 {
-                    return string.Format("{0} {1}", parameter, date.ToLocalTime().ToShortTimeString());
+                    return string.Format("{0} {1}", parameter, date.ToLocalTime().ToString("HH:mm"));
                 }
                 else
                 {
-                    return date.ToLocalTime().ToShortTimeString();
+                    return date.ToLocalTime().ToString("HH:mm");
                 }
             }
             else
@@ -199,7 +192,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -207,7 +200,7 @@ namespace OneBusAway.WP7.View
 
     public class LateEarlyConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is TimeSpan? && value != null)
             {
@@ -236,7 +229,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -244,7 +237,7 @@ namespace OneBusAway.WP7.View
 
     public class StopDirectionConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is Stop)
             {
@@ -290,7 +283,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             return null;
         }
@@ -305,7 +298,7 @@ namespace OneBusAway.WP7.View
             object value,
             Type targetType,
             object parameter,
-            System.Globalization.CultureInfo culture)
+            string culture)
         {
             if (value is FavoriteRouteAndStop)
             {
@@ -322,7 +315,7 @@ namespace OneBusAway.WP7.View
             object value,
             Type targetType,
             object parameter,
-            System.Globalization.CultureInfo culture)
+            string culture)
         {
             if (value is Visibility)
             {
@@ -346,7 +339,7 @@ namespace OneBusAway.WP7.View
             object value,
             Type targetType,
             object parameter,
-            System.Globalization.CultureInfo culture)
+            string culture)
         {
             if (value is bool)
             {
@@ -363,7 +356,7 @@ namespace OneBusAway.WP7.View
             object value,
             Type targetType,
             object parameter,
-            System.Globalization.CultureInfo culture)
+            string culture)
         {
             if (value is Visibility)
             {
@@ -379,7 +372,7 @@ namespace OneBusAway.WP7.View
 
     public class DelayColorConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is ArrivalAndDeparture)
             {
@@ -399,7 +392,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             return null;
         }
@@ -408,7 +401,7 @@ namespace OneBusAway.WP7.View
 
     public class PolylineConverter : IValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is RouteStops)
             {
@@ -416,12 +409,15 @@ namespace OneBusAway.WP7.View
 
                 if (routeStops.encodedPolylines != null)
                 {
-                    List<LocationCollection> polylines = new List<LocationCollection>();
+                    List<Geopath> polylines = new List<Geopath>();
                     foreach (PolyLine pl in routeStops.encodedPolylines)
                     {
-                        LocationCollection polyline = new LocationCollection();
-                        pl.Coordinates.ForEach(coordinate => polyline.Add(new GeoCoordinate(coordinate.Latitude, coordinate.Longitude)));
-                        polylines.Add(polyline);
+                        var coordinates = new List<BasicGeoposition>();
+                        foreach (var coordinate in pl.Coordinates)
+                        {
+                            coordinates.Add(new BasicGeoposition { Latitude = coordinate.Latitude, Longitude = coordinate.Longitude });
+                        }
+                        polylines.Add(new Geopath(coordinates));
                     }
 
                     return polylines;
@@ -437,7 +433,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             return null;
         }
@@ -510,7 +506,7 @@ namespace OneBusAway.WP7.View
         /// <param name="parameter">The parameter (unused)</param>
         /// <param name="culture">The current culture (unused)</param>
         /// <returns>A ScaleTransform</returns>
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             double currentZoomLevel = (double)value;
 
@@ -539,7 +535,7 @@ namespace OneBusAway.WP7.View
         /// <returns>A ZoomeLevel</returns>
         /// <exception cref="NotImplementedException">Always thrown</exception>
         /// <remarks>Unimplemented</remarks>
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             throw new NotImplementedException();
         }
@@ -555,7 +551,7 @@ namespace OneBusAway.WP7.View
         private const string routesPivot = "Routes pivot";
         private const string lastUsedPivot = "Previously used pivot";
 
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, string culture)
         {
             if (value is ObservableCollection<MainPagePivots>)
             {
@@ -601,7 +597,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, string culture)
         {
             string selectedName = value.ToString();
 
@@ -625,52 +621,6 @@ namespace OneBusAway.WP7.View
                 default:
                     throw new NotImplementedException();
             }
-        }
-    }
-
-    public class ColorAlphaConverter : IValueConverter
-    {
-
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            if (value is SolidColorBrush && parameter != null && parameter is SolidColorBrush)
-            {
-                Color newColor = new Color();
-                Color color = ((SolidColorBrush)value).Color;
-
-                Color backgroundColor = ConvertArgbToRgb(((SolidColorBrush)parameter).Color);
-
-                double alpha = color.A / (byte.MaxValue * 1.0);
-                double backgroundAlpha = 1 - alpha;
-
-                newColor.A = 0xFF;
-                newColor.B = (byte)(color.B * alpha + backgroundColor.B * backgroundAlpha + 0.5);
-                newColor.G = (byte)(color.G * alpha + backgroundColor.G * backgroundAlpha + 0.5);
-                newColor.R = (byte)(color.R * alpha + backgroundColor.R * backgroundAlpha + 0.5);
-
-                return new SolidColorBrush(newColor);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private Color ConvertArgbToRgb(Color color)
-        {
-            double alpha = color.A / (byte.MaxValue * 1.0);
-            Color newColor = new Color();
-            newColor.A = 0xFF;
-            newColor.B = (byte)(color.B * alpha + 0.5);
-            newColor.G = (byte)(color.G * alpha + 0.5);
-            newColor.R = (byte)(color.R * alpha + 0.5);
-
-            return newColor;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return null;
         }
     }
 }

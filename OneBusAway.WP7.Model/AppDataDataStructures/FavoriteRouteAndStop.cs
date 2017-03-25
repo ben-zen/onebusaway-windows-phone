@@ -106,9 +106,9 @@ namespace OneBusAway.Model.AppDataDataStructures
 
     public class FavoriteDistanceComparer : IComparer<FavoriteRouteAndStop>
     {
-        private Geocoordinate center;
+        private Geopoint center;
 
-        public FavoriteDistanceComparer(Geocoordinate center)
+        public FavoriteDistanceComparer(Geopoint center)
         {
             this.center = center;
         }

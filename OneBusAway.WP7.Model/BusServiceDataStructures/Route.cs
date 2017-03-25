@@ -66,9 +66,9 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
     public class RouteDistanceComparer : IComparer<Route>
     {
-        private Geocoordinate center;
+        private Geopoint center;
 
-        public RouteDistanceComparer(Geocoordinate center)
+        public RouteDistanceComparer(Geopoint center)
         {
             this.center = center;
         }

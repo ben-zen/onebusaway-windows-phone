@@ -12,23 +12,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
+
 using dev.virtualearth.net.webservices.v1.geocode;
 using dev.virtualearth.net.webservices.v1.common;
 using OneBusAway.Model.EventArgs;
+using OneBusAway.Model.LocationServiceDataStructures;
+using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using OneBusAway.Model.LocationServiceDataStructures;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.ServiceModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
+    internal class VirtualEarthRequest
+    {
+        private const string virtualEarthAPIEndpoint = "https://dev.virtualearth.net/REST/v1/";
+        public Geopoint UserLocation { get; set; }
+        public string SearchString { get; set; }
+        public string ApplicationCredential { get; set; }
+
+        /// <summary>
+        /// Constructs a VirtualEarthRequest object, which builds an unstructured request.
+        /// </summary>
+        /// <param name="location">The caller's location, used to improve results.</param>
+        /// <param name="search">The unescaped request string, which will be percent encoded for an unstructured search.</param>
+        /// <param name="credential">The application's credential for accessing the Bing APIs.</param>
+
+        public Uri GetUri()
+        {
+            var requestUrl = virtualEarthAPIEndpoint + " Locations/" + WebUtility.UrlEncode(SearchString) + "?" // Use the structured query since it saves a bit of space.
+                + "ul=" + string.Format("{0},{1}", UserLocation.Position.Latitude, UserLocation.Position.Longitude) + "&" // Provide the user's location to scope results
+                + "o=xml&" // Format the response as XML
+                + "key=" + ApplicationCredential;
+            return new Uri(requestUrl);
+        }
+    }
+
     public class LocationModel : ILocationModel
     {
         #region Private Variables
 
-        private GeocodeServiceClient geocodeService;
         private string bingMapsApiKey = "AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz";
 
         #endregion
@@ -37,128 +66,29 @@ namespace OneBusAway.Model
 
         public static LocationModel Singleton = new LocationModel();
 
-        private LocationModel()
-        {
-            geocodeService = new GeocodeServiceClient(
-                new BasicHttpBinding(), 
-                new System.ServiceModel.EndpointAddress("http://dev.virtualearth.net/webservices/v1/geocodeservice/GeocodeService.svc")
-                );
-            geocodeService.GeocodeCompleted += new EventHandler<GeocodeCompletedEventArgs>(geocodeService_GeocodeCompleted);
-        }
-
         #endregion
 
         #region Public Members
 
-        public event EventHandler<LocationForAddressEventArgs> LocationForAddressCompleted;
-
-        public void LocationForAddress(string addressString, Geopoint searchNearLocation)
+        public async Task<Geopoint> GetLocationForAddressAsync(string addressString, Geopoint searchNearLocation)
         {
-            LocationForAddress(addressString, searchNearLocation, null);
-        }
+            // Build the request URI.
+            var request = new VirtualEarthRequest { UserLocation = searchNearLocation,
+                SearchString = addressString,
+                ApplicationCredential = bingMapsApiKey };
 
-        public void LocationForAddress(string addressString, Geopoint searchNearLocation, object callerState)
-        {
-            GeocodeRequest request = new GeocodeRequest();
-            request.Credentials = new dev.virtualearth.net.webservices.v1.common.Credentials()
-            {
-                ApplicationId = bingMapsApiKey
-            };
-            request.Query = addressString;
-            request.UserProfile = new UserProfile()
-            {
-                CurrentLocation = new UserLocation()
-                {
-                    Latitude = searchNearLocation.Position.Latitude,
-                    Longitude = searchNearLocation.Position.Longitude
-                },
-                DistanceUnit = DistanceUnit.Mile,
-                DeviceType = DeviceType.Mobile,
-                ScreenSize = new SizeOfint()
-                {
-                    Width = 480,
-                    Height = 700
-                }
-            };
-
-            GeocodeState state = new GeocodeState()
-            {
-                Query = addressString,
-                SearchNearLocation = searchNearLocation,
-                CallerState = callerState
-            };
-
-            geocodeService.GeocodeAsync(request, state);
+            var client = new HttpClient();
+            var response = await client.GetStringAsync(request.GetUri());
+            var xmlResponse = XDocument.Parse(response);
+            // Inside this response I'm looking for a GeocodePoint whose Usage is Display.
+            // Ultimately I'm looking for 
+            var displayPoints = from point in xmlResponse.Descendants("GeocodePoint")
+                                where (point.Descendants("Usage").First().Value) == "Display"
+                                select new Geopoint(new BasicGeoposition { Latitude = double.Parse(point.Descendants("Latitude").First().Value),
+                                                                           Longitude = double.Parse(point.Descendants("Longitude").First().Value)});
+            return displayPoints.First();
         }
 
         #endregion
-
-        #region Private Members
-
-        private struct GeocodeState
-        {
-            public string Query { get; set; }
-            public Geopoint SearchNearLocation { get; set; }
-            public object CallerState { get; set; }
-        }
-
-        void geocodeService_GeocodeCompleted(object sender, GeocodeCompletedEventArgs e)
-        {
-            Exception error = e.Error;
-            List<LocationForQuery> locations = new List<LocationForQuery>();
-
-            if (error == null)
-            {
-                try
-                {
-                    GeocodeResult[] results = e.Result.Results;
-                    
-                    foreach (GeocodeResult result in results)
-                    {
-                        LocationForQuery location = new LocationForQuery()
-                        {
-                            name = result.DisplayName,
-                            boundingBox = new LocationRect()
-                            {
-                                Northeast = new GeoCoordinate(result.BestView.Northeast.Latitude, result.BestView.Northeast.Longitude),
-                                Southwest = new GeoCoordinate(result.BestView.Southwest.Latitude, result.BestView.Southwest.Longitude)
-                            },
-                            confidence = (ViewModel.LocationServiceDataStructures.Confidence)(int)result.Confidence
-                        };
-
-                        location.location = new GeoCoordinate()
-                        {
-                            Latitude = result.Locations[0].Latitude,
-                            Longitude = result.Locations[0].Longitude,
-                            Altitude = result.Locations[0].Altitude
-                        };
-
-                        locations.Add(location);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-            }
-
-            Debug.Assert(error == null);
-
-            if (LocationForAddress_Completed != null)
-            {
-                GeocodeState state = (GeocodeState)e.UserState;
-                LocationForAddress_Completed(this, 
-                    new LocationForAddressEventArgs(
-                        locations, 
-                        state.Query, 
-                        state.SearchNearLocation, 
-                        error, 
-                        state.CallerState
-                        ));
-            }
-        }
-
-        #endregion
-
     }
 }

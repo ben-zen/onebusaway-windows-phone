@@ -15,23 +15,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using Microsoft.Phone.Controls;
-using OneBusAway.WP7.ViewModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.ViewModel;
+using OneBusAway.Model.BusServiceDataStructures;
 using System.Windows.Navigation;
 using System.Collections.Specialized;
 using System.Device.Location;
 using Microsoft.Phone.Shell;
 
-namespace OneBusAway.WP7.View
+namespace OneBusAway.View
 {
     public partial class BusDirectionPage : AViewPage
     {

@@ -23,15 +23,15 @@ namespace OneBusAway.Model.EventArgs
     {
         public List<LocationForQuery> locations { get; private set; }
         public string query { get; private set; }
-        public Geocoordinate searchNearLocation { get; private set; }
+        public Geopoint searchNearLocation { get; private set; }
 
-        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geocoordinate searchNearLocation, Exception error)
+        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geopoint searchNearLocation, Exception error)
             : this(locations, query, searchNearLocation, error, null)
         {
 
         }
 
-        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geocoordinate searchNearLocation, Exception error, object state)
+        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, Geopoint searchNearLocation, Exception error, object state)
             : base(error, state)
         {
             this.query = query;

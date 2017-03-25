@@ -112,9 +112,9 @@ namespace OneBusAway.Model
                 error = e;
             }
 
-            if (Favorites_Changed != null)
+            if (FavoritesChanged != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
             }
         }
 
@@ -142,9 +142,9 @@ namespace OneBusAway.Model
                 error = e;
             }
 
-            if (Favorites_Changed != null)
+            if (FavoritesChanged != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
             }
         }
 
@@ -165,9 +165,9 @@ namespace OneBusAway.Model
                 error = e;
             }
 
-            if (Favorites_Changed != null)
+            if (FavoritesChanged != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
             }
         }
 

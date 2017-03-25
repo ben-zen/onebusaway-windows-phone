@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
@@ -65,11 +66,11 @@ namespace OneBusAway.Model.BusServiceDataStructures
         public double DistanceFrom(double latitude, double longitude)
         {
             double closestRegion = double.MaxValue;
-            GeoCoordinate location = new GeoCoordinate(latitude, longitude);
+            Geopoint location = new Geopoint(new BasicGeoposition { Latitude = latitude, Longitude = longitude });
             
             foreach (var bounds in this.RegionBounds)
             {
-                GeoCoordinate regionLocation = new GeoCoordinate(bounds.Latitude, bounds.Longitude);
+                Geopoint regionLocation = new Geopoint(new BasicGeoposition { Latitude = bounds.Latitude, Longitude = bounds.Longitude });
                 closestRegion = Math.Min(closestRegion, regionLocation.GetDistanceTo(location));
             }
 

@@ -13,28 +13,24 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<view:AViewPage 
+<AViewPage 
     x:Class="OneBusAway.WP7.View.DetailsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:navigation="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
+    xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
     xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
-    xmlns:view="clr-namespace:OneBusAway.WP7.View"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:shapes="clr-namespace:System.Windows.Shapes;assembly=System.Windows"
-    xmlns:tilt="clr-namespace:ControlTiltEffect"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    tilt:TiltEffect.IsTiltEnabled="True"
     SupportedOrientations="Portrait"
     mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
-    shell:SystemTray.IsVisible="True"
     xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
     >
 
-    <view:AViewPage.Resources>
+    <AViewPage.Resources>
 
         <data:RouteDetailsVM x:Key="ViewModel" />
 
@@ -119,26 +115,9 @@
             </Grid>
         </DataTemplate>
 
-        <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Button 
-                            Width="50" Height="50"
-                            HorizontalContentAlignment="Stretch" 
-                            VerticalContentAlignment="Stretch" 
-                            BorderThickness="0" 
-                            Padding="0" 
-                            Click="BusStopPushpin_Click"
-                            Tag="{TemplateBinding Tag}"
-                            >
-                            <Image Source="/Bus_Icon.png" Margin="-3"/>
-                        </Button>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="BusStopLargePushpinStyle" TargetType="maps:MapIcon">
         </Style>
-    </view:AViewPage.Resources>
+    </AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         <Grid.RowDefinitions>
@@ -173,63 +152,58 @@
         </Grid>
 
         <Grid Grid.Row="1" x:Name="ContentGrid">
-            <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="10"
-                    MapZoom="DetailsMap_MapZoom">
-                <m:MapLayer x:Name="RouteLineLayer">
-                    <m:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}" DataContext="{StaticResource ViewModel}">
-                        <m:MapItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <m:MapPolyline 
+            <maps:MapControl x:Name="DetailsMap"
+                             Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"
+                             WatermarkMode="Automatic"
+                             ZoomInteractionMode="Auto"
+                             ZoomLevel="10"
+                             ZoomLevelChanged="DetailsMap_MapZoom">
+                <maps:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}" DataContext="{StaticResource ViewModel}">
+                    <maps:MapItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <maps:MapPolyline 
                                 Locations="{Binding}" 
                                 StrokeThickness="5"
                                 Stroke="{StaticResource OBAAccentBrush}"
                                 />
-                            </DataTemplate>
-                        </m:MapItemsControl.ItemTemplate>
-                    </m:MapItemsControl>
-                </m:MapLayer>
-                <m:MapLayer x:Name="BusTripsLayer">
-                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}">
-                        <m:MapItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <m:Pushpin 
+                        </DataTemplate>
+                    </maps:MapItemsControl.ItemTemplate>
+                </maps:MapItemsControl>
+                <maps:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}">
+                    <maps:MapItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <maps:MapIcon 
                                     Location="{Binding tripDetails.location}" 
-                                    PositionOrigin="Center" 
+                                    NormalizedAnchorPoint="0.5,0.5"
                                     Style="{StaticResource BusTripPushpinStyle}" 
                                     Visibility="{Binding tripDetails.locationKnown, Converter={StaticResource VisibilityConverter}}"
                                     />
-                            </DataTemplate>
-                        </m:MapItemsControl.ItemTemplate>
-                    </m:MapItemsControl>
-                </m:MapLayer>
-                <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
-                    <m:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops}" DataContext="{StaticResource ViewModel}">
-                        <m:MapItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <m:Pushpin 
+                        </DataTemplate>
+                    </maps:MapItemsControl.ItemTemplate>
+                </maps:MapItemsControl>
+                <maps:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops}" DataContext="{StaticResource ViewModel}">
+                    <maps:MapItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <maps:MapIcon 
                                     Location="{Binding location}" 
-                                    PositionOrigin="Center" 
+                                    NormalizedAnchorPoint="0.5,0.5" 
                                     Tag="{Binding Path=id}" 
                                     Style="{StaticResource BusStopLargePushpinStyle}" 
                                     />
-                                <!-- 
+                            <!-- 
                                     TODO: Enable this once I get it working
                                     RenderTransform="{Binding Path=ZoomLevel, ElementName=DetailsMap, Converter={StaticResource PushpinScaleConverter}}"
                                 -->
-                            </DataTemplate>
-                        </m:MapItemsControl.ItemTemplate>
-                    </m:MapItemsControl>
-                </m:MapLayer>
-                <m:MapLayer x:Name="SelectedStopLayer">
-                    <m:Pushpin x:Name="StopPushpin" Location="{Binding Path=CurrentViewState.CurrentStop.location}" DataContext="{StaticResource ViewModel}" PositionOrigin="BottomLeft">
-                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
-                    </m:Pushpin>
-                </m:MapLayer>
-                <m:MapLayer x:Name="MyLocationLayer">
-                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
-                </m:MapLayer>
-            </m:Map>
+                        </DataTemplate>
+                    </maps:MapItemsControl.ItemTemplate>
+                </maps:MapItemsControl>
+                <maps:MapIcon x:Name="StopPushpin" Location="{Binding Path=CurrentViewState.CurrentStop.location}" DataContext="{StaticResource ViewModel}" PositionOrigin="BottomLeft">
+                    <MapIcon.Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                </maps:MapIcon>
+                <maps:MapLayer x:Name="MyLocationLayer">
+                    <maps:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
+                </maps:MapLayer>
+            </maps:MapControl>
         </Grid>
         <Grid Grid.Row="2" x:Name="StopGrid">
 
@@ -266,4 +240,4 @@
             <shell:ApplicationBarIconButton x:Name="appbar_refresh" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click" />
         </shell:ApplicationBar>
     </navigation:PhoneApplicationPage.ApplicationBar>
-</view:AViewPage>
+</AViewPage>

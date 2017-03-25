@@ -15,7 +15,8 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.Model.EventArgs;
 
 namespace OneBusAway.ViewModel.EventArgs
 {

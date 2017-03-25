@@ -76,9 +76,9 @@ namespace OneBusAway.Model
             webservice = new OneBusAwayWebservice();
         }
 
-        public double DistanceFromClosestSupportedRegion(Geopoint location)
+        public async Task<double> DistanceFromClosestSupportedRegionAsync(Geopoint location)
         {
-            return OneBusAwayWebservice.ClosestRegionAsync(location).DistanceFrom(location.Position.Latitude, location.Position.Longitude);
+            return (await OneBusAwayWebservice.ClosestRegionAsync(location)).DistanceFrom(location.Position.Latitude, location.Position.Longitude);
         }
 
         public bool AreLocationsEquivalent(Geopoint location1, Geopoint location2)

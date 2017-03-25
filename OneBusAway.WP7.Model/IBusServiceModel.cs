@@ -23,7 +23,7 @@ namespace OneBusAway.Model
 {
   public interface IBusServiceModel
   {
-    double DistanceFromClosestSupportedRegion(Geopoint location);
+    Task<double> DistanceFromClosestSupportedRegionAsync(Geopoint location);
     bool AreLocationsEquivalent(Geopoint location1, Geopoint location2);
     Task<Tuple<List<Stop>,List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters);
     Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount);

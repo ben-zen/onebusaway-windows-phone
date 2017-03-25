@@ -69,7 +69,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
         private const double kmPerMile = 1.60934400000644;
 
-        public double CalculateDistanceInMiles(Geocoordinate location2)
+        public double CalculateDistanceInMiles(Geopoint location2)
         {
             double meters = location.GetDistanceTo(location2);
             return meters / (1000.0 * kmPerMile);

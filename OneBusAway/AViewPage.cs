@@ -14,12 +14,13 @@
  */
 using System;
 using System.Net;
-using Windows.UI.Core;
-using Windows.UI.Xaml.Controls;
 using OneBusAway.ViewModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Collections.Generic;
+using Windows.UI.Core;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace OneBusAway.View
 {
@@ -48,7 +49,7 @@ namespace OneBusAway.View
         // the constructor is called
         protected void Initialize()
         {
-            if (Resources.Contains("ViewModel") == true)
+            if (Resources.ContainsKey("ViewModel") == true)
             {
                 aViewModel = Resources["ViewModel"] as AViewModel;
             }
@@ -58,7 +59,7 @@ namespace OneBusAway.View
             }
         }
 
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -68,7 +69,7 @@ namespace OneBusAway.View
             }
         }
 
-        protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
 
@@ -181,16 +182,15 @@ namespace OneBusAway.View
                     
                     Version version = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
 
-                    EmailComposeTask emailComposeTask = new EmailComposeTask();
-                    emailComposeTask.To = AViewModel.FeedbackEmailAddress;
-                    emailComposeTask.Body = string.Format(
-                        "Please tell us a few details about what you were doing when the error occurred: \r\n\r\n\r\n" +
-                        "Debugging info for us: \r\n" +
-                        "OneBusAway Version: {0} \r\n" +
-                        "{1}",
-                        version,
-                        e.error
-                        );
+                    var mailtoUrl = "mailto:" + AViewModel.FeedbackEmailAddress + "?" + WebUtility.UrlEncode("subject=Error Report: Windows 10") + "&body=" +
+                        WebUtility.UrlEncode(string.Format("Please tell us a few details about what you were doing when the error occurred: \r\n\r\n\r\n" +
+                                      "Debugging info for us: \r\n" +
+                                      "OneBusAway Version: {0} \r\n" +
+                                      "{1}",
+                                      version,
+                                      e.error));
+
+                    Windows.System.Launcher.LaunchUriAsync(new Uri(mailtoUrl));
 
                     // The email task will crash if the message is longer than 32k characters
                     if (emailComposeTask.Body.Length > 30000)

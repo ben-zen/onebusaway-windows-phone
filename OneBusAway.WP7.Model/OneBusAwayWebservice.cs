@@ -55,9 +55,6 @@ namespace OneBusAway.Model
         // Ex: multipler = 3, we round to the nearest 0.33
         private const int multiplier = 3;
 
-        private HttpCache stopsCache;
-        private HttpCache directionCache;
-
         private HttpClient client;
 
         #endregion
@@ -66,8 +63,6 @@ namespace OneBusAway.Model
 
         public OneBusAwayWebservice()
         {
-            stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
-            directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(15).TotalSeconds, 100);
             client = new HttpClient();
         }
 
@@ -116,37 +111,6 @@ namespace OneBusAway.Model
                 {
                     ParseResults(null, e);
                 }
-            }
-
-            /// <summary>
-            /// Callback entry point for calls based on HttpCache
-            /// </summary>
-            /// <param name="sender"></param>
-            /// <param name="e"></param>
-            public void HttpCache_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
-            {
-                Exception error = e.Error;
-                XDocument xmlDoc = null;
-
-                if (error == null)
-                {
-                    try
-                    {
-                        string requestUrl = string.Empty;
-                        if (e.UserState is Uri)
-                        {
-                            requestUrl = ((Uri)e.UserState).ToString();
-                        }
-
-                        xmlDoc = CheckResponseCode(e.Result, requestUrl);
-                    }
-                    catch (Exception ex)
-                    {
-                        error = ex;
-                    }
-                }
-
-                ParseResults(xmlDoc, error);
             }
 
             private static XDocument CheckResponseCode(TextReader xmlResponse, string requestUrl)
@@ -255,10 +219,6 @@ namespace OneBusAway.Model
             }
 
             Uri requestUri = new Uri(requestString);
-            if (invalidateCache)
-            {
-                stopsCache.Invalidate(requestUri);
-            }
 
             var response = await client.GetStringAsync(requestString);
 
@@ -644,14 +604,14 @@ namespace OneBusAway.Model
 
         internal void ClearCache()
         {
-            stopsCache.Clear();
-            directionCache.Clear();
+            // stopsCache.Clear();
+            // directionCache.Clear();
         }
 
         internal void SaveCache()
         {
-            stopsCache.Save();
-            directionCache.Save();
+            // stopsCache.Save();
+            // directionCache.Save();
         }
 
         /// <summary>

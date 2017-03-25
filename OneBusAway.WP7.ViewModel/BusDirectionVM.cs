@@ -14,7 +14,8 @@
  */
 using System;
 using System.Collections.ObjectModel;
-using OneBusAway.ViewModel.BusServiceDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.ViewModel.EventArgs;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -68,7 +69,7 @@ namespace OneBusAway.ViewModel
             }
         }
 
-        void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
+        void busServiceModel_StopsForRoute_Completed(object sender, StopsForRouteEventArgs e)
         {
             Debug.Assert(e.error == null);
 

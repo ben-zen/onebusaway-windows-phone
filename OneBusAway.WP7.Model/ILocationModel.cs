@@ -12,15 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
+using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
     public interface ILocationModel
     {
-        void LocationForAddress(string addressString, Geopoint searchNearLocation);
-        void LocationForAddress(string addressString, Geopoint searchNearLocation, object state);
+        Task<Geopoint> GetLocationForAddressAsync(string addressString, Geopoint searchNearLocation);
     }
 
 }

@@ -199,6 +199,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OneBusAway.WP7.Model\OneBusAway.Model.csproj">
+      <Project>{27f32d02-93cf-44e5-be93-45f4e2a62b85}</Project>
+      <Name>OneBusAway.Model</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OneBusAway.WP7.ViewModel\OneBusAway.ViewModel.csproj">
       <Project>{dc166c05-0c82-4ee8-ad6a-cb2b4d310f49}</Project>
       <Name>OneBusAway.ViewModel</Name>
