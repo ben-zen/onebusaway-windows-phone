@@ -21,12 +21,14 @@
 
   <Application.Resources>
     <x:String x:Key="MapCredentials" >AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz</x:String>
-    
+
     <view:ColorAlphaConverter x:Key="ColorAlphaConverter" />
     <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />
     <view:DistanceConverter x:Key="DistanceConverter" />
     <view:FavoriteToVisibilityConverter x:Key="FavoriteToVisibilityConverter" />
     <view:LowercaseConverter x:Key="LowercaseConverter" />
+    <view:MaxZoomConverter x:Key="MaxZoomConverter" />
+    <view:PivotNameConverter x:Key="PivotNameConverter" />
     <view:ShortDistanceConverter x:Key="ShortDistanceConverter" />
     <view:StopDirectionConverter x:Key="StopDirectionConverter" />
     <view:StopRoutesConverter x:Key="StopRoutesConverter" />

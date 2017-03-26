@@ -35,24 +35,25 @@ namespace OneBusAway.View
   public partial class App : Application
   {
     private ViewState viewState = ViewState.Instance;
+
+    #region Properties
     public Frame RootFrame { get; private set; }
 
     private bool FeedbackEnabled
     {
-      get
-      {
-        if (IsolatedStorageSettings.ApplicationSettings.Contains("FeedbackEnabled") == true)
-        {
-          return bool.Parse(IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"].ToString());
-        }
-        else
-        {
-          // We default to enabled if there is no user setting
-          return true;
-        }
-      }
+      get => Settings.FeedbackEnabled;
     }
 
+    public SettingsVM Settings
+    {
+      get;
+      private set;
+    }
+
+    public StopsMapVM StopsMap { get; private set; }
+
+
+    #endregion
     public App()
     {
       UnhandledException += new UnhandledExceptionEventHandler(unhandledException_ErrorHandler);
@@ -62,6 +63,8 @@ namespace OneBusAway.View
       // Phone-specific initialization
       InitializePhoneApplication();
     }
+
+
 
     // Code to execute when the application is activated (brought to foreground)
     // This code will not execute when the application is first launched
