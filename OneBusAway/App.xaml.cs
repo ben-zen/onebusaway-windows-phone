@@ -55,7 +55,7 @@ namespace OneBusAway.View
 
     public App()
     {
-      UnhandledException += new EventHandler<ApplicationUnhandledExceptionEventArgs>(AViewPage.unhandledException_ErrorHandler);
+      UnhandledException += new UnhandledExceptionEventHandler(unhandledException_ErrorHandler);
 
       InitializeComponent();
 

@@ -102,9 +102,6 @@
     <Compile Include="BusDirectionPage.xaml.cs">
       <DependentUpon>BusDirectionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BusStopControl.xaml.cs">
-      <DependentUpon>BusStopControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="CenterControl.xaml.cs">
       <DependentUpon>CenterControl.xaml</DependentUpon>
     </Compile>
@@ -161,15 +158,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="BusStopControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="CenterControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="ControlStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -197,6 +186,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <!-- <Page Include="SampleData\MainViewModelSampleData.xaml">
+      <Generator />
+      <SubType>Designer</SubType>
+    </Page> -->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneBusAway.WP7.Model\OneBusAway.Model.csproj">

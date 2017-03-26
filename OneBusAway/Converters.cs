@@ -292,7 +292,7 @@ namespace OneBusAway.View
     /// <summary>   
     /// A type converter for visibility and boolean values.   
     /// </summary>   
-    public class IsFavoriteConverter : IValueConverter
+    public class FavoriteToVisibilityConverter : IValueConverter
     {
         public object Convert(
             object value,

@@ -19,6 +19,7 @@ using OneBusAway.Model.LocationServiceDataStructures;
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace OneBusAway.View
@@ -27,7 +28,6 @@ namespace OneBusAway.View
   {
     private MainPageVM viewModel;
     private bool firstLoad;
-    private Popup popup;
     private bool navigatedAway;
     private Object navigationLock;
     private const string searchErrorMessage =
