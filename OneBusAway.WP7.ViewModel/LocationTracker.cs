@@ -26,73 +26,16 @@ using Windows.Storage;
 
 namespace OneBusAway.ViewModel
 {
-  internal class LocationTrackerStatic
-  {
-
-    private static Geolocator locationWatcher;
-
-    public static Geopoint LastKnownLocation { get; set; }
-    public static PositionStatus LocationStatus
-    {
-      get
-      {
-        return locationWatcher.LocationStatus;
-      }
-    }
-
-    public static event EventHandler<PositionChangedEventArgs> PositionChanged;
-    public static event EventHandler<StatusChangedEventArgs> StatusChanged;
-
-    static LocationTrackerStatic()
-    {
-      LastKnownLocation = null;
-
-      locationWatcher = new Geolocator { DesiredAccuracyInMeters = 0, MovementThreshold = 5 };
-      locationWatcher.MovementThreshold = 5; // 5 meters
-      locationWatcher.PositionChanged += new TypedEventHandler<PositionChangedEventArgs>(LocationWatcher_PositionChanged);
-      locationWatcher.StatusChanged += new TypedEventHandler<StatusChangedEventArgs>(locationWatcher_StatusChanged);
-    }
-
-    static void locationWatcher_StatusChanged(object sender, StatusChangedEventArgs e)
-    {
-      if (StatusChanged != null)
-      {
-        StatusChanged(sender, e);
-      }
-    }
-
-    private static void LocationWatcher_PositionChanged(object sender, PositionChangedEventArgs e)
-    {
-      // The location service will return the last known location of the phone when it first starts up.  Since
-      // we can't refresh the home screen wait until a recent location value is found before using it.  The
-      // location must be less than 5 minute old.
-      if (e.Position.Location.IsUnknown == false)
-      {
-        if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 5, 0))
-        {
-          LastKnownLocation = e.Position.Location;
-        }
-      }
-
-      if (PositionChanged != null)
-      {
-        PositionChanged(sender, e);
-      }
-    }
-  }
-
   public class LocationTracker : INotifyPropertyChanged
   {
 
     #region Private Variables
 
     private bool locationLoading;
-    private Timer methodsRequiringLocationTimer;
-    private const int timerIntervalMs = 500;
-    private Object methodsRequiringLocationLock;
-    private List<RequiresKnownLocation> methodsRequiringLocation;
-    private AsyncOperationTracker operationTracker;
-    private Geolocator locator;
+
+    private Geolocator Locator { get; set; }
+    private Geocoordinate LocationInternal { get; set; }
+    private bool hasInitialized;
 
     private static object m_trackerLock = new object();
     private static LocationTracker m_tracker = null;
@@ -105,69 +48,69 @@ namespace OneBusAway.ViewModel
     private LocationTracker()
     {
       locationLoading = false;
-
-      methodsRequiringLocation = new List<RequiresKnownLocation>();
-      methodsRequiringLocationLock = new Object();
-      // Create the timer but don't run it until methods are added to the queue
-      methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
     }
 
-    public async void Initialize(AsyncOperationTracker operationTracker)
+    /// <summary>
+    /// Initializes the locator service, connecting to events and caching the internal Locator object.
+    /// </summary>
+    /// <returns>If the locator service is allowed and active, returns true.</returns>
+    private async Task<bool> Initialize()
     {
-      var accessStatus = await Geolocator.RequestAccessAsync();
-
-      switch (accessStatus)
+      var result = false;
+      if (hasInitialized)
       {
-        case GeolocationAccessStatus.Allowed:
-          locator = new Geolocator { };
-          locator.PositionChanged += new TypedEventHandler<Geolocator, PositionChangedEventArgs>(locationWatcher_PositionChanged_NotifyPropertyChanged);
-          locator.StatusChanged += new TypedEventHandler<Geolocator, StatusChangedEventArgs>(LocationWatcher_StatusChanged);
-          break;
-        case GeolocationAccessStatus.Denied:
-          break;
-        case GeolocationAccessStatus.Unspecified:
-          break;
-      }
-
-      this.operationTracker = operationTracker;
-
-
-
-      if (LocationKnown == false)
-      {
-        if (LocationTrackerStatic.LocationStatus == PositionStatus.Disabled)
-        {
-          LocationDisabled(true);
-        }
-        else if (ApplicationData.Current.LocalSettings.Values.ContainsKey("UseLocation") &&
-                (bool)IsolatedStorageSettings.ApplicationSettings["UseLocation"] == false)
-        {
-          LocationDisabled(false);
-        }
-        else
-        {
-          operationTracker.WaitForOperation("LoadLocation", "Finding your location...");
-          locationLoading = true;
-          LocationTrackerStatic.PositionChanged += new EventHandler<PositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
-          LocationTrackerStatic.StatusChanged += new EventHandler<PositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
-        }
+        result = (AccessStatus == GeolocationAccessStatus.Allowed);
       }
       else
       {
-        locationWatcher_PositionChanged_NotifyPropertyChanged(this, new PositionChangedEventArgs(CurrentLocation));
+        var accessStatus = await Geolocator.RequestAccessAsync();
+
+        switch (accessStatus)
+        {
+          case GeolocationAccessStatus.Allowed:
+            Locator = new Geolocator { };
+            Locator.PositionChanged += new TypedEventHandler<Geolocator, PositionChangedEventArgs>(locationWatcher_PositionChanged_NotifyPropertyChanged);
+            Locator.StatusChanged += new TypedEventHandler<Geolocator, StatusChangedEventArgs>(LocationWatcher_StatusChanged);
+            result = true;
+            break;
+          case GeolocationAccessStatus.Denied:
+            break;
+          case GeolocationAccessStatus.Unspecified:
+            break;
+        }
+        AccessStatus = accessStatus;
+
+
+        if (LocationKnown == false)
+        {
+          if (Locator.LocationStatus == PositionStatus.Disabled)
+          {
+            LocationDisabled(true);
+          }
+          else if (accessStatus == GeolocationAccessStatus.Allowed)
+          {
+            LocationDisabled(false);
+          }
+          else
+          {
+            locationLoading = true;
+            var position = await Locator.GetGeopositionAsync();
+
+          }
+        }
+
+        hasInitialized = true;
       }
+      return result;
     }
 
     public async Task<Geopoint> GetLocationAsync()
     {
-      throw new NotImplementedException();
-    }
-
-    public void Uninitialize()
-    {
-      LocationTrackerStatic.PositionChanged -= LocationWatcher_LocationKnown;
-      LocationTrackerStatic.StatusChanged -= LocationWatcher_StatusChanged;
-      LocationTrackerStatic.PositionChanged -= locationWatcher_PositionChanged_NotifyPropertyChanged;
+      if (!await Initialize())
+      {
+        throw new Exception("Location not allowed.");
+      }
+      return (await Locator.GetGeopositionAsync()).Coordinate.Point;
     }
 
     #endregion
@@ -193,18 +136,25 @@ namespace OneBusAway.ViewModel
       }
     }
 
+    public GeolocationAccessStatus AccessStatus { get; private set; }
+
+    public PositionStatus PositionStatus { get; private set; }
+
+    public bool LocatorAllowed
+    {
+      get
+      {
+        return AccessStatus == GeolocationAccessStatus.Allowed;
+      }
+    }
+
     public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
     public Geopoint CurrentLocation
     {
       get
       {
-        if (LocationTrackerStatic.LastKnownLocation != null)
-        {
-          return LocationTrackerStatic.LastKnownLocation;
-        }
-
-        throw new LocationUnavailableException("The location is currently unavailable: " + LocationTrackerStatic.LocationStatus, LocationTrackerStatic.LocationStatus);
+        return LocationInternal?.Point;
       }
     }
 
@@ -212,7 +162,7 @@ namespace OneBusAway.ViewModel
     {
       get
       {
-        return LocationTrackerStatic.LastKnownLocation != null;
+        return LocationInternal != null;
       }
     }
 
@@ -228,27 +178,13 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    public Geopoint CurrentLocationSafe
-    {
-      get
-      {
-        if (LocationKnown == true)
-        {
-          return CurrentLocation;
-        }
-        else
-        {
-          return DefaultLocation;
-        }
-      }
-    }
-
     #endregion
 
     #region Private Methods
 
     private void LocationWatcher_StatusChanged(object sender, StatusChangedEventArgs e)
     {
+      PositionStatus = e.Status;
       switch (e.Status)
       {
         case PositionStatus.NotAvailable:
@@ -263,20 +199,15 @@ namespace OneBusAway.ViewModel
       // Status disabled means the user has disabled the location service on their phone
       // and we won't be getting a location.  Go ahead and stop loading the location and
       // set it to the default
-      if (locationLoading == true)
-      {
-        locationLoading = false;
-        operationTracker.DoneWithOperation("LoadLocation");
-      }
+      locationLoading = false;
 
-      LocationTrackerStatic.LastKnownLocation = DefaultLocation;
       OnPropertyChanged("CurrentLocation");
       OnPropertyChanged("CurrentLocationSafe");
       OnPropertyChanged("LocationKnown");
 
       // Let them know OneBusAway is pretty useless without location
       string errorMessage;
-      if (systemServiceDisabled == true)
+      if (systemServiceDisabled)
       {
         errorMessage =
             "We couldn't find your location, " +
@@ -290,51 +221,22 @@ namespace OneBusAway.ViewModel
             "in the settings menu. OneBusAway will default to downtown Seattle.";
       }
 
-      ErrorOccured(this, new LocationUnavailableException(errorMessage, LocationTrackerStatic.LocationStatus));
+      ErrorOccured(this, new LocationUnavailableException(errorMessage, PositionStatus));
     }
 
-    private void LocationWatcher_LocationKnown(object sender, PositionChangedEventArgs e)
+    private void locationWatcher_PositionChanged_NotifyPropertyChanged(Geolocator sender, PositionChangedEventArgs e)
     {
-      if (e.Position.IsUnknown == false)
-      {
-        if (locationLoading == true)
-        {
-          // We know where we are now, decrease the pending count
-          locationLoading = false;
-          operationTracker.DoneWithOperation("LoadLocation");
 
-          // Remove this handler now that the location is known
-          LocationTrackerStatic.PositionChanged -= new EventHandler<PositionChangedEventArgs>(LocationWatcher_LocationKnown);
-        }
-      }
-    }
-
-    private void locationWatcher_PositionChanged_NotifyPropertyChanged(object sender, PositionChangedEventArgs e)
-    {
-      if (e.Position.Location.IsUnknown == false)
-      {
-        OnPropertyChanged("CurrentLocation");
-        OnPropertyChanged("CurrentLocationSafe");
-        OnPropertyChanged("LocationKnown");
-      }
+      OnPropertyChanged("CurrentLocation");
+      OnPropertyChanged("CurrentLocationSafe");
+      OnPropertyChanged("LocationKnown");
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     protected void OnPropertyChanged(string propertyName)
     {
-      if (PropertyChanged != null)
-      {
-        UIAction(() =>
-        {
-                  // Check again in case it has changed while we waited to execute on the UI thread
-                   if (PropertyChanged != null)
-          {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-          }
-        }
-        );
-      }
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     protected void ErrorOccured(object sender, Exception e)
@@ -351,63 +253,6 @@ namespace OneBusAway.ViewModel
     }
 
     #endregion
-
-    #region Run Requiring Location methods
-
-    private void RunMethodsRequiringLocation(object param)
-    {
-      if (LocationKnown == true)
-      {
-        lock (methodsRequiringLocationLock)
-        {
-          Exception error = null;
-          foreach (RequiresKnownLocation method in methodsRequiringLocation)
-          {
-            try
-            {
-              method(CurrentLocation);
-            }
-            catch (Exception e)
-            {
-              Debug.Assert(false);
-
-              // Queue up errors so that all methods will be executed the and list will be 
-              // cleared even if exceptions occur.  If there is more than one error, just report the last one
-              error = e;
-            }
-          }
-
-          methodsRequiringLocation.Clear();
-          // Disable the timer now that no methods are in the queue
-          methodsRequiringLocationTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
-          if (error != null)
-          {
-            throw error;
-          }
-        }
-      }
-    }
-
-    public delegate void RequiresKnownLocation(Geopoint location);
-    public void RunWhenLocationKnown(RequiresKnownLocation method)
-    {
-      if (LocationKnown == true)
-      {
-        method(CurrentLocation);
-      }
-      else
-      {
-        lock (methodsRequiringLocationLock)
-        {
-          methodsRequiringLocation.Add(method);
-          methodsRequiringLocationTimer.Change(timerIntervalMs, timerIntervalMs);
-        }
-      }
-    }
-
-    #endregion
-
   }
 
   public class LocationUnavailableException : Exception

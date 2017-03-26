@@ -22,90 +22,58 @@ using System.Collections.Generic;
 
 namespace OneBusAway.ViewModel
 {
-    public class BusDirectionVM : AViewModel
+  public class BusDirectionVM : AViewModel
+  {
+    private Object routeDirectionsLock;
+    public ObservableCollection<RouteStops> RouteDirections { get; private set; }
+
+    private int pendingRouteDirectionsCount;
+    private List<RouteStops> pendingRouteDirections;
+
+    #region Constructors
+
+    public BusDirectionVM()
+        : base()
     {
-        private Object routeDirectionsLock;
-        public ObservableCollection<RouteStops> RouteDirections { get; private set; }
-
-        private int pendingRouteDirectionsCount;
-        private List<RouteStops> pendingRouteDirections;
-
-        #region Constructors
-
-        public BusDirectionVM()
-            : base()
-        {
-            Initialize();
-        }
-
-        public BusDirectionVM(BusServiceModel busServiceModel)
-            : base(busServiceModel)
-        {
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            routeDirectionsLock = new Object();
-            pendingRouteDirections = new List<RouteStops>();
-            pendingRouteDirectionsCount = 0;
-            RouteDirections = new ObservableCollection<RouteStops>();
-        }
-
-        #endregion
-
-        public async void LoadRouteDirections(List<Route> routes)
-        {
-            lock (routeDirectionsLock)
-            {
-                RouteDirections.Clear();
-                pendingRouteDirections.Clear();
-            }
-
-            pendingRouteDirectionsCount += routes.Count;
-            foreach(Route route in routes)
-            {
-                operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
-                await BusServiceModel.StopsForRouteAsync(await LocationTracker.Tracker.GetLocationAsync(), route);
-            }
-        }
-
-        void busServiceModel_StopsForRoute_Completed(object sender, StopsForRouteEventArgs e)
-        {
-            Debug.Assert(e.error == null);
-
-            // If the main page is still loading we might receive callbacks for other
-            // routes. This fix isn't perfect, but it should fix us in the vast majority
-            // of the cases. It will only cause problems if we get two callsbacks for
-            // one of the routes we're searching for.
-            if (CurrentViewState.CurrentRoutes.Contains(e.route) == true)
-            {
-                if (e.error == null)
-                {
-                    lock (routeDirectionsLock)
-                    {
-                        e.routeStops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
-
-                        // Subtract 1 because we haven't decremented the count yet
-                        if (pendingRouteDirectionsCount - 1 == 0)
-                        {
-                            if (LocationTracker.LocationKnown == true)
-                            {
-                                pendingRouteDirections.Sort(new RouteStopsDistanceComparer(LocationTracker.Tracker.CurrentLocation));
-                            }
-
-                            pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
-                        }
-                    }
-                }
-                else
-                {
-                    ErrorOccured(this, e.error);
-                }
-
-                pendingRouteDirectionsCount--;
-                operationTracker.DoneWithOperation("StopsForRoute_" + e.route.id);
-            }
-        }
+      Initialize();
     }
+
+    public BusDirectionVM(BusServiceModel busServiceModel)
+        : base(busServiceModel)
+    {
+      Initialize();
+    }
+
+    private void Initialize()
+    {
+      routeDirectionsLock = new Object();
+      pendingRouteDirections = new List<RouteStops>();
+      pendingRouteDirectionsCount = 0;
+      RouteDirections = new ObservableCollection<RouteStops>();
+    }
+
+    #endregion
+
+    public async void LoadRouteDirections(List<Route> routes)
+    {
+      lock (routeDirectionsLock)
+      {
+        RouteDirections.Clear();
+        pendingRouteDirections.Clear();
+      }
+
+      pendingRouteDirectionsCount += routes.Count;
+      foreach (Route route in routes)
+      {
+        operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
+        var stops = await BusServiceModel.StopsForRouteAsync(await LocationTracker.Tracker.GetLocationAsync(), route);
+        stops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
+        if (LocationTracker.Tracker.LocationKnown)
+        {
+          pendingRouteDirections.Sort(new RouteStopsDistanceComparer(LocationTracker.Tracker.CurrentLocation));
+        }
+        pendingRouteDirections.ForEach(pendingRoute => RouteDirections.Add(pendingRoute));
+      }
+    }
+  }
 }

@@ -14,6 +14,7 @@
  */
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using OneBusAway.Model;
 using OneBusAway.Model.BusServiceDataStructures;
 using System.Collections.Generic;
@@ -49,15 +50,26 @@ namespace OneBusAway.ViewModel
       stopsForLocationCompletedLock = new Object();
       stopsForLocationLock = new Object();
       stopsForLocationIndex = new Dictionary<string, Stop>();
-      StopsForLocation = new ObservableCollection<Stop>();
+      StopsForLocation = new List<Stop>();
       previousQuery = null;
     }
 
     #endregion
 
     #region Public Methods/Properties
-
-    public ObservableCollection<Stop> StopsForLocation { get; private set; }
+    private List<Stop> _stopsForLocation;
+    public List<Stop> StopsForLocation
+    {
+      get
+      {
+        return _stopsForLocation;
+      }
+      private set
+      {
+        _stopsForLocation = value;
+        OnPropertyChanged("StopsForLocation");
+      }
+    }
 
     public async void LoadStopsForLocation(Geopoint center)
     {
@@ -74,14 +86,7 @@ namespace OneBusAway.ViewModel
 
       try
       {
-        var stops = await BusServiceModel.StopsForLocationAsync(center, defaultSearchRadius);
-        var newStops = new Dictionary<string, Stop>();
-        foreach (var stop in stops)
-        {
-          newStops.Add(stop.id, stop);
-        }
-
-        SetStopsForLocation(newStops);
+        StopsForLocation = await BusServiceModel.StopsForLocationAsync(center, defaultSearchRadius);
       }
       catch (Exception e)
       {
@@ -91,76 +96,5 @@ namespace OneBusAway.ViewModel
     }
     #endregion
 
-    /// <summary>
-    /// Sets the contents of StopsForLocation to the Values of the specified Dictionary.
-    /// </summary>
-    /// <remarks>
-    /// Implementation does not clear StopsForLocation (so as not to clear the screen).
-    /// Instead, removes all stops that don't belong and adds ones that do.
-    /// </remarks>
-    /// <param name="newStops"></param>
-    private void SetStopsForLocation(IDictionary<string, Stop> newStops)
-    {
-      // .NET for the phone doesn't support HashSet.... Use Dictionary as a poor-man's hashset.
-      // linear pass to calculate the set of stops to remove
-      IDictionary<string, Stop> stopsToRemove = new Dictionary<string, Stop>();
-      lock (stopsForLocationLock)
-      {
-        foreach (string stopId in stopsForLocationIndex.Keys)
-        {
-          if (!newStops.ContainsKey(stopId))
-          {
-            stopsToRemove.Add(stopId, stopsForLocationIndex[stopId]);
-          }
-        }
-      }
-
-      if (stopsToRemove.Count > 0)
-      {
-        // O(n^2) pass to remove them.
-        // An ObservableSet or ObservableDictionary would be nice.
-        UIAction(() =>
-        {
-          lock (stopsForLocationLock)
-          {
-            foreach (Stop s in stopsToRemove.Values)
-            {
-              StopsForLocation.Remove(s);
-              stopsForLocationIndex.Remove(s.id);
-            }
-          }
-        });
-      }
-
-      // and a linear pass to add any new stops
-      if (newStops.Count > 0)
-      {
-        lock (stopsForLocationLock)
-        {
-          foreach (Stop s in newStops.Values)
-          {
-            if (!stopsForLocationIndex.ContainsKey(s.id))
-            {
-              // Create a local reference so it will still be valid when
-              // the UI thread executes
-              Stop currentStop = s;
-              UIAction(() =>
-              {
-                lock (stopsForLocationLock)
-                {
-                                // Check this again to make sure another thread didn't
-                                // add this stop while we were waiting
-                                if (!stopsForLocationIndex.ContainsKey(currentStop.id))
-                  {
-                    StopsForLocation.Add(currentStop);
-                    stopsForLocationIndex.Add(currentStop.id, currentStop);
-                  }
-                }
-              });
-            }
-          }
-        }
-      }
-    }
   }
 }

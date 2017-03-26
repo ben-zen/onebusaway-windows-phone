@@ -62,7 +62,7 @@ namespace OneBusAway.ViewModel
           new ObservableCollection<DisplayRoute>(),
           new ObservableCollection<DisplayRoute>());
       directionHelper = new Dictionary<string, ObservableCollection<RouteStops>>();
-      Favorites = new ObservableCollection<FavoriteRouteAndStop>();
+      Favorites = new List<FavoriteRouteAndStop>();
       Recents = new ObservableCollection<FavoriteRouteAndStop>();
     }
 
@@ -86,8 +86,8 @@ namespace OneBusAway.ViewModel
 
     public BufferedReference<ObservableCollection<DisplayRoute>> DisplayRouteForLocation { get; private set; }
 
-    private ObservableCollection<FavoriteRouteAndStop> favorites;
-    public ObservableCollection<FavoriteRouteAndStop> Favorites
+    private List<FavoriteRouteAndStop> favorites;
+    public List<FavoriteRouteAndStop> Favorites
     {
       get { return favorites; }
 
@@ -188,7 +188,7 @@ namespace OneBusAway.ViewModel
 
       return stops.Count != 0;
     }
- 
+
     public async Task<bool> SearchByAddressAsync(string addressString)
     {
       var location = await locationModel.GetLocationForAddressAsync(addressString, await LocationTracker.Tracker.GetLocationAsync());
@@ -196,72 +196,22 @@ namespace OneBusAway.ViewModel
       return true;
     }
 
-    public delegate void CheckForLocalTransitData_Callback(bool hasData);
-    public void CheckForLocalTransitData(CheckForLocalTransitData_Callback callback)
+    public async Task<bool> CheckForLocalTransitData()
     {
-      locationTracker.RunWhenLocationKnown(delegate (Geopoint location)
+      var locationKnown = false;
+      try
       {
-        bool hasData;
-        // Ensure that their current location is within ~150km of a supported region
-        if (BusServiceModel.DistanceFromClosestSupportedRegion(LocationTracker.CurrentLocation) > 150000)
-        {
-          hasData = false;
-        }
-        else
-        {
-          hasData = true;
-        }
-
-        callback(hasData);
-      });
-    }
-
-
-
-
-    #endregion
-
-    #region Event Handlers
-
-    async void appDataModel_Favorites_Changed(object sender, FavoritesChangedEventArgs e)
-    {
-      Debug.Assert(e.error == null);
-
-      if (e.error == null)
-      {
-        if (LocationTracker.LocationKnown == true)
-        {
-          e.newFavorites.Sort(new FavoriteDistanceComparer(await LocationTracker.Tracker.GetLocationAsync()));
-        }
-
-        UIAction(() => Favorites.Clear());
-        e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
+        var location = await LocationTracker.Tracker.GetLocationAsync();
+        locationKnown = true;
       }
-      else
+      catch (Exception)
       {
-        ErrorOccured(this, e.error);
+        locationKnown = false;
       }
-    }
-
-    void appDataModel_Recents_Changed(object sender, FavoritesChangedEventArgs e)
-    {
-      Debug.Assert(e.error == null);
-
-      if (e.error == null)
-      {
-        e.newFavorites.Sort(new RecentLastAccessComparer());
-
-        UIAction(() => Recents.Clear());
-        e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
-      }
-      else
-      {
-        ErrorOccured(this, e.error);
-      }
+      return locationKnown && ((await BusServiceModel.DistanceFromClosestSupportedRegionAsync(LocationTracker.CurrentLocation)) < 150000);
     }
 
     #endregion
-
   }
 
   public class DisplayRoute : INotifyPropertyChanged

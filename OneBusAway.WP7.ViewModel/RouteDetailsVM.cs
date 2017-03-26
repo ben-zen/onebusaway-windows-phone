@@ -20,7 +20,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace OneBusAway.ViewModel
 {
@@ -122,9 +122,9 @@ namespace OneBusAway.ViewModel
 
         #region Public Methods
 
-        public void SubscribeToToastNotification(string stopId, string tripId, int minutes)
+        public async Task<bool> SubscribeToToastNotification(string stopId, string tripId, int minutes)
         {
-            tripService.StartSubscription(stopId, tripId, minutes);
+            return await tripService.StartSubscriptionAsync(stopId, tripId, minutes);
         }
 
         public async void SwitchToRouteByArrivalAsync(ArrivalAndDeparture arrival, Action uiCallback)

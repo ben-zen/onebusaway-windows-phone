@@ -49,7 +49,7 @@ namespace OneBusAway.View
       this.Loaded += new RoutedEventHandler(MainPage_Loaded);
     }
 
-    void MainPage_Loaded(object sender, RoutedEventArgs e)
+    async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
 
       if (firstLoad == true)
@@ -84,19 +84,12 @@ namespace OneBusAway.View
       // Load favorites every time because they might have changed since the last load
       viewModel.LoadFavorites();
 
-      viewModel.CheckForLocalTransitData(delegate (bool hasData)
+      var supported = await viewModel.CheckForLocalTransitData();
+      if (!supported)
       {
-        Dispatcher.BeginInvoke(() =>
-                  {
-                    if (hasData == false)
-                    {
-                      MessageBox.Show(
-                                "Currently the OneBusAway service does not support your location." +
-                                "Many functions of this app will not work."
-                                );
-                    }
-                  });
-      });
+        MessageBox.Show("Currently the OneBusAway service does not support your location." +
+                        "Many functions of this app will not work.");
+      }
 
       viewModel.LocationTracker.RunWhenLocationKnown(delegate (Geopoint location)
           {

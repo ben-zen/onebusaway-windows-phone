@@ -18,7 +18,6 @@ using System.Reflection;
 using System.Diagnostics;
 using OneBusAway.Model;
 using OneBusAway.ViewModel.EventArgs;
-using Windows.Devices.Geolocation;
 using Windows.Storage;
 
 namespace OneBusAway.ViewModel
@@ -35,11 +34,6 @@ namespace OneBusAway.ViewModel
       {
         operationTracker = new AsyncOperationTracker();
       }
-
-      // Set up the default action, just execute in the same thread
-      UIAction = (uiAction => uiAction());
-
-      eventsRegistered = false;
     }
 
     #endregion
@@ -107,8 +101,6 @@ namespace OneBusAway.ViewModel
     /// </summary>
     public AsyncOperationTracker operationTracker { get; private set; }
 
-    private bool eventsRegistered;
-
     #endregion
 
     #region Private/Protected Methods
@@ -128,18 +120,7 @@ namespace OneBusAway.ViewModel
 
     protected void OnPropertyChanged(string propertyName)
     {
-      if (PropertyChanged != null)
-      {
-        UIAction(() =>
-        {
-                  // Check again in case it has changed while we waited to execute on the UI thread
-                  if (PropertyChanged != null)
-          {
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-          }
-        }
-        );
-      }
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
@@ -150,21 +131,6 @@ namespace OneBusAway.ViewModel
     #endregion
 
     #region Public Members
-
-    private Action<Action> uiAction;
-    public Action<Action> UIAction
-    {
-      get { return uiAction; }
-
-      set
-      {
-        uiAction = value;
-
-        // Set the ViewState's UIAction
-        CurrentViewState.UIAction = uiAction;
-        operationTracker.UIAction = uiAction;
-      }
-    }
 
     public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
@@ -204,7 +170,7 @@ namespace OneBusAway.ViewModel
           isInDesignModeStatic = false;
           return isInDesignModeStatic.Value;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
           // Toss out any errors we get
         }
@@ -214,28 +180,6 @@ namespace OneBusAway.ViewModel
       }
     }
 
-
-    /// <summary>
-    /// Registers all event handlers with the model.  Call this when 
-    /// the page is first loaded.
-    /// </summary>
-    public virtual void RegisterEventHandlers(Windows.UI.Core.CoreDispatcher dispatcher)
-    {
-      // Set the UI Actions to occur on the UI thread
-      UIAction = (uiAction => dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => uiAction()));
-      Debug.Assert(eventsRegistered == false);
-      eventsRegistered = true;
-    }
-
-    /// <summary>
-    /// Unregisters all event handlers with the model. Call this when
-    /// the page is navigated away from.
-    /// </summary>
-    public virtual void UnregisterEventHandlers()
-    {
-      Debug.Assert(eventsRegistered == true);
-      eventsRegistered = false;
-    }
 
     #endregion
 

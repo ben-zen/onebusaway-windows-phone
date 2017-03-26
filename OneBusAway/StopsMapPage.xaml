@@ -14,16 +14,16 @@
  limitations under the License.
 -->
 <view:AViewPage
-    x:Class="OneBusAway.WP7.View.StopsMapPage"
+    x:Class="OneBusAway.View.StopsMapPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
+    xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
-    xmlns:view="clr-namespace:OneBusAway.WP7.View"
+    xmlns:data="using:OneBusAway.ViewModel" 
+    xmlns:view="using:OneBusAway.View"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -41,7 +41,7 @@
         <view:MaxZoomConverter x:Key="MaxZoomConverter"></view:MaxZoomConverter>
         <view:ColorAlphaConverter x:Key="ColorAlphaConverter"/>
 
-        <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
+        <Style x:Key="BusStopLargePushpinStyle" TargetType="maps:MapIcon">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
@@ -70,19 +70,28 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <!--ScaleVisibility="Collapsed"-->
-        <m:Map Grid.Row="1" Grid.RowSpan="2" Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed"  CredentialsProvider="{StaticResource MapCredentials}"
-                Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" >
-            <m:MapLayer x:Name="BusStopsLayer" Canvas.ZIndex="2" Visibility="{Binding Path=ZoomLevel, ElementName=DetailsMap, Converter={StaticResource MaxZoomConverter}, ConverterParameter=false}">
-                <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
-                    <m:MapItemsControl.ItemTemplate>
+        <maps:MapControl Grid.Row="1"
+                         Grid.RowSpan="2" 
+                         Name="DetailsMap"
+                         WatermarkMode="Automatic"
+                         MapServiceToken="{StaticResource MapCredentials}"
+                         Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"
+                         ZoomLevel="17" >
+            <maps:MapLayer x:Name="BusStopsLayer" Canvas.ZIndex="2" Visibility="{Binding Path=ZoomLevel, ElementName=DetailsMap, Converter={StaticResource MaxZoomConverter}, ConverterParameter=false}">
+                <maps:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+                    <maps:MapItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopLargePushpinStyle}" Tag="{Binding id}" />
+                            <maps:MapIcon
+                                Location="{Binding location}"
+                                NormalizedAnchorPoint="0.5,0.5"
+                                Style="{StaticResource BusStopLargePushpinStyle}"
+                                Tag="{Binding id}" />
                         </DataTemplate>
-                    </m:MapItemsControl.ItemTemplate>
-                </m:MapItemsControl>
-            </m:MapLayer>
-            <m:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10" Visibility="{Binding Path=Visibility, ElementName=BusStopsLayer}">
-                <m:Pushpin x:Name="StopInfoBox" Visibility="Collapsed">
+                    </maps:MapItemsControl.ItemTemplate>
+                </maps:MapItemsControl>
+            </maps:MapLayer>
+            <maps:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10" Visibility="{Binding Path=Visibility, ElementName=BusStopsLayer}">
+                <maps:Pushpin x:Name="StopInfoBox" Visibility="Collapsed">
                     <Button 
                         x:Name="PopupBtn"
                         HorizontalContentAlignment="Stretch"
@@ -104,14 +113,14 @@
                             <TextBlock Name="StopDirection" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2,0,2,2"/>
                         </Grid>
                     </Button>
-                </m:Pushpin>
-            </m:MapLayer>
-            <m:MapLayer x:Name="MyLocationLayer" Canvas.ZIndex="8">
-                <m:MapLayer.Children>
-                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
-                </m:MapLayer.Children>
-            </m:MapLayer>
-        </m:Map>
+                </maps:Pushpin>
+            </maps:MapLayer>
+            <maps:MapLayer x:Name="MyLocationLayer" Canvas.ZIndex="8">
+                <maps:MapLayer.Children>
+                    <maps:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
+                </maps:MapLayer.Children>
+            </maps:MapLayer>
+        </maps:MapControl>
         
         <Border 
             x:Name="TooManyStops" 
@@ -123,9 +132,9 @@
                        Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
 
-        <localControls:PerformanceProgressBar 
+        <ProgressBar
             VerticalAlignment="Top" 
-            IsLoading="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}"
+            IsIndeterminate="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}"
             Style="{StaticResource PerformanceProgressBarStyle}"
             Foreground="{StaticResource OBAPrimaryBrush}"     
             Canvas.ZIndex="100"
