@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 using OneBusAway.ViewModel;
-using OneBusAway.ViewModel.AppDataDataStructures;
-using OneBusAway.ViewModel.BusServiceDataStructures;
-using OneBusAway.ViewModel.LocationServiceDataStructures;
+using OneBusAway.Model.AppDataDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.Model.LocationServiceDataStructures;
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
@@ -103,8 +103,6 @@ namespace OneBusAway.View
             Dispatcher.BeginInvoke(() => StopsMap.Center = location);
           }
       );
-
-      HideLoadingSplash();
     }
 
     #region Navigation
@@ -145,99 +143,6 @@ namespace OneBusAway.View
           navigatedAway = true;
           NavigationService.Navigate(target);
         }
-      }
-    }
-
-    #endregion
-
-    #region Search callbacks
-
-    private void SearchByRouteCallback(List<Route> routes, Exception error)
-    {
-      Dispatcher.BeginInvoke(() =>
-      {
-        SearchStoryboard.Seek(TimeSpan.Zero);
-        SearchStoryboard.Stop();
-        this.Focus();
-      });
-
-      if (error != null)
-      {
-        viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-      }
-      else if (routes.Count == 0)
-      {
-        Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
-      }
-      else
-      {
-        Dispatcher.BeginInvoke(() =>
-        {
-          viewModel.CurrentViewState.CurrentRoutes = routes;
-          Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
-        });
-      }
-    }
-
-    private void SearchByStopCallback(List<Stop> stops, Exception error)
-    {
-      Dispatcher.BeginInvoke(() =>
-      {
-        SearchStoryboard.Seek(TimeSpan.Zero);
-        SearchStoryboard.Stop();
-        this.Focus();
-      });
-
-      if (error != null)
-      {
-        viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-      }
-      else if (stops.Count == 0)
-      {
-        Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
-      }
-      else
-      {
-        Dispatcher.BeginInvoke(() =>
-        {
-          viewModel.CurrentViewState.CurrentRoute = null;
-          viewModel.CurrentViewState.CurrentRouteDirection = null;
-          viewModel.CurrentViewState.CurrentStop = stops[0];
-          viewModel.CurrentViewState.CurrentSearchLocation = null;
-
-          Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
-        });
-      }
-    }
-
-    private void SearchByLocationCallback(LocationForQuery location, Exception error)
-    {
-      Dispatcher.BeginInvoke(() =>
-      {
-        SearchStoryboard.Seek(TimeSpan.Zero);
-        SearchStoryboard.Stop();
-        this.Focus();
-      });
-
-      if (error != null)
-      {
-        viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-      }
-      else if (location == null)
-      {
-        Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
-      }
-      else
-      {
-        Dispatcher.BeginInvoke(() =>
-        {
-          viewModel.CurrentViewState.CurrentRoute = null;
-          viewModel.CurrentViewState.CurrentRouteDirection = null;
-          viewModel.CurrentViewState.CurrentStop = null;
-          viewModel.CurrentViewState.CurrentSearchLocation = location;
-
-          Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
-        });
       }
     }
 
@@ -332,12 +237,21 @@ namespace OneBusAway.View
         }
         else //stop number
         {
-          viewModel.SearchByStop(searchString, SearchByStopCallback);
+          var stopFound = await viewModel.SearchByStopAsync(searchString);
+
+          if (stopFound)
+          {
+            Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+          }
         }
       }
       else if (string.IsNullOrEmpty(searchString) == false) // Try to find the location
       {
-        viewModel.SearchByAddress(searchString, SearchByLocationCallback);
+        var addressFound = await viewModel.SearchByAddressAsync(searchString);
+        if (addressFound)
+        {
+          Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+        }
       }
     }
 

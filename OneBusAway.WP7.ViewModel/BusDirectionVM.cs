@@ -14,6 +14,7 @@
  */
 using System;
 using System.Collections.ObjectModel;
+using OneBusAway.Model;
 using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.ViewModel.EventArgs;
 using System.Diagnostics;
@@ -37,7 +38,7 @@ namespace OneBusAway.ViewModel
             Initialize();
         }
 
-        public BusDirectionVM(IBusServiceModel busServiceModel)
+        public BusDirectionVM(BusServiceModel busServiceModel)
             : base(busServiceModel)
         {
             Initialize();
@@ -53,7 +54,7 @@ namespace OneBusAway.ViewModel
 
         #endregion
 
-        public void LoadRouteDirections(List<Route> routes)
+        public async void LoadRouteDirections(List<Route> routes)
         {
             lock (routeDirectionsLock)
             {
@@ -65,7 +66,7 @@ namespace OneBusAway.ViewModel
             foreach(Route route in routes)
             {
                 operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
-                BusServiceModel.StopsForRoute(LocationTracker.CurrentLocation, route);
+                await BusServiceModel.StopsForRouteAsync(await LocationTracker.Tracker.GetLocationAsync(), route);
             }
         }
 
@@ -90,7 +91,7 @@ namespace OneBusAway.ViewModel
                         {
                             if (LocationTracker.LocationKnown == true)
                             {
-                                pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
+                                pendingRouteDirections.Sort(new RouteStopsDistanceComparer(LocationTracker.Tracker.CurrentLocation));
                             }
 
                             pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
@@ -105,21 +106,6 @@ namespace OneBusAway.ViewModel
                 pendingRouteDirectionsCount--;
                 operationTracker.DoneWithOperation("StopsForRoute_" + e.route.id);
             }
-        }
-
-        public override void RegisterEventHandlers(Dispatcher dispatcher)
-        {
-            base.RegisterEventHandlers(dispatcher);
-
-            this.BusServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-        }
-
-        public override void UnregisterEventHandlers()
-        {
-            base.UnregisterEventHandlers();
-
-            this.BusServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-            this.operationTracker.ClearOperations();
         }
     }
 }

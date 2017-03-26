@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model.LocationServiceDataStructures;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 
@@ -19,7 +20,7 @@ namespace OneBusAway.Model
 {
     public interface ILocationModel
     {
-        Task<Geopoint> GetLocationForAddressAsync(string addressString, Geopoint searchNearLocation);
+        Task<LocationForQuery> GetLocationForAddressAsync(string addressString, Geopoint searchNearLocation);
     }
 
 }

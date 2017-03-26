@@ -19,22 +19,22 @@ namespace OneBusAway.Model.LocationServiceDataStructures
 {
     public enum Confidence : int
     { 
-        High = 0,
-        Medium = 1, 
-        Low = 2,
-        Unknown = -1
+        High = 3,
+        Medium = 2, 
+        Low = 1,
+        Unknown = 0
     };
 
     [DataContract]
     public class LocationForQuery
     {
         [DataMember]
-        public string name { get; set; }
+        public string Name { get; set; }
         [DataMember]
-        public Geopoint location { get; set; }
+        public Geopoint Location { get; set; }
         [DataMember]
-        public Confidence confidence { get; set; }
+        public Confidence Confidence { get; set; }
         [DataMember]
-        public GeoboundingBox boundingBox { get; set; }
+        public GeoboundingBox BoundingBox { get; set; }
     }
 }

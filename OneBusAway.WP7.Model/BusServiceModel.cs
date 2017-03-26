@@ -206,18 +206,18 @@ namespace OneBusAway.Model
                 locations.AddRange((from location in xmlResponse.Descendants(ns + "Location")
                              select new LocationForQuery
                              {
-                                 location = new Geopoint(new BasicGeoposition
+                                 Location = new Geopoint(new BasicGeoposition
                                  {
                                      Latitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Latitude").Value),
                                      Longitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Longitude").Value)
                                  }),
-                                 name = location.Element(ns + "Name").Value,
-                                 confidence = (Confidence)Enum.Parse(
+                                 Name = location.Element(ns + "Name").Value,
+                                 Confidence = (Confidence)Enum.Parse(
                                       typeof(Confidence),
                                       location.Element(ns + "Confidence").Value,
                                       true
                                       ),
-                                 boundingBox = new GeoboundingBox(
+                                 BoundingBox = new GeoboundingBox(
                                       new BasicGeoposition
                                       {
                                           Latitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "NorthLatitude").Value),
