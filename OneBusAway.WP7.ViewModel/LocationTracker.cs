@@ -87,14 +87,10 @@ namespace OneBusAway.ViewModel
           {
             LocationDisabled(true);
           }
-          else if (accessStatus == GeolocationAccessStatus.Allowed)
-          {
-            LocationDisabled(false);
-          }
           else
           {
             locationLoading = true;
-            var position = await Locator.GetGeopositionAsync();
+            // var position = await Locator.GetGeopositionAsync();
 
           }
         }

@@ -199,16 +199,17 @@ namespace OneBusAway.ViewModel
     public async Task<bool> CheckForLocalTransitData()
     {
       var locationKnown = false;
+      Geopoint location = null;
       try
       {
-        var location = await LocationTracker.Tracker.GetLocationAsync();
+        location = await LocationTracker.Tracker.GetLocationAsync();
         locationKnown = true;
       }
       catch (Exception)
       {
         locationKnown = false;
       }
-      return locationKnown && ((await BusServiceModel.DistanceFromClosestSupportedRegionAsync(LocationTracker.CurrentLocation)) < 150000);
+      return locationKnown && ((await BusServiceModel.DistanceFromClosestSupportedRegionAsync(location)) < 150000);
     }
 
     #endregion
