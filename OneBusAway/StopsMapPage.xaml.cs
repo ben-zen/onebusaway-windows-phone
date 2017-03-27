@@ -13,15 +13,12 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Phone.Controls;
 using OneBusAway.ViewModel;
-using System.Device.Location;
 using OneBusAway.Model.BusServiceDataStructures;
-using Microsoft.Phone.Controls.Maps;
-using System.Windows.Data;
-using System.Collections;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Maps;
+using Windows.UI.Xaml.Navigation;
 
 namespace OneBusAway.View
 {
@@ -31,7 +28,7 @@ namespace OneBusAway.View
   /// <remarks>
   /// Supports user interaction.  Will reload stops when moved.  Touch a stop to bring up its detail page.
   /// </remarks>
-  public partial class StopsMapPage : AViewPage
+  public partial class StopsMapPage : Page
   {
     private bool mapHasMoved;
 
@@ -41,15 +38,9 @@ namespace OneBusAway.View
         : base()
     {
       InitializeComponent();
-      base.Initialize();
-
       mapHasMoved = false;
-      this.Loaded += new RoutedEventHandler(FullScreenMapPage_Loaded);
-
-      this.Loaded += new RoutedEventHandler(MainPage_Loaded);
-      this.DetailsMap.TargetViewChanged += new EventHandler<MapEventArgs>(DetailsMap_TargetViewChanged);
-
-      SupportedOrientations = SupportedPageOrientation.Portrait;
+      Loaded += new RoutedEventHandler(FullScreenMapPage_Loaded);
+      DetailsMap.CenterChanged += DetailsMap_CenterChanged;
 
 #if SCREENSHOT
             SystemTray.IsVisible = false;
@@ -68,125 +59,13 @@ namespace OneBusAway.View
 
     #endregion
 
+    #region EventHandlers
 #if DEBUG
     void zoomOutBtn_Click(object sender, RoutedEventArgs e)
     {
       DetailsMap.ZoomLevel--;
     }
 #endif
-
-    async void FullScreenMapPage_Loaded(object sender, RoutedEventArgs e)
-    {
-      if (VM.CurrentViewState.CurrentSearchLocation != null)
-      {
-        // Using mapHasMoved prevents us from relocating the map if the user reloads this
-        // page from the back stack
-        if (mapHasMoved == false)
-        {
-          Dispatcher.BeginInvoke(() =>
-              {
-                          //DetailsMap.Center = viewModel.CurrentViewState.CurrentSearchLocation.location;
-                          DetailsMap.SetView(viewModel.CurrentViewState.CurrentSearchLocation.boundingBox);
-                viewModel.LoadStopsForLocation(viewModel.CurrentViewState.CurrentSearchLocation.location);
-              }
-          );
-        }
-      }
-      else
-      {
-        var location = await VM.LocationTracker.GetLocationAsync();
-        if (!mapHasMoved)
-        {
-          DetailsMap.Center = location;
-        }
-
-        VM.LoadStopsForLocation(location);
-      }
-    }
-
-    void DetailsMap_TargetViewChanged(object sender, MapEventArgs e)
-    {
-      GeoCoordinate center = DetailsMap.TargetCenter;
-      mapHasMoved = true;
-
-      if (DetailsMap.TargetZoomLevel >= minZoomLevel)
-      {
-        viewModel.LoadStopsForLocation(center);
-      }
-
-#if DEBUG
-      cacheRectLayer.Children.Clear();
-
-      int roundingLevel = 2;
-      int multiplier = 3;
-      double positiveOffset = (Math.Pow(.1, roundingLevel) * 0.5) / multiplier;
-      double negativeOffset = (Math.Pow(.1, roundingLevel) * 0.5) / multiplier;
-
-      double lat = Math.Round(center.Latitude * multiplier, roundingLevel) / multiplier;
-      double lon = Math.Round(center.Longitude * multiplier, roundingLevel) / multiplier;
-
-      // Round off the extra decimal places to prevent double precision issues
-      // from causing multiple cache entires
-      GeoCoordinate roundedLocation = new GeoCoordinate(
-          Math.Round(lat, roundingLevel + 1),
-          Math.Round(lon, roundingLevel + 1)
-      );
-
-      MapPolygon cacheSquare = new MapPolygon();
-      cacheSquare.Locations = new LocationCollection();
-      cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude + positiveOffset, roundedLocation.Longitude + positiveOffset));
-      cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude - negativeOffset, roundedLocation.Longitude + positiveOffset));
-      cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude - negativeOffset, roundedLocation.Longitude - negativeOffset));
-      cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude + positiveOffset, roundedLocation.Longitude - negativeOffset));
-
-      cacheSquare.Stroke = new SolidColorBrush(Colors.Black);
-      cacheSquare.StrokeThickness = 5;
-
-      cacheRectLayer.Children.Add(cacheSquare);
-
-      Pushpin requestCenterPushpin = new Pushpin();
-      requestCenterPushpin.Location = roundedLocation;
-
-      cacheRectLayer.Children.Add(requestCenterPushpin);
-
-      CenterControl deadCenter = new CenterControl();
-      cacheRectLayer.AddChild(deadCenter, center, PositionOrigin.Center);
-#endif
-    }
-
-    private bool LocationRectContainedBy(LocationRect outer, LocationRect inner)
-    {
-      // TODO: This algorithm will almost certainly fail around the equator
-      if (Math.Abs(inner.North) < Math.Abs(outer.North) &&
-          Math.Abs(inner.South) > Math.Abs(outer.South) &&
-          Math.Abs(inner.West) < Math.Abs(outer.West) &&
-          Math.Abs(inner.East) > Math.Abs(outer.East))
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-
-    void MainPage_Loaded(object sender, RoutedEventArgs e)
-    {
-    }
-
-    protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
-    {
-      base.OnNavigatedTo(e);
-
-      viewModel.RegisterEventHandlers(Dispatcher);
-    }
-
-    protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
-    {
-      base.OnNavigatedFrom(e);
-
-      viewModel.UnregisterEventHandlers();
-    }
 
     private void BusStopPushpin_Click(object sender, RoutedEventArgs e)
     {
@@ -197,7 +76,7 @@ namespace OneBusAway.View
         Stop stop = item as Stop;
         if (stop != null && stop.id == selectedStopId)
         {
-          if (selectedStopId.Equals(StopInfoBox.Tag))
+          /*if (selectedStopId.Equals(StopInfoBox.Tag))
           {
             // This is the currently selected stop, hide the popup
             StopInfoBox.Visibility = Visibility.Collapsed;
@@ -213,23 +92,72 @@ namespace OneBusAway.View
             StopInfoBox.Location = stop.location;
             StopInfoBox.PositionOrigin = PositionOrigin.BottomLeft;
             StopInfoBox.Tag = stop.id;
-          }
+          }*/
 
           break;
         }
       }
     }
 
-    private void NavigateToDetailsPage(Stop stop)
+    async void FullScreenMapPage_Loaded(object sender, RoutedEventArgs e)
     {
-      viewModel.CurrentViewState.CurrentStop = stop;
-      viewModel.CurrentViewState.CurrentRoute = null;
-      viewModel.CurrentViewState.CurrentRouteDirection = null;
+      if (VM.CurrentViewState.CurrentSearchLocation != null)
+      {
+        // Using mapHasMoved prevents us from relocating the map if the user reloads this
+        // page from the back stack
+        if (mapHasMoved == false)
+        {
+          if (await DetailsMap.TrySetViewBoundsAsync(VM.CurrentViewState.CurrentSearchLocation.BoundingBox, null, MapAnimationKind.Default))
+          {
+            VM.LoadStopsForLocation(VM.CurrentViewState.CurrentSearchLocation.Location);
+          }
+        }
+      }
+      else
+      {
+        var location = await VM.LocationTracker.GetLocationAsync();
+        if (!mapHasMoved)
+        {
+          DetailsMap.Center = location;
+        }
 
-      NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+        VM.LoadStopsForLocation(location);
+      }
     }
 
-    private void PopupBtn_Click(object sender, RoutedEventArgs e)
+    void DetailsMap_CenterChanged(MapControl sender, object e)
+    {
+      var center = sender.Center;
+      mapHasMoved = true;
+
+      if (sender.ZoomLevel >= minZoomLevel)
+      {
+        VM.LoadStopsForLocation(center);
+      }
+    }
+
+    #endregion
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+      base.OnNavigatedTo(e);
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+      base.OnNavigatedFrom(e);
+    }
+
+    private void NavigateToDetailsPage(Stop stop)
+    {
+      VM.CurrentViewState.CurrentStop = stop;
+      VM.CurrentViewState.CurrentRoute = null;
+      VM.CurrentViewState.CurrentRouteDirection = null;
+
+      (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+    }
+
+    /*private void PopupBtn_Click(object sender, RoutedEventArgs e)
     {
       string selectedStopId = StopInfoBox.Tag as string;
 
@@ -247,6 +175,6 @@ namespace OneBusAway.View
           break;
         }
       }
-    }
+    } */
   }
 }

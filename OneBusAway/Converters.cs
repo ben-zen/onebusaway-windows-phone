@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Windows.Devices.Geolocation;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
@@ -642,6 +643,48 @@ namespace OneBusAway.View
     public object ConvertBack(object value, Type targetType, object parameter, string culture)
     {
       throw new NotImplementedException();
+    }
+  }
+
+  public class ColorAlphaConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string culture)
+    {
+      if (value is SolidColorBrush && parameter != null && parameter is SolidColorBrush)
+      {
+
+        Color color = ((SolidColorBrush)value).Color;
+        Color backgroundColor = ConvertArgbToRgb(((SolidColorBrush)parameter).Color);
+
+        double alpha = color.A / (byte.MaxValue * 1.0);
+        double backgroundAlpha = 1 - alpha;
+        Color newColor = new Color();
+        newColor.A = 0xFF;
+        newColor.B = (byte)(color.B * alpha + backgroundColor.B * backgroundAlpha + 0.5);
+        newColor.G = (byte)(color.G * alpha + backgroundColor.G * backgroundAlpha + 0.5);
+        newColor.R = (byte)(color.R * alpha + backgroundColor.R * backgroundAlpha + 0.5);
+        return new SolidColorBrush(newColor);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+    private Color ConvertArgbToRgb(Color color)
+    {
+      double alpha = color.A / (byte.MaxValue * 1.0);
+      Color newColor = new Color();
+      newColor.A = 0xFF;
+      newColor.B = (byte)(color.B * alpha + 0.5);
+      newColor.G = (byte)(color.G * alpha + 0.5);
+      newColor.R = (byte)(color.R * alpha + 0.5);
+      return newColor;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string culture)
+    {
+      return null;
     }
   }
 }

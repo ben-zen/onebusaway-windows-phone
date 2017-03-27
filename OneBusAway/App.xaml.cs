@@ -25,6 +25,8 @@ using System.IO;
 using System.Text;
 using System.Runtime.Serialization;
 using System.Threading;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -34,68 +36,118 @@ namespace OneBusAway.View
 {
   public partial class App : Application
   {
+    private bool previouslyLaunched = false; // On Phone, any time the app is launched from the tile or the app list, OnLaunched is called. This helps determine when the app was already running.
     private ViewState viewState = ViewState.Instance;
 
     #region Properties
     public Frame RootFrame { get; private set; }
 
-    private bool FeedbackEnabled
+    private BusDirectionVM _busDirection = null;
+    public BusDirectionVM BusDirection
     {
-      get => Settings.FeedbackEnabled;
+      get
+      {
+        if (_busDirection == null)
+        {
+          _busDirection = new BusDirectionVM();
+        }
+        return _busDirection;
+      }
     }
 
+    private MainPageVM _mainPageVM = null;
+    public MainPageVM MainPageVM
+    {
+      get
+      {
+        if (_mainPageVM == null)
+        {
+          _mainPageVM = new MainPageVM();
+        }
+        return _mainPageVM;
+      }
+    }
+
+    private RouteDetailsVM _routeDetails = null;
+    public RouteDetailsVM RouteDetails
+    {
+      get
+      {
+        if (_routeDetails == null)
+        {
+          _routeDetails = new RouteDetailsVM();
+        }
+        return _routeDetails;
+      }
+    }
+
+    private SettingsVM _settings = null;
     public SettingsVM Settings
     {
-      get;
-      private set;
+      get
+      {
+        if (_settings == null)
+        {
+          _settings = new SettingsVM();
+        }
+        return _settings;
+      }
     }
 
-    public StopsMapVM StopsMap { get; private set; }
-
+    private StopsMapVM _stopsMap = null;
+    public StopsMapVM StopsMap
+    {
+      get
+      {
+        if (_stopsMap == null)
+        {
+          _stopsMap = new StopsMapVM();
+        }
+        return _stopsMap;
+      }
+    }
 
     #endregion
     public App()
     {
-      UnhandledException += new UnhandledExceptionEventHandler(unhandledException_ErrorHandler);
-
       InitializeComponent();
-
-      // Phone-specific initialization
-      InitializePhoneApplication();
+      //UnhandledException += new UnhandledExceptionEventHandler(unhandledException_ErrorHandler);
+      Suspending += OnSuspending;
     }
 
 
 
     // Code to execute when the application is activated (brought to foreground)
     // This code will not execute when the application is first launched
-    void Application_Activated(object sender, ActivatedEventArgs e)
+    void Application_Activated(object sender, object e)
     {
-      if (e.IsApplicationInstancePreserved == false)
+      //if (e.IsApplicationInstancePreserved == false)
       {
-        viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
-        viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
-        viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
-        viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
-        viewState.CurrentSearchLocation = (LocationForQuery)GetStateHelper("CurrentSearchLocation", typeof(LocationForQuery));
+        viewState.CurrentRoute = GetStateHelper<Route>("CurrentRoute");
+        viewState.CurrentRoutes = GetStateHelper<List<Route>>("CurrentRoutes");
+        viewState.CurrentRouteDirection = GetStateHelper<RouteStops>("CurrentRouteDirection");
+        viewState.CurrentStop = GetStateHelper<Stop>("CurrentStop");
+        viewState.CurrentSearchLocation = GetStateHelper<LocationForQuery>("CurrentSearchLocation");
       }
     }
 
-    private object GetStateHelper(string key, Type type)
+    private T GetStateHelper<T>(string key)
     {
-      if (PhoneApplicationService.Current.State.ContainsKey(key) == true)
+      //if (PhoneApplicationService.Current.State.ContainsKey(key) == true)
+      //{
+      //  return Deserialize((string)PhoneApplicationService.Current.State[key], typeof(T));
+      //}
+      //else
       {
-        return Deserialize((string)PhoneApplicationService.Current.State[key], type);
-      }
-      else
-      {
-        return null;
+        return default(T);
       }
     }
 
     // Code to execute when the application is deactivated (sent to background)
     // This code will not execute when the application is closing
-    void Application_Deactivated(object sender, DeactivatedEventArgs e)
+    void Application_Deactivated(object sender, object e)
     {
+      /*
       PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(viewState.CurrentRoute);
       PhoneApplicationService.Current.State["CurrentRoutes"] = Serialize(viewState.CurrentRoutes);
       PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
@@ -103,6 +155,7 @@ namespace OneBusAway.View
       PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
 
       IsolatedStorageSettings.ApplicationSettings.Save();
+      */
       BusServiceModel.Singleton.SaveCache();
     }
 
@@ -142,62 +195,50 @@ namespace OneBusAway.View
       }
     }
 
-    #region Phone application initialization
-
-    // Avoid double-initialization
-    private bool phoneApplicationInitialized = false;
-
-    // Do not add any additional code to this method
-    private void InitializePhoneApplication()
+    protected override void OnLaunched(LaunchActivatedEventArgs e)
     {
-      if (phoneApplicationInitialized)
-        return;
-
-      // Create the frame but don't set it as RootVisual yet; this allows the splash
-      // screen to remain active until the application is ready to render.
-      RootFrame = new Frame();
-      RootFrame.Navigated += CompleteInitializePhoneApplication;
-
-      // Handle navigation failures
-      RootFrame.NavigationFailed += new NavigationFailedEventHandler(RootFrame_NavigationFailed);
-
-      // Ensure we don't initialize again
-      phoneApplicationInitialized = true;
-
-    }
-
-    // Do not add any additional code to this method
-    private void CompleteInitializePhoneApplication(object sender, NavigationEventArgs e)
-    {
-      // Set the root visual to allow the application to render
-      if (RootVisual != RootFrame)
+      Frame rootFrame = Window.Current.Content as Frame;
+      // Ne répétez pas l'initialisation de l'application lorsque la fenêtre comporte déjà du contenu,
+      // assurez-vous juste que la fenêtre est active
+      if (rootFrame == null)
       {
-        RootVisual = RootFrame;
+        // Créez un Frame utilisable comme contexte de navigation et naviguez jusqu'à la première page
+        rootFrame = new Frame();
+
+        rootFrame.NavigationFailed += OnNavigationFailed;
+
+        if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
+        {
+          //TODO: chargez l'état de l'application précédemment suspendue
+        }
+
+        // Placez le frame dans la fenêtre active
+        Window.Current.Content = rootFrame;
       }
 
-      // Remove this handler since it is no longer needed
-      RootFrame.Navigated -= CompleteInitializePhoneApplication;
+      if (e.PrelaunchActivated == false)
+      {
+        if (rootFrame.Content == null)
+        {
+          // Quand la pile de navigation n'est pas restaurée, accédez à la première page,
+          // puis configurez la nouvelle page en transmettant les informations requises en tant que
+          // paramètre
+          rootFrame.Navigate(typeof(MainPage), e.Arguments);
+        }
+        // Vérifiez que la fenêtre actuelle est active
+        Window.Current.Activate();
+      }
     }
 
-    #endregion
-    // Code to execute when the application is launching (eg, from Start)
-    // This code will not execute when the application is reactivated
-    private void Application_Launching(object sender, LaunchingEventArgs e)
+    private void OnSuspending(object sender, SuspendingEventArgs e)
     {
-    }
-
-
-
-    // Code to execute when the application is closing (eg, user hit Back)
-    // This code will not execute when the application is deactivated
-    private void Application_Closing(object sender, ClosingEventArgs e)
-    {
-      IsolatedStorageSettings.ApplicationSettings.Save();
-      BusServiceModel.Singleton.SaveCache();
+      var deferral = e.SuspendingOperation.GetDeferral();
+      //TODO: enregistrez l'état de l'application et arrêtez toute activité en arrière-plan
+      deferral.Complete();
     }
 
     // Code to execute if a navigation fails
-    private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
+    private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
       if (System.Diagnostics.Debugger.IsAttached)
       {

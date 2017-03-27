@@ -98,7 +98,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AViewPage.cs" />
     <Compile Include="BusDirectionPage.xaml.cs">
       <DependentUpon>BusDirectionPage.xaml</DependentUpon>
     </Compile>
@@ -112,11 +111,8 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NotifyPopup.xaml.cs">
-      <DependentUpon>NotifyPopup.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PopupSplash.xaml.cs">
-      <DependentUpon>PopupSplash.xaml</DependentUpon>
+    <Compile Include="ArrivalNotificationRequest.xaml.cs">
+      <DependentUpon>ArrivalNotificationRequest.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SettingsPage.xaml.cs">
@@ -170,11 +166,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="NotifyPopup.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="PopupSplash.xaml">
+    <Page Include="ArrivalNotificationRequest.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

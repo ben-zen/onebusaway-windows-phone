@@ -19,14 +19,17 @@ using OneBusAway.Model.LocationServiceDataStructures;
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace OneBusAway.View
 {
   public partial class MainPage : Page
   {
-    private MainPageVM viewModel;
+    public MainPageVM VM => (App.Current as App).MainPageVM;
+
     private bool firstLoad;
     private bool navigatedAway;
     private Object navigationLock;
@@ -41,7 +44,6 @@ namespace OneBusAway.View
     {
       InitializeComponent();
 
-
       firstLoad = true;
       navigatedAway = false;
       navigationLock = new Object();
@@ -55,8 +57,8 @@ namespace OneBusAway.View
       if (firstLoad == true)
       {
         // Since this is the first load, pull down the bus and stop info
-        viewModel.LoadInfoForLocation();
-
+        VM.LoadInfoForLocation();
+        /*
         // In this case, we've been re-created after a tombstone, resume their previous pivot
         if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
         {
@@ -78,76 +80,56 @@ namespace OneBusAway.View
             PC.SelectedIndex = (int)(MainPagePivots)IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"];
           }
         }
+        */
       }
       firstLoad = false;
 
       // Load favorites every time because they might have changed since the last load
-      viewModel.LoadFavorites();
+      VM.LoadFavorites();
 
-      var supported = await viewModel.CheckForLocalTransitData();
+      var supported = await VM.CheckForLocalTransitData();
       if (!supported)
       {
-        MessageBox.Show("Currently the OneBusAway service does not support your location." +
-                        "Many functions of this app will not work.");
+        var modal = new MessageDialog("Currently the OneBusAway service does not support your location." +
+                                      "Many functions of this app will not work.");
+        await modal.ShowAsync();
       }
 
-      viewModel.LocationTracker.RunWhenLocationKnown(delegate (Geopoint location)
-          {
-            Dispatcher.BeginInvoke(() => StopsMap.Center = location);
-          }
-      );
+      var location = await VM.LocationTracker.GetLocationAsync();
+      StopsMap.Center = location;
     }
 
     #region Navigation
 
-    protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
       base.OnNavigatedTo(e);
-
-      viewModel.RegisterEventHandlers(Dispatcher);
 
       navigatedAway = false;
     }
 
-    protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
       base.OnNavigatedFrom(e);
-
+      /*
       // Store it in the state variable for tombstoning
       PhoneApplicationService.Current.State["ShowLoadingSplash"] = false;
       PhoneApplicationService.Current.State["MainPageSelectedPivot"] = (MainPagePivots)PC.SelectedIndex;
 
       // This is for the last-used pivot on fresh load
       IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"] = (MainPagePivots)PC.SelectedIndex;
-
-      viewModel.UnregisterEventHandlers();
-    }
-
-    /// <summary>
-    /// Helper for the NavigationService.  Debounces navigation calls.
-    /// </summary>
-    /// <param name="target"></param>
-    private void Navigate(Uri target)
-    {
-      lock (navigationLock)
-      {
-        if (navigatedAway == false)
-        {
-          navigatedAway = true;
-          NavigationService.Navigate(target);
-        }
-      }
+      */
     }
 
     #endregion
 
     #region UI element event handlers
 
-    private void appbar_refresh_Click(object sender, EventArgs e)
+    private void appbar_refresh_Click(object sender, RoutedEventArgs e)
     {
-      if (viewModel.operationTracker.Loading == false)
+      if (VM.operationTracker.Loading == false)
       {
-        viewModel.LoadInfoForLocation(true);
+        VM.LoadInfoForLocation(true);
       }
     }
 
@@ -156,11 +138,11 @@ namespace OneBusAway.View
       if (e.AddedItems.Count > 0)
       {
         FavoriteRouteAndStop favorite = (FavoriteRouteAndStop)e.AddedItems[0];
-        viewModel.CurrentViewState.CurrentRoute = favorite.route;
-        viewModel.CurrentViewState.CurrentStop = favorite.stop;
-        viewModel.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
+        VM.CurrentViewState.CurrentRoute = favorite.route;
+        VM.CurrentViewState.CurrentStop = favorite.stop;
+        VM.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
 
-        Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+        (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
       }
     }
 
@@ -173,20 +155,19 @@ namespace OneBusAway.View
     {
       if (e.AddedItems.Count > 0)
       {
-        viewModel.CurrentViewState.CurrentRoute = null;
-        viewModel.CurrentViewState.CurrentRouteDirection = null;
-        viewModel.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
+        VM.CurrentViewState.CurrentRoute = null;
+        VM.CurrentViewState.CurrentRouteDirection = null;
+        VM.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
 
-        Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+        (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
       }
     }
 
-    private void appbar_search_Click(object sender, EventArgs e)
+    private void appbar_search_Click(object sender, RoutedEventArgs e)
     {
       if (SearchPanel.Opacity == 0)
       {
-        SearchStoryboard.Begin();
-        SearchInputBox.Focus();
+        SearchInputBox.Focus(FocusState.Programmatic);
         SearchInputBox.SelectAll();
       }
       else
@@ -198,19 +179,17 @@ namespace OneBusAway.View
 
     private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
     {
-      SearchStoryboard.Seek(TimeSpan.Zero);
-      SearchStoryboard.Stop();
-      this.Focus();
+      this.Focus(FocusState.Programmatic);
     }
 
-    private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
+    private void SearchInputBox_KeyUp(object sender, object e)
     {
       string searchString = SearchInputBox.Text;
 
-      if (e.Key == Key.Enter)
+      /*if (e.Key == Key.Enter)
       {
         ProcessSearch(searchString);
-      }
+      }*/
     }
 
     private async void ProcessSearch(string searchString)
@@ -221,83 +200,83 @@ namespace OneBusAway.View
       {
         if (number < 1000) //route number
         {
-          var routeFound = await viewModel.SearchByRouteAsync(searchString);
+          var routeFound = await VM.SearchByRouteAsync(searchString);
 
           if (routeFound)
           {
-            Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+            (App.Current as App).RootFrame.Navigate(typeof(BusDirectionPage), null);
           }
         }
         else //stop number
         {
-          var stopFound = await viewModel.SearchByStopAsync(searchString);
+          var stopFound = await VM.SearchByStopAsync(searchString);
 
           if (stopFound)
           {
-            Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
           }
         }
       }
       else if (string.IsNullOrEmpty(searchString) == false) // Try to find the location
       {
-        var addressFound = await viewModel.SearchByAddressAsync(searchString);
+        var addressFound = await VM.SearchByAddressAsync(searchString);
         if (addressFound)
         {
-          Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+          (App.Current as App).RootFrame.Navigate(typeof(StopsMapPage), null);
         }
       }
     }
 
 
-    private void appbar_settings_Click(object sender, EventArgs e)
+    private void appbar_settings_Click(object sender, RoutedEventArgs e)
     {
-      Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
+      (App.Current as App).RootFrame.Navigate(typeof(SettingsPage), null);
     }
 
-    private void appbar_about_Click(object sender, EventArgs e)
+    private void appbar_about_Click(object sender, RoutedEventArgs e)
     {
-      Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+      (App.Current as App).RootFrame.Navigate(typeof(AboutPage), null);
     }
 
     private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
     {
-      viewModel.CurrentViewState.CurrentRoute = null;
-      viewModel.CurrentViewState.CurrentRouteDirection = null;
-      viewModel.CurrentViewState.CurrentSearchLocation = null;
-      viewModel.CurrentViewState.CurrentStop = null;
+      VM.CurrentViewState.CurrentRoute = null;
+      VM.CurrentViewState.CurrentRouteDirection = null;
+      VM.CurrentViewState.CurrentSearchLocation = null;
+      VM.CurrentViewState.CurrentStop = null;
 
-      Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+      (App.Current as App).RootFrame.Navigate(typeof(StopsMapPage), null);
     }
 
-    private void RouteDirection_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+    private void RouteDirection_Tap(object sender, object e)
     {
       RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
-      viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
+      VM.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
 
-      viewModel.CurrentViewState.CurrentRoute = routeStops.route;
-      viewModel.CurrentViewState.CurrentRouteDirection = routeStops;
+      VM.CurrentViewState.CurrentRoute = routeStops.route;
+      VM.CurrentViewState.CurrentRouteDirection = routeStops;
 
-      viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];
-      foreach (Stop stop in viewModel.CurrentViewState.CurrentRouteDirection.stops)
+      VM.CurrentViewState.CurrentStop = VM.CurrentViewState.CurrentRouteDirection.stops[0];
+      foreach (Stop stop in VM.CurrentViewState.CurrentRouteDirection.stops)
       {
         // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
         // at this point during a tombstoning scenario
-        GeoCoordinate location = viewModel.LocationTracker.CurrentLocation;
+        Geopoint location = VM.LocationTracker.CurrentLocation;
 
-        if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
+        if (VM.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
         {
-          viewModel.CurrentViewState.CurrentStop = stop;
+          VM.CurrentViewState.CurrentStop = stop;
         }
       }
 
-      Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+      (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
     }
 
     private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
       //we bind the DataContext only when the pivot is naivgated to. This improves perf if Favs or Recent are the first pivots
       FrameworkElement selectedElement = ((sender as Pivot).SelectedItem as PivotItem).Content as FrameworkElement;
-      selectedElement.DataContext = viewModel;
+      selectedElement.DataContext = VM;
     }
 
     #endregion

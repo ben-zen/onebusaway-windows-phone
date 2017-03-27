@@ -20,12 +20,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:maps="using:Windows.UI.Xaml.Controls.Maps"
-    xmlns:data="using:OneBusAway.ViewModel" 
-    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-
-    mc:Ignorable="d"
-    >
-
+    mc:Ignorable="d">
   <Page.Resources>
 
     <!-- TextBox styles -->
@@ -101,12 +96,11 @@
 
     <Grid Grid.Row="0" x:Name="TitleGrid">
       <StackPanel Orientation="Horizontal">
-        <TextBlock 
-                    VerticalAlignment="Top"
-                    x:Name="RouteNumber" 
-                    Text="{Binding Path=CurrentViewState.CurrentRoute.shortName}" 
-                    FontSize="48" 
-                    Margin="10,0,10,0" 
+        <TextBlock VerticalAlignment="Top"
+                   x:Name="RouteNumber" 
+                   Text="{Binding VM.CurrentViewState.CurrentRoute.shortName}" 
+                   FontSize="48" 
+                   Margin="10,0,10,0" 
                     />
 
         <Grid>
@@ -124,11 +118,10 @@
 
     <Grid Grid.Row="1" x:Name="ContentGrid">
       <maps:MapControl x:Name="DetailsMap"
-                             Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"
+                       Center="{x:Bind VM.LocationTracker.CurrentLocation, TargetNullValue=VM.LocationTracker.DefaultLocation, Mode=OneWay}"
                              WatermarkMode="Automatic"
                              ZoomInteractionMode="Auto"
-                             ZoomLevel="10"
-                             ZoomLevelChanged="DetailsMap_MapZoom">
+                             ZoomLevel="10">
         <maps:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}">
           <maps:MapItemsControl.ItemTemplate>
             <DataTemplate>
@@ -137,7 +130,7 @@
             </DataTemplate>
           </maps:MapItemsControl.ItemTemplate>
         </maps:MapItemsControl>
-        <maps:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}">
+        <maps:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{x:Bind VM.ArrivalsForStop, Mode=OneWay}">
           <maps:MapItemsControl.ItemTemplate>
             <DataTemplate>
               <maps:MapIcon Location="{Binding tripDetails.location}" 
@@ -163,10 +156,7 @@
                 x:Name="ArrivalsListBox" 
                 ItemsSource="{Binding Path=ArrivalsForStop}" 
                 ItemTemplate="{StaticResource RouteTemplate}" 
-                SelectionChanged="ArrivalsListBox_SelectionChanged"
-                LayoutUpdated="ArrivalsListBox_LayoutUpdated"
-                 
-                />
+                SelectionChanged="ArrivalsListBox_SelectionChanged" />
       <TextBlock x:Name="NoResultsTextBlock" Text="no results" 
                  Visibility="{Binding Path=NoResultsAvailable, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
                        VerticalAlignment="Top"
@@ -183,8 +173,9 @@
 
   <Page.BottomAppBar>
     <CommandBar>
-      <AppBarButton x:Name="appbar_favorite" Icon="Favorite"  Content="Add Favorite" Click="appbar_favorite_Click" />
-      <AppBarButton x:Name="appbar_refresh" Icon="Refresh" Content="Refresh" Click="appbar_refresh_Click" />
+      <AppBarButton x:Name="appbar_filter" Icon="Filter" Label="Filter" /> <!-- Click="appbar_allroutes_click" /> -->
+      <AppBarButton x:Name="appbar_favorite" Icon="Favorite"  Label="Add Favorite" Click="appbar_favorite_Click" />
+      <AppBarButton x:Name="appbar_refresh" Icon="Refresh" Label="Refresh" Click="appbar_refresh_Click" />
     </CommandBar>
   </Page.BottomAppBar>
 </Page>

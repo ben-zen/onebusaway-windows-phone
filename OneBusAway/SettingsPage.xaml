@@ -41,7 +41,8 @@
                       Grid.Row="0"
                       IsOn="{x:Bind VM.FeedbackEnabled, Mode=TwoWay}"
                       Header="Send feedback"
-                      Margin="0,4" />
+                      Margin="0,4"
+                      Toggled="ReportUsageTs_Click"/>
         <TextBlock Grid.Row="1"
                    Margin="0,4"
                    Style="{ThemeResource BodyTextBlockStyle}"
@@ -71,6 +72,7 @@
                     IsOn="{x:Bind VM.UseNativeTheme, Mode=TwoWay}"
                     Foreground="{StaticResource OBAForegroundBrush}"
                     Header="Use system theme"
+          Toggled="ThemeToggle_Click"
                     />
 
         <TextBlock 
@@ -84,6 +86,7 @@
                       IsOn="{x:Bind VM.UseLocation, Mode=TwoWay}"
                       Header="Use location"
                       Margin="0,4"
+                      Toggled="UseLocationTs_Click"
                     />
 
         <TextBlock Margin="0,4"

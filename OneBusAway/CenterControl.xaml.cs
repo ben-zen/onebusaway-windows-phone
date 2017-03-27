@@ -12,19 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+using Windows.UI.Xaml.Controls;
 
-namespace OneBusAway.WP7.View
+namespace OneBusAway.View
 {
     public partial class CenterControl : UserControl
     {

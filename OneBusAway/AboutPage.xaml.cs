@@ -13,37 +13,36 @@
  * limitations under the License.
  */
 
-using System.Reflection;
+
 using OneBusAway.ViewModel;
+using Windows.ApplicationModel;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 namespace OneBusAway.View
 {
-    public partial class AboutPage : Page
+  public partial class AboutPage : Page
+  {
+    public AboutPage()
     {
-        public AboutPage()
-        {
-            InitializeComponent();
-
-            VersionTextBlock.Text = "Version " + 
-                new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version.ToString();
+      InitializeComponent();
+      VersionTextBlock.Text = "Version " + Package.Current.Id.Version.ToString();
 
 #if SCREENSHOT
             SystemTray.IsVisible = false;
 #endif
-        }
-
-        // Methods overridden for analytics purposes
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-        }
-
-        // Methods overridden for analytics purposes
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            base.OnNavigatedFrom(e);
-        }
     }
+
+    // Methods overridden for analytics purposes
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+      base.OnNavigatedTo(e);
+    }
+
+    // Methods overridden for analytics purposes
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+      base.OnNavigatedFrom(e);
+    }
+  }
 }

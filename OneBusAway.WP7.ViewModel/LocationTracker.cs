@@ -158,6 +158,8 @@ namespace OneBusAway.ViewModel
       }
     }
 
+
+
     public bool LocationKnown
     {
       get

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OneBusAway.ViewModel;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Controls;
@@ -28,7 +29,6 @@ namespace OneBusAway.View
     {
       get => (Application.Current as App).Settings;
     }
-    private SettingsVM viewModel;
 
     public SettingsPage()
         : base()
@@ -42,10 +42,7 @@ namespace OneBusAway.View
     {
       // Add the event handlers here instead of in XAML so they aren't called when the initial
       // selection is made on page load
-      ReportUsageTs.Click += new EventHandler<RoutedEventArgs>(ReportUsageTs_Click);
       DefaultPivotLp.SelectionChanged += new SelectionChangedEventHandler(DefaultPivotLp_SelectionChanged);
-      ThemeToggle.Click += new EventHandler<RoutedEventArgs>(ThemeToggle_Click);
-      UseLocationTs.Click += new EventHandler<RoutedEventArgs>(UseLocationTs_Click);
     }
 
     // Methods overridden for analytics purposes
@@ -60,7 +57,7 @@ namespace OneBusAway.View
       base.OnNavigatedFrom(e);
     }
 
-    private void appbar_clear_history_Click(object sender, EventArgs e)
+    private void appbar_clear_history_Click(object sender, RoutedEventArgs e)
     {
       VM.Clear();
     }
@@ -88,14 +85,16 @@ namespace OneBusAway.View
 
     }
 
-    void ThemeToggle_Click(object sender, RoutedEventArgs e)
+    async void ThemeToggle_Click(object sender, RoutedEventArgs e)
     {
-      MessageBox.Show("You will need to restart OneBusAway for this change to take effect");
+      var popup = new MessageDialog("You will need to restart OneBusAway for this change to take effect");
+      await popup.ShowAsync();
     }
 
-    void UseLocationTs_Click(object sender, RoutedEventArgs e)
+    async void UseLocationTs_Click(object sender, RoutedEventArgs e)
     {
-      MessageBox.Show("You will need to restart OneBusAway for this change to take effect");
+      var popup = new MessageDialog("You will need to restart OneBusAway for this change to take effect");
+      await popup.ShowAsync();
     }
   }
 }

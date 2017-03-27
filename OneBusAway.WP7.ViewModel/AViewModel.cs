@@ -27,8 +27,6 @@ namespace OneBusAway.ViewModel
     #region Constructors
     public AViewModel(BusServiceModel busServiceModel = null, IAppDataModel appDataModel = null, ILocationModel locationModel = null)
     {
-      this._busServiceModel = busServiceModel;
-      this.lazyAppDataModel = appDataModel;
 
       if (!IsInDesignMode)
       {
@@ -45,48 +43,11 @@ namespace OneBusAway.ViewModel
     // exceed the 100 stop limit, even downtown.
     protected int defaultSearchRadius = 500;
 
-    private BusServiceModel _busServiceModel;
-    protected BusServiceModel BusServiceModel
-    {
-      get
-      {
-        if (_busServiceModel == null)
-        {
-          _busServiceModel = BusServiceModel.Singleton;
-          _busServiceModel.Initialize();
-        }
-        return _busServiceModel;
-      }
-    }
+    protected BusServiceModel BusServiceModel => BusServiceModel.Singleton;
 
-    private IAppDataModel lazyAppDataModel;
-    protected IAppDataModel appDataModel
-    {
-      get
-      {
-        if (lazyAppDataModel == null)
-        {
-          lazyAppDataModel = (IAppDataModel)Assembly.Load(new AssemblyName("OneBusAway.WP7.Model"))
-              .GetType("OneBusAway.WP7.Model.AppDataModel")
-              .GetField("Singleton")
-              .GetValue(null);
-        }
-        return lazyAppDataModel;
-      }
-    }
+    protected AppDataModel appDataModel => AppDataModel.Singleton;
 
-    private LocationModel _locationModel;
-    protected LocationModel locationModel
-    {
-      get
-      {
-        if (_locationModel == null)
-        {
-          _locationModel = new LocationModel();
-        }
-        return _locationModel;
-      }
-    }
+    protected LocationModel locationModel => LocationModel.Singleton;
 
     protected bool IsInDesignMode
     {
