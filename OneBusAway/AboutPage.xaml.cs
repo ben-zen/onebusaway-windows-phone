@@ -26,7 +26,8 @@ namespace OneBusAway.View
     public AboutPage()
     {
       InitializeComponent();
-      VersionTextBlock.Text = "Version " + Package.Current.Id.Version.ToString();
+      var version = Package.Current.Id.Version;
+      VersionTextBlock.Text = "Version " + string.Format("{0}.{1}.{2}.{3}",version.Major, version.Minor, version.Build, version.Revision);
 
 #if SCREENSHOT
             SystemTray.IsVisible = false;

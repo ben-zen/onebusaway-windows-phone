@@ -27,6 +27,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -214,6 +215,7 @@ namespace OneBusAway.View
 
         // Placez le frame dans la fenêtre active
         Window.Current.Content = rootFrame;
+        SystemNavigationManager.GetForCurrentView().BackRequested += HandleBackPressed;
       }
 
       if (e.PrelaunchActivated == false)
@@ -227,6 +229,16 @@ namespace OneBusAway.View
         }
         // Vérifiez que la fenêtre actuelle est active
         Window.Current.Activate();
+      }
+    }
+
+    private void HandleBackPressed(object sender, BackRequestedEventArgs e)
+    {
+      var canGoBack = (Window.Current?.Content as Frame)?.CanGoBack;
+      if (canGoBack != null && (bool)canGoBack)
+      {
+        (Window.Current.Content as Frame).GoBack();
+        e.Handled = true;
       }
     }
 

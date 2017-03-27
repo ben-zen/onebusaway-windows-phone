@@ -70,7 +70,6 @@
         <ToggleSwitch
                     x:Name="ThemeToggle"
                     IsOn="{x:Bind VM.UseNativeTheme, Mode=TwoWay}"
-                    Foreground="{StaticResource OBAForegroundBrush}"
                     Header="Use system theme"
           Toggled="ThemeToggle_Click"
                     />

@@ -142,7 +142,7 @@ namespace OneBusAway.View
         VM.CurrentViewState.CurrentStop = favorite.stop;
         VM.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
 
-        (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+        (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
       }
     }
 
@@ -159,7 +159,7 @@ namespace OneBusAway.View
         VM.CurrentViewState.CurrentRouteDirection = null;
         VM.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
 
-        (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+        (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
       }
     }
 
@@ -204,7 +204,7 @@ namespace OneBusAway.View
 
           if (routeFound)
           {
-            (App.Current as App).RootFrame.Navigate(typeof(BusDirectionPage), null);
+            (Window.Current.Content as Frame).Navigate(typeof(BusDirectionPage), null);
           }
         }
         else //stop number
@@ -213,7 +213,7 @@ namespace OneBusAway.View
 
           if (stopFound)
           {
-            (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+            (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
           }
         }
       }
@@ -222,7 +222,7 @@ namespace OneBusAway.View
         var addressFound = await VM.SearchByAddressAsync(searchString);
         if (addressFound)
         {
-          (App.Current as App).RootFrame.Navigate(typeof(StopsMapPage), null);
+          (Window.Current.Content as Frame).Navigate(typeof(StopsMapPage), null);
         }
       }
     }
@@ -230,12 +230,12 @@ namespace OneBusAway.View
 
     private void appbar_settings_Click(object sender, RoutedEventArgs e)
     {
-      (App.Current as App).RootFrame.Navigate(typeof(SettingsPage), null);
+      (Window.Current.Content as Frame).Navigate(typeof(SettingsPage), null);
     }
 
     private void appbar_about_Click(object sender, RoutedEventArgs e)
     {
-      (App.Current as App).RootFrame.Navigate(typeof(AboutPage), null);
+      (Window.Current.Content as Frame).Navigate(typeof(AboutPage), null);
     }
 
     private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
@@ -245,7 +245,7 @@ namespace OneBusAway.View
       VM.CurrentViewState.CurrentSearchLocation = null;
       VM.CurrentViewState.CurrentStop = null;
 
-      (App.Current as App).RootFrame.Navigate(typeof(StopsMapPage), null);
+      (Window.Current.Content as Frame).Navigate(typeof(StopsMapPage), null);
     }
 
     private void RouteDirection_Tap(object sender, object e)
@@ -269,7 +269,7 @@ namespace OneBusAway.View
         }
       }
 
-      (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+      (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
     }
 
     private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)

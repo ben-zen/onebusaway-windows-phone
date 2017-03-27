@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="f6f9fea2-2d93-4940-bb89-8f80f36f1e8f" Publisher="CN=benjf" Version="1.0.0.0" />
+  <Identity Name="f6f9fea2-2d93-4940-bb89-8f80f36f1e8f" Publisher="CN=benjf" Version="2.9.0.0" />
   <mp:PhoneIdentity PhoneProductId="f6f9fea2-2d93-4940-bb89-8f80f36f1e8f" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>BusAware</DisplayName>
