@@ -63,18 +63,17 @@ namespace OneBusAway.Model.BusServiceDataStructures
         /// <summary>
         /// Returns the distance from this region's closest bounds in meters.
         /// </summary>
-        public double DistanceFrom(double latitude, double longitude)
+        public double DistanceFrom(Geopoint location)
         {
-            double closestRegion = double.MaxValue;
-            Geopoint location = new Geopoint(new BasicGeoposition { Latitude = latitude, Longitude = longitude });
+            double closestBound = double.MaxValue;
             
             foreach (var bounds in this.RegionBounds)
             {
                 Geopoint regionLocation = new Geopoint(new BasicGeoposition { Latitude = bounds.Latitude, Longitude = bounds.Longitude });
-                closestRegion = Math.Min(closestRegion, regionLocation.GetDistanceTo(location));
+                closestBound = Math.Min(closestBound, regionLocation.GetDistanceTo(location));
             }
 
-            return closestRegion;
+            return closestBound;
         }
 
         /// <summary>

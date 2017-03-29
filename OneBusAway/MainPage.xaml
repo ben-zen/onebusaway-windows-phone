@@ -18,12 +18,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:data="using:OneBusAway.ViewModel" 
+    xmlns:bus="using:OneBusAway.Model.BusServiceDataStructures"
     xmlns:view="using:OneBusAway.View"
     xmlns:m="using:Windows.UI.Xaml.Controls.Maps">
 
   <Page.Resources>
-    <data:MainPageVM x:Key="ViewModel" />
     <DataTemplate x:Key="PushpinTemplate">
       <m:MapIcon NormalizedAnchorPoint="0.5,1" />
     </DataTemplate>
@@ -35,7 +34,30 @@
     <Pivot Name="PC" SelectionChanged="PC_SelectionChanged">
       <PivotItem Header="routes">
         <ListBox x:Name="RoutesListBox" 
-                 ItemsSource="{Binding Path=DisplayRouteForLocation.Current}"  />
+                 ItemsSource="{x:Bind TransitService.Routes, Mode=OneWay}"
+                 HorizontalAlignment="Stretch"
+                 HorizontalContentAlignment="Stretch">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="bus:Route">
+              <Grid Margin="0,4"
+                    HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{x:Bind shortName}"
+                           Style="{ThemeResource BodyTextBlockStyle}"
+                           HorizontalAlignment="Left"
+                           Grid.Column="0" />
+                <TextBlock Text="{x:Bind description}"
+                           Style="{ThemeResource BodyTextBlockStyle}"
+                           HorizontalAlignment="Right"
+                           Margin="8,0,0,0"
+                           Grid.Column="1" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
       </PivotItem>
       <PivotItem Header="stops">
         <Grid>
@@ -56,23 +78,39 @@
             <m:MapControl x:Name="StopsMap"
                           WatermarkMode="Automatic"
                           ZoomInteractionMode="GestureOnly"
-                          MapServiceToken="{StaticResource MapCredentials}"
-                          Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"
                           ZoomLevel="17" IsEnabled="False">
-              <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+              <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
                 <m:MapItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <m:MapIcon Location="{Binding location}" NormalizedAnchorPoint="0.5,0.5" />
+                  <DataTemplate x:DataType="bus:Stop">
+                    <TextBlock m:MapControl.Location="{x:Bind location}" m:MapControl.NormalizedAnchorPoint="0.5,0.5" />
                   </DataTemplate>
                 </m:MapItemsControl.ItemTemplate>
               </m:MapItemsControl>
-              <m:MapIcon x:Name="MyLocation" Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" NormalizedAnchorPoint="0.5,0.5" />
+              <m:MapIcon x:Name="MyLocation" NormalizedAnchorPoint="0.5,0.5" />
             </m:MapControl>
           </Button>
           <ListBox Grid.Row="1"
                     x:Name="StopsListBox"
-                    ItemsSource="{Binding Path=StopsForLocation}" 
-                    SelectionChanged="StopsListBox_SelectionChanged" />
+                    ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}" 
+                    SelectionChanged="StopsListBox_SelectionChanged">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="bus:Stop">
+                <Grid HorizontalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{x:Bind name}"
+                             Style="{ThemeResource BodyTextBlockStyle}"
+                             Grid.Column="0"/>
+                  <TextBlock Text="{x:Bind direction}"
+                             Style="{ThemeResource BodyTextBlockStyle}"
+                             Grid.Column="1" />
+                </Grid>
+                
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
         </Grid>
 
       </PivotItem>
@@ -106,8 +144,7 @@
     </StackPanel>
 
     <ProgressBar VerticalAlignment="Top"
-                 IsIndeterminate="True"
-                 IsEnabled="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}" />
+                 IsIndeterminate="True" />
   </Grid>
 
   <Page.BottomAppBar>

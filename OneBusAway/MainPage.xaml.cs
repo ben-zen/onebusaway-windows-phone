@@ -29,6 +29,7 @@ namespace OneBusAway.View
   public partial class MainPage : Page
   {
     public MainPageVM VM => (App.Current as App).MainPageVM;
+    public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
 
     private bool firstLoad;
     private bool navigatedAway;
@@ -57,7 +58,7 @@ namespace OneBusAway.View
       if (firstLoad == true)
       {
         // Since this is the first load, pull down the bus and stop info
-        VM.LoadInfoForLocation();
+        // VM.LoadInfoForLocation();
         /*
         // In this case, we've been re-created after a tombstone, resume their previous pivot
         if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
@@ -86,15 +87,19 @@ namespace OneBusAway.View
 
       // Load favorites every time because they might have changed since the last load
       VM.LoadFavorites();
-
+      /*
       var supported = await VM.CheckForLocalTransitData();
-      if (!supported)
+      if (supported)
+      {
+        VM.LoadInfoForLocation();
+      }
+      else
       {
         var modal = new MessageDialog("Currently the OneBusAway service does not support your location." +
                                       "Many functions of this app will not work.");
         await modal.ShowAsync();
       }
-
+      */
       var location = await VM.LocationTracker.GetLocationAsync();
       StopsMap.Center = location;
     }

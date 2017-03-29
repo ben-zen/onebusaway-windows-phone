@@ -38,7 +38,6 @@ namespace OneBusAway.Model
     Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query, int radiusInMeters, int maxCount);
     Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query);
 
-    void Initialize();
     void ClearCache();
   }
 

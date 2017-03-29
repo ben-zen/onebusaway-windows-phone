@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using OneBusAway.Model;
 using OneBusAway.Model.BusServiceDataStructures;
 using System.Collections.Generic;

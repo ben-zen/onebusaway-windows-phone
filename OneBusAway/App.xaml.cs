@@ -108,6 +108,18 @@ namespace OneBusAway.View
       }
     }
 
+    private TransitServiceViewModel _transitService = null;
+    public TransitServiceViewModel TransitService
+    {
+      get
+      {
+        if (_transitService == null)
+        {
+          _transitService = new TransitServiceViewModel();
+        }
+        return _transitService;
+      }
+    }
     #endregion
     public App()
     {

@@ -26,234 +26,230 @@ using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
-    public class BusServiceModel : IBusServiceModel
+  public class BusServiceModel : IBusServiceModel
+  {
+    private OneBusAwayWebservice webservice;
+
+    #region Constructor/Singleton
+
+    // TODO we really need to get rid of this singleton and move to a better dependency injection model at some point.
+
+    public static BusServiceModel Singleton = new BusServiceModel();
+
+    private BusServiceModel()
     {
-        private OneBusAwayWebservice webservice;
+      webservice = new OneBusAwayWebservice();
+    }
 
-        #region Constructor/Singleton
+    #endregion
 
-        // TODO we really need to get rid of this singleton and move to a better dependency injection model at some point.
+    /// <summary>
+    /// Scan the list of stops to find all associated routes.
+    /// </summary>
+    /// <param name="stops"></param>
+    /// <param name="location">Center location used to find closestStop on each route.</param>
+    /// <returns></returns>
+    private List<Route> GetRoutesFromStops(List<Stop> stops, Geopoint location)
+    {
+      IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
+      stops.Sort(new StopDistanceComparer(location));
 
-        public static BusServiceModel Singleton = new BusServiceModel();
-
-        private BusServiceModel()
+      foreach (Stop stop in stops)
+      {
+        foreach (Route route in stop.routes)
         {
+          if (!routesMap.ContainsKey(route.id))
+          {
+            // the stops are sorted in distance order.
+            // so if we haven't already seen this route, then this is the closest stop.
+            route.closestStop = stop;
+            routesMap.Add(route.id, route);
+          }
         }
+      }
+      return routesMap.Values.ToList<Route>();
+    }
 
-        #endregion
+    #region Public Methods
 
-        /// <summary>
-        /// Scan the list of stops to find all associated routes.
-        /// </summary>
-        /// <param name="stops"></param>
-        /// <param name="location">Center location used to find closestStop on each route.</param>
-        /// <returns></returns>
-        private List<Route> GetRoutesFromStops(List<Stop> stops, Geopoint location)
+    public async Task<double> DistanceFromClosestSupportedRegionAsync(Geopoint location)
+    {
+      return (await OneBusAwayWebservice.ClosestRegionAsync(location)).DistanceFrom(location);
+    }
+
+    public bool AreLocationsEquivalent(Geopoint location1, Geopoint location2)
+    {
+      return OneBusAwayWebservice.GetRoundedLocation(location1) == OneBusAwayWebservice.GetRoundedLocation(location2);
+    }
+
+    public Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters)
+    {
+      return CombinedInfoForLocationAsync(location, radiusInMeters, -1);
+    }
+
+    public Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount)
+    {
+      return CombinedInfoForLocationAsync(location, radiusInMeters, maxCount, false);
+    }
+
+    public async Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache)
+    {
+      var stops = await webservice.StopsForLocationAsync(location,
+          null,
+          radiusInMeters,
+          maxCount,
+          invalidateCache);
+      var routes = GetRoutesFromStops(stops, location);
+      return new Tuple<List<Stop>, List<Route>>(stops, routes);
+    }
+
+    public async Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount = -1, bool invalidateCache = false)
+    {
+      return await webservice.StopsForLocationAsync(location,
+                                                    null,
+                                                    radiusInMeters,
+                                                    maxCount,
+                                                    invalidateCache);
+    }
+
+    public async Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount = -1, bool invalidateCache = false)
+    {
+      return await webservice.RoutesForLocationAsync(location,
+                                                     null,
+                                                     radiusInMeters,
+                                                     maxCount);
+    }
+
+    public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route)
+    {
+      return await webservice.StopsForRouteAsync(location,
+                  route);
+    }
+
+    public async Task<List<ArrivalAndDeparture>> ArrivalsForStopAsync(Geopoint location, Stop stop)
+    {
+      return await webservice.GetArrivalsForStopAsync(location,
+                                                      stop);
+    }
+
+    public async Task<List<RouteSchedule>> ScheduleForStopAsync(Geopoint location, Stop stop)
+    {
+      return await webservice.GetScheduleForStopAsync(location,
+                    stop);
+    }
+
+    public async Task<List<TripDetails>> TripDetailsForArrivalsAsync(Geopoint location, List<ArrivalAndDeparture> arrivals)
+    {
+      var tripDetails = new List<TripDetails>();
+      if (arrivals.Count > 0)
+      {
+        foreach (var arrival in arrivals)
         {
-            IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
-            stops.Sort(new StopDistanceComparer(location));
-
-            foreach (Stop stop in stops)
-            {
-                foreach (Route route in stop.routes)
-                {
-                    if (!routesMap.ContainsKey(route.id))
-                    {
-                        // the stops are sorted in distance order.
-                        // so if we haven't already seen this route, then this is the closest stop.
-                        route.closestStop = stop;
-                        routesMap.Add(route.id, route);
-                    }
-                }
-            }
-            return routesMap.Values.ToList<Route>();
+          var trip = await webservice.TripDetailsForArrivalAsync(location,
+                                                                 arrival);
+          tripDetails.Add(trip);
         }
+      }
+      return tripDetails;
+    }
 
-        #region Public Methods
+    public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query)
+    {
+      return SearchForRoutesAsync(location, query, 1000000, -1);
+    }
 
-        public void Initialize()
-        {
-            webservice = new OneBusAwayWebservice();
-        }
+    public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
+    {
+      return webservice.RoutesForLocationAsync(location,
+                  query,
+                  radiusInMeters,
+                  maxCount);
+    }
 
-        public async Task<double> DistanceFromClosestSupportedRegionAsync(Geopoint location)
-        {
-            return (await OneBusAwayWebservice.ClosestRegionAsync(location)).DistanceFrom(location.Position.Latitude, location.Position.Longitude);
-        }
+    public async Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query)
+    {
+      return await SearchForStopsAsync(location, query, 1000000, -1);
+    }
 
-        public bool AreLocationsEquivalent(Geopoint location1, Geopoint location2)
-        {
-            return OneBusAwayWebservice.GetRoundedLocation(location1) == OneBusAwayWebservice.GetRoundedLocation(location2);
-        }
+    public async Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
+    {
+      return await webservice.StopsForLocationAsync(location,
+                         query,
+                         radiusInMeters,
+                         maxCount,
+                         false);
+    }
 
-        public Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters)
-        {
-            return CombinedInfoForLocationAsync(location, radiusInMeters, -1);
-        }
+    public async Task<List<LocationForQuery>> LocationForAddress(string query, Geopoint searchNearLocation)
+    {
+      string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations";
+      string requestUrl = string.Format(
+          "{0}?query={1}&key={2}&o=xml&userLocation={3}",
+          bingMapAPIURL,
+          query.Replace('&', ' '),
+          "AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz",
+          string.Format("{0},{1}", searchNearLocation.Position.Latitude, searchNearLocation.Position.Longitude)
+      );
 
-        public Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount)
-        {
-            return CombinedInfoForLocationAsync(location, radiusInMeters, maxCount, false);
-        }
+      HttpClient client = new HttpClient();
+      var response = await client.GetStringAsync(requestUrl);
+      var locations = new List<LocationForQuery>();
+      try
+      {
+        var xmlResponse = XDocument.Parse(response);
+        XNamespace ns = "http://schemas.microsoft.com/search/local/ws/rest/v1";
 
-        public async Task<Tuple<List<Stop>, List<Route>>> CombinedInfoForLocationAsync(Geopoint location, int radiusInMeters, int maxCount, bool invalidateCache)
-        {
-            var stops = await webservice.StopsForLocationAsync(location,
-                null,
-                radiusInMeters,
-                maxCount,
-                invalidateCache);
-            var routes = GetRoutesFromStops(stops, location);
-            return new Tuple<List<Stop>, List<Route>>(stops, routes);
-        }
+        locations.AddRange((from location in xmlResponse.Descendants(ns + "Location")
+                            select new LocationForQuery
+                            {
+                              Location = new Geopoint(new BasicGeoposition
+                              {
+                                Latitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Latitude").Value),
+                                Longitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Longitude").Value)
+                              }),
+                              Name = location.Element(ns + "Name").Value,
+                              Confidence = (Confidence)Enum.Parse(
+                                     typeof(Confidence),
+                                     location.Element(ns + "Confidence").Value,
+                                     true
+                                     ),
+                              BoundingBox = new GeoboundingBox(
+                                     new BasicGeoposition
+                                     {
+                                       Latitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "NorthLatitude").Value),
+                                       Longitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "WestLongitude").Value)
+                                     },
+                                     new BasicGeoposition
+                                     {
+                                       Latitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "SouthLatitude").Value),
+                                       Longitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "EastLongitude").Value)
+                                     })
+                            }).ToList());
 
-        public async Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount = -1, bool invalidateCache = false)
-        {
-            return await webservice.StopsForLocationAsync(location,
-                                                          null,
-                                                          radiusInMeters,
-                                                          maxCount,
-                                                          invalidateCache);
-        }
-
-        public async Task<List<Route>> RoutesForLocationAsync(Geopoint location, int radiusInMeters, int maxCount = -1, bool invalidateCache = false)
-        {
-            return await webservice.RoutesForLocationAsync(location,
-                                                           null,
-                                                           radiusInMeters,
-                                                           maxCount);
-        }
-
-        public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route)
-        {
-            return await webservice.StopsForRouteAsync(location,
-                        route);
-        }
-
-        public async Task<List<ArrivalAndDeparture>> ArrivalsForStopAsync(Geopoint location, Stop stop)
-        {
-            return await webservice.GetArrivalsForStopAsync(location,
-                                                            stop);
-        }
-
-        public async Task<List<RouteSchedule>> ScheduleForStopAsync(Geopoint location, Stop stop)
-        {
-            return await webservice.GetScheduleForStopAsync(location,
-                          stop);
-        }
-
-        public async Task<List<TripDetails>> TripDetailsForArrivalsAsync(Geopoint location, List<ArrivalAndDeparture> arrivals)
-        {
-            var tripDetails = new List<TripDetails>();
-            if (arrivals.Count > 0)
-            {
-                foreach (var arrival in arrivals)
-                {
-                    var trip = await webservice.TripDetailsForArrivalAsync(location,
-                                                                           arrival);
-                    tripDetails.Add(trip);
-                }
-            }
-            return tripDetails;
-        }
-
-        public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query)
-        {
-            return SearchForRoutesAsync(location, query, 1000000, -1);
-        }
-
-        public Task<List<Route>> SearchForRoutesAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
-        {
-            return webservice.RoutesForLocationAsync(location,
-                        query,
-                        radiusInMeters,
-                        maxCount);
-        }
-
-        public async Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query)
-        {
-            return await SearchForStopsAsync(location, query, 1000000, -1);
-        }
-
-        public async Task<List<Stop>> SearchForStopsAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
-        {
-            return await webservice.StopsForLocationAsync(location,
-                               query,
-                               radiusInMeters,
-                               maxCount,
-                               false);
-        }
-
-        public async Task<List<LocationForQuery>> LocationForAddress(string query, Geopoint searchNearLocation)
-        {
-            string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations";
-            string requestUrl = string.Format(
-                "{0}?query={1}&key={2}&o=xml&userLocation={3}",
-                bingMapAPIURL,
-                query.Replace('&', ' '),
-                "AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz",
-                string.Format("{0},{1}", searchNearLocation.Position.Latitude, searchNearLocation.Position.Longitude)
-            );
-
-            HttpClient client = new HttpClient();
-            var response = await client.GetStringAsync(requestUrl);
-            var locations = new List<LocationForQuery>();
-            try
-            {
-                var xmlResponse = XDocument.Parse(response);
-                XNamespace ns = "http://schemas.microsoft.com/search/local/ws/rest/v1";
-
-                locations.AddRange((from location in xmlResponse.Descendants(ns + "Location")
-                             select new LocationForQuery
-                             {
-                                 Location = new Geopoint(new BasicGeoposition
-                                 {
-                                     Latitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Latitude").Value),
-                                     Longitude = Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Longitude").Value)
-                                 }),
-                                 Name = location.Element(ns + "Name").Value,
-                                 Confidence = (Confidence)Enum.Parse(
-                                      typeof(Confidence),
-                                      location.Element(ns + "Confidence").Value,
-                                      true
-                                      ),
-                                 BoundingBox = new GeoboundingBox(
-                                      new BasicGeoposition
-                                      {
-                                          Latitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "NorthLatitude").Value),
-                                          Longitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "WestLongitude").Value)
-                                      },
-                                      new BasicGeoposition
-                                      {
-                                          Latitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "SouthLatitude").Value),
-                                          Longitude = Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "EastLongitude").Value)
-                                      })
-                             }).ToList());
-
-            }
-            catch (Exception ex)
-            {
-                throw new WebserviceParsingException(requestUrl, response, ex);
-            }
-            return locations;
-        }
+      }
+      catch (Exception ex)
+      {
+        throw new WebserviceParsingException(requestUrl, response, ex);
+      }
+      return locations;
+    }
 
     #endregion
 
     public void ClearCache()
     {
-        if (webservice != null)
-        {
-            webservice.ClearCache();
-        }
+      if (webservice != null)
+      {
+        webservice.ClearCache();
+      }
     }
 
     public void SaveCache()
     {
-        if (webservice != null)
-        {
-            webservice.SaveCache();
-        }
+      if (webservice != null)
+      {
+        webservice.SaveCache();
+      }
     }
-}
+  }
 }
