@@ -27,7 +27,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace OneBusAway.View
 {
-  public partial class DetailsPage : Page
+  public partial class StopDetails : Page
   {
     private Uri unfilterRoutesIcon = new Uri("/Images/appbar.add.rest.png", UriKind.Relative);
     private Uri filterRoutesIcon = new Uri("/Images/appbar.minus.rest.png", UriKind.Relative);
@@ -65,16 +65,16 @@ namespace OneBusAway.View
     }
 
     public RouteDetailsVM VM => (App.Current as App).RouteDetails;
-
+    public Stop CurrentStop { get; set; }
     #endregion
 
-    public DetailsPage()
+    public StopDetails()
         : base()
     {
       InitializeComponent();
 
-      Loaded += new RoutedEventHandler(DetailsPage_Loaded);
-      Unloaded += new RoutedEventHandler(DetailsPage_Unloaded);
+      //Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+      //Unloaded += new RoutedEventHandler(DetailsPage_Unloaded);
 
       busArrivalUpdateTimer = new DispatcherTimer();
       busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
@@ -89,9 +89,12 @@ namespace OneBusAway.View
     {
       base.OnNavigatedTo(e);
 
+      
       busArrivalUpdateTimer.Start();
+      CurrentStop = e.Parameter as Stop;
+      
 
-      VM.LoadArrivalsForStopAsync(VM.CurrentViewState.CurrentStop, (isFiltered) ? VM.CurrentViewState.CurrentRoute : null);
+      VM.LoadArrivalsForStopAsync(CurrentStop, null);
 
       // When we enter this page after tombstoning often the location won't be available when the map
       // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
@@ -100,9 +103,9 @@ namespace OneBusAway.View
       DetailsMap.Center = location;
 
       //calculate distance to current stop and zoom map
-      if (VM.CurrentViewState.CurrentStop != null)
+      if (CurrentStop != null)
       {
-        Geopoint stoplocation = new Geopoint(VM.CurrentViewState.CurrentStop.location.Position);
+        Geopoint stoplocation = new Geopoint(CurrentStop.location.Position);
         double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
         radius = Math.Max(radius, minimumZoomRadius);
         radius = Math.Min(radius, maximumZoomRadius);
@@ -113,7 +116,7 @@ namespace OneBusAway.View
 
     void busArrivalUpdateTimer_Tick(object sender, object e)
     {
-      VM.RefreshArrivalsForStopAsync(VM.CurrentViewState.CurrentStop);
+      VM.RefreshArrivalsForStopAsync(CurrentStop);
     }
 
     void DetailsPage_Loaded(object sender, RoutedEventArgs e)
@@ -227,7 +230,7 @@ namespace OneBusAway.View
         string selectedStopId = (string)((Button)sender).Tag;
 
         Stop selectedStop = null;
-        foreach (object item in BusStopItemsControl.Items)
+        /*foreach (object item in BusStopItemsControl.Items)
         {
           Stop stop = item as Stop;
           if (stop != null && stop.id == selectedStopId)
@@ -237,7 +240,7 @@ namespace OneBusAway.View
 
             break;
           }
-        }
+        }*/
 
         Debug.Assert(selectedStop != null);
 

@@ -65,35 +65,29 @@
             <RowDefinition />
             <RowDefinition />
           </Grid.RowDefinitions>
-          <Button 
-                        Grid.Row="0" 
-                        x:Name="stopsMapBtn" 
-                        Click="stopsMapBtn_Click" 
-                        BorderBrush="Transparent" 
-                        BorderThickness="0" 
-                        HorizontalContentAlignment="Stretch" 
-                        VerticalContentAlignment="Stretch" 
-                        Padding="0"
-                        >
-            <m:MapControl x:Name="StopsMap"
-                          WatermarkMode="Automatic"
-                          ZoomInteractionMode="GestureOnly"
-                          ZoomLevel="17" IsEnabled="False">
+          <m:MapControl x:Name="StopsMap"
+                        WatermarkMode="Automatic"
+                        MapServiceToken="{StaticResource MapCredentials}"
+                        ZoomInteractionMode="GestureOnly"
+                        ZoomLevel="17">
               <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
                 <m:MapItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="bus:Stop">
-                    <TextBlock m:MapControl.Location="{x:Bind location}" m:MapControl.NormalizedAnchorPoint="0.5,0.5" />
+                    <TextBlock m:MapControl.Location="{x:Bind location}"
+                               m:MapControl.NormalizedAnchorPoint="0.5,0.5"
+                               Text="{x:Bind name}"
+                               Style="{ThemeResource CaptionTextBlockStyle}"/>
                   </DataTemplate>
                 </m:MapItemsControl.ItemTemplate>
               </m:MapItemsControl>
-              <m:MapIcon x:Name="MyLocation" NormalizedAnchorPoint="0.5,0.5" />
-            </m:MapControl>
-          </Button>
-          <ListBox Grid.Row="1"
+          </m:MapControl>
+          <ListView Grid.Row="1"
                     x:Name="StopsListBox"
+                    IsItemClickEnabled="True"
+                    ItemClick="StopsListClick"
                     ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}" 
-                    SelectionChanged="StopsListBox_SelectionChanged">
-            <ListBox.ItemTemplate>
+                    SelectionMode="None">
+            <ListView.ItemTemplate>
               <DataTemplate x:DataType="bus:Stop">
                 <Grid HorizontalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
@@ -102,15 +96,16 @@
                   </Grid.ColumnDefinitions>
                   <TextBlock Text="{x:Bind name}"
                              Style="{ThemeResource BodyTextBlockStyle}"
+                             HorizontalAlignment="Stretch"
                              Grid.Column="0"/>
                   <TextBlock Text="{x:Bind direction}"
                              Style="{ThemeResource BodyTextBlockStyle}"
                              Grid.Column="1" />
                 </Grid>
-                
+
               </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
+            </ListView.ItemTemplate>
+          </ListView>
         </Grid>
 
       </PivotItem>

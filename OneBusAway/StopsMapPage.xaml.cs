@@ -154,7 +154,7 @@ namespace OneBusAway.View
       VM.CurrentViewState.CurrentRoute = null;
       VM.CurrentViewState.CurrentRouteDirection = null;
 
-      (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null);
+      (App.Current as App).RootFrame.Navigate(typeof(StopDetails), null);
     }
 
     /*private void PopupBtn_Click(object sender, RoutedEventArgs e)

@@ -86,7 +86,7 @@ namespace OneBusAway.View
           }
         }
 
-        (App.Current as App).RootFrame.Navigate(typeof(DetailsPage), null); // This is a horrible hack and should not stand. There needs to be a better solution.
+        (App.Current as App).RootFrame.Navigate(typeof(StopDetails), null); // This is a horrible hack and should not stand. There needs to be a better solution.
       }
     }
   }

@@ -147,7 +147,7 @@ namespace OneBusAway.View
         VM.CurrentViewState.CurrentStop = favorite.stop;
         VM.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
 
-        (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
+        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
       }
     }
 
@@ -164,7 +164,7 @@ namespace OneBusAway.View
         VM.CurrentViewState.CurrentRouteDirection = null;
         VM.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
 
-        (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
+        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
       }
     }
 
@@ -218,7 +218,7 @@ namespace OneBusAway.View
 
           if (stopFound)
           {
-            (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
+            (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
           }
         }
       }
@@ -274,7 +274,7 @@ namespace OneBusAway.View
         }
       }
 
-      (Window.Current.Content as Frame).Navigate(typeof(DetailsPage), null);
+      (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
     }
 
     private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -286,5 +286,10 @@ namespace OneBusAway.View
 
     #endregion
 
+
+    private void StopsListClick(object sender, ItemClickEventArgs e)
+    {
+      (Window.Current.Content as Frame).Navigate(typeof(StopDetails), e.ClickedItem);
+    }
   }
 }
