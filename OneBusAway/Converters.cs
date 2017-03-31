@@ -16,8 +16,10 @@ using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.ViewModel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Windows.Devices.Geolocation;
 using Windows.UI;
 using Windows.UI.Xaml;
@@ -27,6 +29,20 @@ using Windows.UI.Xaml.Media;
 
 namespace OneBusAway.View
 {
+  public class CollectionEmptyToVisibilityConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+      
+      return (((int)value) != 0) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
   public class LowercaseConverter : IValueConverter
   {
     public object Convert(object value, Type targetType, object parameter, string culture)

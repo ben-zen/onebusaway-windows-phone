@@ -34,7 +34,19 @@ namespace OneBusAway.ViewModel
     private bool locationLoading;
 
     private Geolocator Locator { get; set; }
-    private Geocoordinate LocationInternal { get; set; }
+    private Geocoordinate _locationInternal;
+    private Geocoordinate LocationInternal
+    {
+      get
+      {
+        return _locationInternal;
+      }
+      set
+      {
+        _locationInternal = value;
+        OnPropertyChanged("CurrentLocation");
+      }
+    }
     private bool hasInitialized;
 
     private static object m_trackerLock = new object();
@@ -106,7 +118,9 @@ namespace OneBusAway.ViewModel
       {
         throw new Exception("Location not allowed.");
       }
-      return (await Locator.GetGeopositionAsync()).Coordinate.Point;
+      var location = (await Locator.GetGeopositionAsync()).Coordinate;
+      LocationInternal = location;
+      return location.Point;
     }
 
     #endregion
@@ -224,9 +238,7 @@ namespace OneBusAway.ViewModel
 
     private void locationWatcher_PositionChanged_NotifyPropertyChanged(Geolocator sender, PositionChangedEventArgs e)
     {
-
-      OnPropertyChanged("CurrentLocation");
-      OnPropertyChanged("CurrentLocationSafe");
+      LocationInternal = e.Position.Coordinate;
       OnPropertyChanged("LocationKnown");
     }
 

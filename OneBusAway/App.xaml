@@ -22,6 +22,7 @@
   <Application.Resources>
     <x:String x:Key="MapCredentials"></x:String>
 
+    <view:CollectionEmptyToVisibilityConverter x:Key="CollectionEmptyToVisibilityConverter" />
     <view:ColorAlphaConverter x:Key="ColorAlphaConverter" />
     <view:DateTimeConverter x:Key="DateTimeConverter" />
     <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />

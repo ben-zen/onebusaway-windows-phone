@@ -119,28 +119,6 @@ namespace OneBusAway.View
       VM.RefreshArrivalsForStopAsync(CurrentStop);
     }
 
-    void DetailsPage_Loaded(object sender, RoutedEventArgs e)
-    {
-      RecentRouteAndStop recent = new RecentRouteAndStop();
-      recent.route = VM.CurrentViewState.CurrentRoute;
-      recent.routeStops = VM.CurrentViewState.CurrentRouteDirection;
-      recent.stop = VM.CurrentViewState.CurrentStop;
-
-      ArrivalsListBox.DataContext = VM;
-      TitleGrid.DataContext = VM;
-
-      VM.AddRecent(recent);
-    }
-
-    void DetailsPage_Unloaded(object sender, RoutedEventArgs e)
-    {
-      // clear binding references to allow them to get garbage collected.
-      // anything bound to CurrentViewState needs to be cleared.
-      this.RouteInfo.DataContext = null;
-      this.RouteName.DataContext = null;
-      this.RouteNumber.DataContext = null;
-    }
-
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
       base.OnNavigatedFrom(e);

@@ -29,15 +29,14 @@
     <DataTemplate x:Key="RouteTemplate" x:DataType="bus:ArrivalAndDeparture">
       <Grid Margin="8">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="80" />
-          <ColumnDefinition Width="140" />
-          <ColumnDefinition Width="135" />
-          <ColumnDefinition Width="105" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-          <RowDefinition Height="26" />
-          <RowDefinition Height="24" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock 
@@ -50,20 +49,20 @@
                     Margin="0,-3,5,0"
                     />
         <TextBlock Grid.Column="1" 
-                   Grid.ColumnSpan="2" 
                    Grid.Row="0"     
                    TextAlignment="Left"
+                   HorizontalAlignment="Stretch"
                    Text="{x:Bind tripHeadsign}" />
         <TextBlock Grid.Column="1" 
                    Grid.Row="1" 
-                   Text="{x:Bind scheduledDepartureTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" />
-        <TextBlock Grid.Column="2" 
+                   Text="{x:Bind scheduledDepartureTime, Mode=OneWay, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" />
+        <TextBlock Grid.Column="1" 
                    Grid.Row="1" 
                    TextAlignment="Right"
                    HorizontalAlignment="Stretch"
                    Text="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource LateEarlyConverter}}" 
                    Foreground="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource DelayColorConverter}}" />
-        <TextBlock Grid.Column="3" 
+        <TextBlock Grid.Column="2" 
                    Grid.Row="0" 
                    Grid.RowSpan="2" 
                    TextAlignment="Right" 
@@ -79,52 +78,34 @@
   </Page.Resources>
 
   <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="2*"/>
       <RowDefinition Height="3*"/>
     </Grid.RowDefinitions>
-
-    <Grid Grid.Row="0" x:Name="TitleGrid">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="*" />
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition Height="Auto" />
-      </Grid.RowDefinitions>
-      <TextBlock x:Name="RouteNumber" 
-                 Text="" 
-                 FontSize="48" 
-                 Margin="10,0,10,0"
-                 Grid.Column="0"
-                 Grid.Row="0"
-                 Grid.RowSpan="2" />
-
-      <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="1*" />
-          <RowDefinition Height="1*" />
-        </Grid.RowDefinitions>
-
-        <TextBlock Grid.Row="0"
-                   Grid.Column="1"
-                   x:Name="RouteName"
-                   Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name}" />
-        <TextBlock Grid.Row="1"
-                   Grid.Column="1"
-                   x:Name="RouteInfo"
-                   Text="{Binding Path=CurrentViewState.CurrentStop.name}" />
-      </Grid>
-    </Grid>
-
-    <Grid Grid.Row="1" x:Name="ContentGrid">
-      <maps:MapControl x:Name="DetailsMap"
-                             WatermarkMode="Automatic"
-                             ZoomInteractionMode="Auto"
-                             ZoomLevel="10">
-        <!--<maps:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}">
+    <TextBlock Grid.Column="0"
+               Grid.Row="0"
+               x:Name="RouteName"
+               Margin="4"
+               Text="{x:Bind CurrentStop.direction, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
+    <TextBlock Grid.Column="1"
+               Grid.Row="0"
+               x:Name="RouteInfo"
+               Margin="4"
+               Text="{x:Bind CurrentStop.name, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
+    <maps:MapControl x:Name="DetailsMap"
+                     Grid.Row="1"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="2"
+                     MapServiceToken="{StaticResource MapCredentials}"
+                     WatermarkMode="Automatic"
+                     ZoomInteractionMode="Auto"
+                     ZoomLevel="17">
+      <!--<maps:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}">
           <maps:MapItemsControl.ItemTemplate>
             <DataTemplate>
               <maps:MapPolyline Path="{Binding}"
@@ -150,23 +131,22 @@
         </maps:MapItemsControl>
         <maps:MapIcon x:Name="StopPushpin" Location="{Binding Path=CurrentViewState.CurrentStop.location}" NormalizedAnchorPoint="0,1"/>
         <maps:MapIcon Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" NormalizedAnchorPoint="0.5,0.5" />-->
-      </maps:MapControl>
-    </Grid>
-    <Grid Grid.Row="2" x:Name="StopGrid">
-
-      <ListBox 
-                x:Name="ArrivalsListBox" 
-                ItemsSource="{x:Bind VM.ArrivalsForStop, Mode=OneWay}" 
-                ItemTemplate="{StaticResource RouteTemplate}" 
-                SelectionChanged="ArrivalsListBox_SelectionChanged" />
-      <TextBlock x:Name="NoResultsTextBlock" Text="no results" 
-                       VerticalAlignment="Top"
-                       Margin="12" 
-                 Visibility="Collapsed"
-                       />
-      <!-- Visibility="{Binding Path=NoResultsAvailable, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"-->
-    </Grid>
-
+    </maps:MapControl>
+    <ListView x:Name="ArrivalsList"
+              Grid.Row="2"
+              Grid.Column="0"
+              Grid.ColumnSpan="2"
+              ItemsSource="{x:Bind VM.ArrivalsForStop, Mode=OneWay}" 
+              ItemTemplate="{StaticResource RouteTemplate}" 
+              SelectionChanged="ArrivalsListBox_SelectionChanged" />
+    <TextBlock x:Name="NoResultsTextBlock"
+               Text="no results"
+               Grid.Row="2"
+               Grid.Column="0"
+               Grid.ColumnSpan="2"
+               VerticalAlignment="Top"
+               Margin="12" 
+               Visibility="{x:Bind VM.ArrivalsForStop.Count, Mode=OneWay, Converter={StaticResource CollectionEmptyToVisibilityConverter}}" />
   </Grid>
 
   <Page.BottomAppBar>
