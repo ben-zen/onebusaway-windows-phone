@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace OneBusAway.ViewModel
 {
-  public class RouteDetailsVM : AViewModel
+  public class StopViewModel : AViewModel
   {
 
     #region Private Variables and Properties
@@ -54,9 +54,9 @@ namespace OneBusAway.ViewModel
     // TODO: We need to convert the VM's to a Singleton, or add a Dispose method
     // currently a new VM is created every time a new route details page is opened
     // and the old event hanlders keep getting called, wasting perf
-    public static RouteDetailsVM Singleton = new RouteDetailsVM();
+    public static StopViewModel Singleton = new StopViewModel();
 
-    public RouteDetailsVM(BusServiceModel busServiceModel = null, AppDataModel appDataModel = null)
+    public StopViewModel(BusServiceModel busServiceModel = null, AppDataModel appDataModel = null)
         : base(busServiceModel, appDataModel)
     {
       Initialize();
@@ -103,22 +103,15 @@ namespace OneBusAway.ViewModel
       {
         _arrivalsForStop = value;
         OnPropertyChanged("ArrivalsForStop");
+        OnPropertyChanged("NoResultsAvailable");
       }
     }
 
-    private bool noResultsAvailable;
     public bool NoResultsAvailable
     {
       get
       {
-        if (operationTracker.Loading == true || resultsLoaded == false)
-        {
-          return false;
-        }
-        else
-        {
-          return ArrivalsForStop.Count == 0;
-        }
+        return ArrivalsForStop.Count == 0;
       }
     }
 

@@ -38,6 +38,8 @@
                  ItemsSource="{x:Bind TransitService.Routes, Mode=OneWay}"
                  HorizontalAlignment="Stretch"
                  HorizontalContentAlignment="Stretch"
+                  IsItemClickEnabled="True"
+                  ItemClick="RouteListClick"
                   SelectionMode="None">
           <ListView.ItemTemplate>
             <DataTemplate x:DataType="bus:Route">
@@ -47,11 +49,11 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{x:Bind shortName}"
+                <TextBlock Text="{x:Bind shortName, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Left"
                            Grid.Column="0" />
-                <TextBlock Text="{x:Bind description}"
+                <TextBlock Text="{x:Bind description, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Right"
                            Margin="8,0,0,0"
@@ -75,9 +77,9 @@
               <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
                 <m:MapItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="bus:Stop">
-                    <TextBlock m:MapControl.Location="{x:Bind location}"
+                    <TextBlock m:MapControl.Location="{x:Bind location, Mode=OneWay}"
                                m:MapControl.NormalizedAnchorPoint="0.5,0.5"
-                               Text="{x:Bind name}"
+                               Text="{x:Bind name, Mode=OneWay}"
                                Style="{ThemeResource CaptionTextBlockStyle}"/>
                   </DataTemplate>
                 </m:MapItemsControl.ItemTemplate>
@@ -96,11 +98,11 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
-                  <TextBlock Text="{x:Bind name}"
+                  <TextBlock Text="{x:Bind name, Mode=OneWay}"
                              Style="{ThemeResource BodyTextBlockStyle}"
                              HorizontalAlignment="Stretch"
                              Grid.Column="0"/>
-                  <TextBlock Text="{x:Bind direction}"
+                  <TextBlock Text="{x:Bind direction, Mode=OneWay}"
                              Style="{ThemeResource BodyTextBlockStyle}"
                              Grid.Column="1" />
                 </Grid>
@@ -112,22 +114,24 @@
 
       </PivotItem>
       <PivotItem Header="recent">
-        <ListBox x:Name="RecentsListBox" 
-                 ItemsSource="{Binding Path=Recents}" 
-                 SelectionChanged="RecentsListBox_SelectionChanged" />
+        <ListView x:Name="RecentsListBox" 
+                  ItemsSource="{x:Bind VM.Recents, Mode=OneWay}" 
+                  SelectionChanged="RecentsListBox_SelectionChanged"
+                  SelectionMode="None"/>
       </PivotItem>
       <PivotItem Header="favorites">
-        <ListBox x:Name="FavoritesListBox"
+        <ListView x:Name="FavoritesListBox"
                  ItemsSource="{x:Bind VM.Favorites, Mode=OneWay}" 
-                 SelectionChanged="FavoritesListBox_SelectionChanged">
-          <ListBox.ItemTemplate>
+                 SelectionChanged="FavoritesListBox_SelectionChanged"
+                  SelectionMode="None">
+          <ListView.ItemTemplate>
             <DataTemplate x:DataType="appdata:FavoriteRouteAndStop">
               <Grid>
                 <TextBlock Text="{x:Bind Title, Mode=OneWay}" />
               </Grid>
             </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+          </ListView.ItemTemplate>
+        </ListView>
       </PivotItem>
     </Pivot>
 

@@ -64,7 +64,7 @@ namespace OneBusAway.View
       }
     }
 
-    public RouteDetailsVM VM => (App.Current as App).RouteDetails;
+    public StopViewModel VM => (App.Current as App).RouteDetails;
     public Stop CurrentStop { get; set; }
     #endregion
 

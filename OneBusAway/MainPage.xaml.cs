@@ -291,5 +291,10 @@ namespace OneBusAway.View
     {
       (Window.Current.Content as Frame).Navigate(typeof(StopDetails), e.ClickedItem);
     }
+
+    private void RouteListClick(object sender, ItemClickEventArgs e)
+    {
+      (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), e.ClickedItem);
+    }
   }
 }

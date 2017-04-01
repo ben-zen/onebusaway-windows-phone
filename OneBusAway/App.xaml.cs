@@ -69,14 +69,14 @@ namespace OneBusAway.View
       }
     }
 
-    private RouteDetailsVM _routeDetails = null;
-    public RouteDetailsVM RouteDetails
+    private StopViewModel _routeDetails = null;
+    public StopViewModel RouteDetails
     {
       get
       {
         if (_routeDetails == null)
         {
-          _routeDetails = new RouteDetailsVM();
+          _routeDetails = new StopViewModel();
         }
         return _routeDetails;
       }

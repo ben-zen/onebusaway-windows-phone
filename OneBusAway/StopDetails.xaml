@@ -146,7 +146,7 @@
                Grid.ColumnSpan="2"
                VerticalAlignment="Top"
                Margin="12" 
-               Visibility="{x:Bind VM.ArrivalsForStop.Count, Mode=OneWay, Converter={StaticResource CollectionEmptyToVisibilityConverter}}" />
+               Visibility="{x:Bind VM.NoResultsAvailable, Mode=OneWay, Converter={StaticResource VisibilityConverter}}" />
   </Grid>
 
   <Page.BottomAppBar>
