@@ -31,7 +31,6 @@
 
   <Grid x:Name="LayoutRoot"
         Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
     <Pivot Name="PC" SelectionChanged="PC_SelectionChanged">
       <PivotItem Header="routes">
         <ListView x:Name="RoutesListBox" 
@@ -111,17 +110,24 @@
             </ListView.ItemTemplate>
           </ListView>
         </Grid>
-
       </PivotItem>
       <PivotItem Header="recent">
         <ListView x:Name="RecentsListBox" 
                   ItemsSource="{x:Bind VM.Recents, Mode=OneWay}" 
                   SelectionChanged="RecentsListBox_SelectionChanged"
-                  SelectionMode="None"/>
+                  SelectionMode="None">
+          <ListView.ItemTemplate>
+            <DataTemplate x:DataType="appdata:RecentRouteAndStop">
+              <Grid>
+                <TextBlock Text="{x:Bind Title, Mode=OneWay}" />
+              </Grid>
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
       </PivotItem>
       <PivotItem Header="favorites">
         <ListView x:Name="FavoritesListBox"
-                 ItemsSource="{x:Bind VM.Favorites, Mode=OneWay}" 
+                 ItemsSource="{x:Bind Favorites.Favorites, Mode=OneWay}" 
                  SelectionChanged="FavoritesListBox_SelectionChanged"
                   SelectionMode="None">
           <ListView.ItemTemplate>
@@ -151,9 +157,6 @@
         </TextBlock.RenderTransform>
       </TextBlock>
     </StackPanel>
-
-    <ProgressBar VerticalAlignment="Top"
-                 IsIndeterminate="True" />
   </Grid>
 
   <Page.BottomAppBar>

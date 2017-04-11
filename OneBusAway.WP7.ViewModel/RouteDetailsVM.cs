@@ -190,7 +190,7 @@ namespace OneBusAway.ViewModel
 
     public bool IsFavorite(FavoriteRouteAndStop favorite)
     {
-      return appDataModel.IsFavorite(favorite, FavoriteType.Favorite);
+      return FavoritesVM.Instance.Favorites.Contains(favorite);
     }
 
     public void DeleteFavorite(FavoriteRouteAndStop favorite)

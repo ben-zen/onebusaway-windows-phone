@@ -25,7 +25,7 @@ namespace OneBusAway.ViewModel
   public abstract class AViewModel : INotifyPropertyChanged
   {
     #region Constructors
-    public AViewModel(BusServiceModel busServiceModel = null, IAppDataModel appDataModel = null, ILocationModel locationModel = null)
+    public AViewModel(BusServiceModel busServiceModel = null, AppDataModel appDataModel = null, ILocationModel locationModel = null)
     {
 
       if (!IsInDesignMode)

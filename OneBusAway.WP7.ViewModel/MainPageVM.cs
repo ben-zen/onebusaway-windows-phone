@@ -62,7 +62,6 @@ namespace OneBusAway.ViewModel
           new ObservableCollection<DisplayRoute>(),
           new ObservableCollection<DisplayRoute>());
       directionHelper = new Dictionary<string, ObservableCollection<RouteStops>>();
-      Favorites = new List<FavoriteRouteAndStop>();
       Recents = new ObservableCollection<FavoriteRouteAndStop>();
     }
 
@@ -85,18 +84,6 @@ namespace OneBusAway.ViewModel
     private IDictionary<string, ObservableCollection<RouteStops>> directionHelper;
 
     public BufferedReference<ObservableCollection<DisplayRoute>> DisplayRouteForLocation { get; private set; }
-
-    private List<FavoriteRouteAndStop> favorites;
-    public List<FavoriteRouteAndStop> Favorites
-    {
-      get { return favorites; }
-
-      private set
-      {
-        favorites = value;
-        OnPropertyChanged("Favorites");
-      }
-    }
 
     private ObservableCollection<FavoriteRouteAndStop> recents;
     public ObservableCollection<FavoriteRouteAndStop> Recents
@@ -140,24 +127,6 @@ namespace OneBusAway.ViewModel
       {
         // Display an error, something else?
       }
-    }
-
-    public async void LoadFavorites()
-    {
-      Favorites.Clear();
-      List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites(FavoriteType.Favorite);
-      // TODO: Add a way for calls to wait ~5 seconds for location to become available
-      // but fallback to running without location if it times out
-      if (LocationTracker.LocationKnown == true)
-      {
-        favorites.Sort(new FavoriteDistanceComparer(await LocationTracker.Tracker.GetLocationAsync()));
-      }
-      favorites.ForEach(favorite => Favorites.Add(favorite));
-
-      Recents.Clear();
-      List<FavoriteRouteAndStop> recents = appDataModel.GetFavorites(FavoriteType.Recent);
-      recents.Sort(new RecentLastAccessComparer());
-      recents.ForEach(recent => Recents.Add(recent));
     }
 
     public async Task<bool> SearchByRouteAsync(string routeNumber)

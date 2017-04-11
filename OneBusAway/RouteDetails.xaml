@@ -29,13 +29,17 @@
     <ListView Grid.Column="0"
               Grid.ColumnSpan="2"
               Grid.Row="1"
-              SelectionMode="None">
+              SelectionMode="None"
+              ItemsSource="{x:Bind Stops.stops}">
       <!-- This should provide a list of stops for this route, ordered in some fashion.
            I feel like the viewmodels need to be restructured for this all to make sense. -->
       <ListView.ItemTemplate>
-        <DataTemplate x:DataType="bus:RouteStops">
+        <DataTemplate x:DataType="bus:Stop">
           <Grid>
-            
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{x:Bind name, Mode=OneWay}" />
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>

@@ -28,6 +28,7 @@ namespace OneBusAway.View
 {
   public partial class MainPage : Page
   {
+    public FavoritesVM Favorites => FavoritesVM.Instance;
     public MainPageVM VM => (App.Current as App).MainPageVM;
     public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
 

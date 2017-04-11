@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneBusAway.Model.BusServiceDataStructures;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using OneBusAway.Model.BusServiceDataStructures;
+
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace OneBusAway.View
@@ -24,6 +25,7 @@ namespace OneBusAway.View
   {
     #region Properties
     public Route CurrentRoute { get; private set; }
+    public RouteStops Stops { get; private set; }
     #endregion
     public RouteDetails()
     {

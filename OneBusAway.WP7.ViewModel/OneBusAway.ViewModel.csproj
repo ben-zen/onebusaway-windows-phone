@@ -121,6 +121,7 @@
     <Compile Include="AViewModel.cs" />
     <Compile Include="BufferedReference.cs" />
     <Compile Include="BusDirectionVM.cs" />
+    <Compile Include="FavouritesVM.cs" />
     <Compile Include="LocationTracker.cs" />
     <Compile Include="MainPageVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
