@@ -27,6 +27,23 @@
     <DataTemplate x:Key="PushpinTemplate">
       <m:MapIcon NormalizedAnchorPoint="0.5,1" />
     </DataTemplate>
+
+    <DataTemplate x:Key="StopListEntry"
+                  x:DataType="bus:Stop">
+      <Grid HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="{x:Bind name, Mode=OneWay}"
+                             Style="{ThemeResource BodyTextBlockStyle}"
+                             HorizontalAlignment="Stretch"
+                             Grid.Column="0"/>
+        <TextBlock Text="{x:Bind direction, Mode=OneWay}"
+                             Style="{ThemeResource BodyTextBlockStyle}"
+                             Grid.Column="1" />
+      </Grid>
+    </DataTemplate>
   </Page.Resources>
 
   <Grid x:Name="LayoutRoot"
@@ -88,27 +105,9 @@
                     x:Name="StopsListBox"
                     IsItemClickEnabled="True"
                     ItemClick="StopsListClick"
-                    ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}" 
-                    SelectionMode="None">
-            <ListView.ItemTemplate>
-              <DataTemplate x:DataType="bus:Stop">
-                <Grid HorizontalAlignment="Stretch">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                  </Grid.ColumnDefinitions>
-                  <TextBlock Text="{x:Bind name, Mode=OneWay}"
-                             Style="{ThemeResource BodyTextBlockStyle}"
-                             HorizontalAlignment="Stretch"
-                             Grid.Column="0"/>
-                  <TextBlock Text="{x:Bind direction, Mode=OneWay}"
-                             Style="{ThemeResource BodyTextBlockStyle}"
-                             Grid.Column="1" />
-                </Grid>
-
-              </DataTemplate>
-            </ListView.ItemTemplate>
-          </ListView>
+                    ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}"
+                    ItemTemplate="{StaticResource StopListEntry}"
+                    SelectionMode="None" />
         </Grid>
       </PivotItem>
       <PivotItem Header="recent">
@@ -126,18 +125,17 @@
         </ListView>
       </PivotItem>
       <PivotItem Header="favorites">
-        <ListView x:Name="FavoritesListBox"
-                 ItemsSource="{x:Bind Favorites.Favorites, Mode=OneWay}" 
-                 SelectionChanged="FavoritesListBox_SelectionChanged"
-                  SelectionMode="None">
-          <ListView.ItemTemplate>
-            <DataTemplate x:DataType="appdata:FavoriteRouteAndStop">
-              <Grid>
-                <TextBlock Text="{x:Bind Title, Mode=OneWay}" />
-              </Grid>
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
+        <Pivot>
+          <PivotItem Header="Stops">
+            <ListView ItemsSource="{x:Bind Favorites.FavoriteStops, Mode=OneWay}"
+                      SelectionMode="None"
+                      ItemClick="StopsListClick"
+                      ItemTemplate="{StaticResource StopListEntry}" />
+          </PivotItem>
+          <PivotItem Header="Routes">
+            <ListView />
+          </PivotItem>
+        </Pivot>
       </PivotItem>
     </Pivot>
 

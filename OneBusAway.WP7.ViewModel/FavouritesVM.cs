@@ -11,6 +11,7 @@
  */
 using OneBusAway.Model;
 using OneBusAway.Model.AppDataDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.Model.EventArgs;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,17 @@ namespace OneBusAway.ViewModel
           _instance = new FavoritesVM();
         }
         return _instance;
+      }
+    }
+
+    private List<Stop> _favoriteStops;
+    public List<Stop> FavoriteStops
+    {
+      get => _favoriteStops;
+      set
+      {
+        _favoriteStops = value;
+        OnPropertyChanged("FavoriteStops");
       }
     }
 

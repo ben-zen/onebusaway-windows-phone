@@ -87,7 +87,7 @@ namespace OneBusAway.View
       firstLoad = false;
 
       // Load favorites every time because they might have changed since the last load
-      VM.LoadFavorites();
+      //Favorites.LoadFavorites();
       /*
       var supported = await VM.CheckForLocalTransitData();
       if (supported)
