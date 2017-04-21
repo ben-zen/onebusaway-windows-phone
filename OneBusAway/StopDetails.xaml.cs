@@ -131,20 +131,13 @@ namespace OneBusAway.View
 
     private void appbar_favorite_Click(object sender, RoutedEventArgs e)
     {
-      FavoriteRouteAndStop favorite = new FavoriteRouteAndStop();
-      favorite.route = VM.CurrentViewState.CurrentRoute;
-      favorite.stop = VM.CurrentViewState.CurrentStop;
-      favorite.routeStops = VM.CurrentViewState.CurrentRouteDirection;
-
-      if (isFavorite == false)
+      if (FavoritesVM.Instance.FavoriteStops.Contains(CurrentStop))
       {
-        VM.AddFavorite(favorite);
-        isFavorite = true;
+        FavoritesVM.Instance.RemoveFavoriteStop(CurrentStop);
       }
       else
       {
-        VM.DeleteFavorite(favorite);
-        isFavorite = false;
+        FavoritesVM.Instance.AddFavoriteStop(CurrentStop);
       }
 
       SetFavoriteIcon();

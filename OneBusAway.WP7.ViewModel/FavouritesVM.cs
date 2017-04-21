@@ -24,7 +24,7 @@ namespace OneBusAway.ViewModel
 {
   public class FavoritesVM : INotifyPropertyChanged
   {
-
+    private AppDataModel DataModel { get; set; } = new AppDataModel();
     private static FavoritesVM _instance = null;
     public static FavoritesVM Instance
     {
@@ -35,6 +35,17 @@ namespace OneBusAway.ViewModel
           _instance = new FavoritesVM();
         }
         return _instance;
+      }
+    }
+
+    private List<Route> _favoriteRoutes;
+    public List<Route> FavoriteRoutes
+    {
+      get => _favoriteRoutes;
+      set
+      {
+        _favoriteRoutes = value;
+        OnPropertyChanged("FavoriteRoutes");
       }
     }
 
@@ -49,34 +60,37 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    private List<FavoriteRouteAndStop> _favorites;
-    public List<FavoriteRouteAndStop> Favorites
+    public void AddFavoriteRoute(Route route)
     {
-      get => _favorites;
-      set
-      {
-        _favorites = value;
-        OnPropertyChanged("Favorites");
-      }
+      throw new NotImplementedException();
+    }
+
+    public void AddFavoriteStop(Stop stop)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RemoveFavoriteRoute(Route route)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void RemoveFavoriteStop(Stop stop)
+    {
+      throw new NotImplementedException();
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
 
     private FavoritesVM()
     {
-      Favorites = new List<FavoriteRouteAndStop>();
+      FavoriteRoutes = new List<Route>();
+      FavoriteStops = new List<Stop>();
       Initialize();
     }
 
     private async void Initialize()
     {
-      Favorites = await AppDataModel.Singleton.GetFavorites(FavoriteType.Favorite);
-      AppDataModel.Singleton.FavoritesChanged += FavoritesChanged;
-    }
-
-    private void FavoritesChanged(object sender, FavoritesChangedEventArgs e)
-    {
-      throw new NotImplementedException();
     }
 
     private void OnPropertyChanged(string propertyName)

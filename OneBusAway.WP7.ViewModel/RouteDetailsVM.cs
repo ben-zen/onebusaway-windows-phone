@@ -182,27 +182,6 @@ namespace OneBusAway.ViewModel
       this.routeFilter = routeFilter;
       FilterArrivals();
     }
-
-    public void AddFavorite(FavoriteRouteAndStop favorite)
-    {
-      appDataModel.AddFavorite(favorite, FavoriteType.Favorite);
-    }
-
-    public bool IsFavorite(FavoriteRouteAndStop favorite)
-    {
-      return FavoritesVM.Instance.Favorites.Contains(favorite);
-    }
-
-    public void DeleteFavorite(FavoriteRouteAndStop favorite)
-    {
-      appDataModel.DeleteFavorite(favorite, FavoriteType.Favorite);
-    }
-
-    public void AddRecent(FavoriteRouteAndStop recent)
-    {
-      appDataModel.AddFavorite(recent, FavoriteType.Recent);
-    }
-
     #endregion
   }
 }

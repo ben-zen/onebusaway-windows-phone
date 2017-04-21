@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using Microsoft.EntityFrameworkCore;
 using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.EventArgs;
 using System;
@@ -26,26 +27,26 @@ using Windows.Storage;
 
 namespace OneBusAway.Model
 {
-  public class AppDataModel
+  public class AppDataModel : DbContext
   {
 
     #region Private Variables
 
-    private Dictionary<FavoriteType, string> fileNames;
-    private Dictionary<FavoriteType, List<FavoriteRouteAndStop>> favorites;
+    private const string _dbFileName = "storage.db";
     private bool initialized;
     private Object initializeLock;
 
     #endregion
 
-    #region Events
+    #region Properties
 
-    public event EventHandler<FavoritesChangedEventArgs> FavoritesChanged;
-    public event EventHandler<FavoritesChangedEventArgs> RecentsChanged;
-
+    public DbSet<FavoriteRoute> FavoriteRoutes { get; private set; }
+    public DbSet<FavoriteStop> FavoriteStops { get; private set; }
+    public DbSet<RecentRoute> RecentRoutes { get; private set; }
+    public DbSet<RecentStop> RecentStops { get; private set; }
     #endregion
 
-    #region Constructor/Initialize/Singleton
+     #region Constructor/Initialize/Singleton
 
     public static AppDataModel Singleton = new AppDataModel();
 
@@ -54,189 +55,8 @@ namespace OneBusAway.Model
     {
       initialized = false;
       initializeLock = new Object();
-
-      fileNames = new Dictionary<FavoriteType, string>(2);
-      fileNames.Add(FavoriteType.Favorite, "favorites.xml");
-      fileNames.Add(FavoriteType.Recent, "recent.xml");
-
-      favorites = new Dictionary<FavoriteType, List<FavoriteRouteAndStop>>(2);
-    }
-
-    private async Task<bool> Initialize()
-    {
-      if (initialized == false)
-      {
-        favorites[FavoriteType.Favorite] = await ReadFavoritesFromDisk(fileNames[FavoriteType.Favorite]);
-        favorites[FavoriteType.Recent] = await ReadFavoritesFromDisk(fileNames[FavoriteType.Recent]);
-
-        initialized = true;
-      }
-      return initialized;
     }
 
     #endregion
-
-    #region IAppDataModel Methods
-
-    // Favorites Methods
-
-    public async void AddFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
-    {
-      Exception error = null;
-
-      try
-      {
-        await Initialize();
-
-        // If the recent already exists delete the old instance.
-        // This way the new one will be added with the new LastAccessed time.
-        if (type == FavoriteType.Recent && await IsFavorite(favorite, type))
-        {
-          // The comparison doesn't compare the LastAccessed times so
-          // it will remove the other copy
-          favorites[type].Remove(favorite);
-        }
-
-        // Remove the oldest favorite if 15 entires already exist
-        if (type == FavoriteType.Recent && favorites[type].Count >= 15)
-        {
-          favorites[type].Sort(new RecentLastAccessComparer());
-          favorites[type].RemoveAt(favorites[type].Count - 1);
-        }
-
-        favorites[type].Add(favorite);
-        WriteFavoritesToDisk(favorites[type], fileNames[type]);
-      }
-      catch (Exception e)
-      {
-        Debug.Assert(false);
-        error = e;
-      }
-
-      if (FavoritesChanged != null)
-      {
-        FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
-      }
-    }
-
-    public async Task<List<FavoriteRouteAndStop>> GetFavorites(FavoriteType type)
-    {
-      await Initialize();
-      return favorites[type];
-    }
-
-    public async void DeleteFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
-    {
-      Exception error = null;
-
-      try
-      {
-        await Initialize();
-
-        favorites[type].Remove(favorite);
-        WriteFavoritesToDisk(favorites[type], fileNames[type]);
-      }
-      catch (Exception e)
-      {
-        Debug.Assert(false);
-        error = e;
-      }
-
-      if (FavoritesChanged != null)
-      {
-        FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
-      }
-    }
-
-    public async void DeleteAllFavorites(FavoriteType type)
-    {
-      Exception error = null;
-
-      try
-      {
-        await Initialize();
-
-        favorites[type].Clear();
-        WriteFavoritesToDisk(favorites[type], fileNames[type]);
-      }
-      catch (Exception e)
-      {
-        Debug.Assert(false);
-        error = e;
-      }
-
-      if (FavoritesChanged != null)
-      {
-        FavoritesChanged(this, new FavoritesChangedEventArgs(favorites[type], error));
-      }
-    }
-
-    public async Task<bool> IsFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
-    {
-      await Initialize();
-
-      return favorites[type].Contains(favorite);
-    }
-
-    #endregion
-
-    #region Private Methods
-
-    // Added for analytics
-    private Dictionary<string, string> NumberOfFavorites
-    {
-      get
-      {
-        Dictionary<string, string> data = new Dictionary<string, string>();
-        data.Add("Favorites-Count", (favorites[FavoriteType.Favorite].Count).ToString());
-        data.Add("Recents-Count", (favorites[FavoriteType.Recent].Count).ToString());
-        return data;
-      }
-    }
-
-    private static void WriteFavoritesToDisk(List<FavoriteRouteAndStop> favoritesToWrite, string fileName)
-    {
-      using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
-      {
-        using (IsolatedStorageFileStream favoritesFile = appStorage.OpenFile(fileName, FileMode.Create))
-        {
-          List<Type> knownTypes = new List<Type>(2);
-          knownTypes.Add(typeof(FavoriteRouteAndStop));
-          knownTypes.Add(typeof(RecentRouteAndStop));
-
-          DataContractSerializer serializer = new DataContractSerializer(favoritesToWrite.GetType(), knownTypes);
-          serializer.WriteObject(favoritesFile, favoritesToWrite);
-        }
-      }
-    }
-
-    private static async Task<List<FavoriteRouteAndStop>> ReadFavoritesFromDisk(string fileName)
-    {
-      List<FavoriteRouteAndStop> favoritesFromFile = new List<FavoriteRouteAndStop>();
-      StorageFile file = null;
-      try
-      {
-        file = await ApplicationData.Current.LocalFolder.GetFileAsync(fileName);
-      }
-      catch (FileNotFoundException)
-      {
-        // Then there are no favorites.
-      }
-      catch (Exception)
-      {
-        Debug.Assert(false);
-
-        // We hit an error deserializing the file so delete it if it exists
-        if (file != null)
-        {
-          await file.DeleteAsync();
-        }
-      }
-
-      return favoritesFromFile;
-    }
-
-    #endregion
-
   }
 }
