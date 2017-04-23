@@ -12,13 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+using System;
 namespace OneBusAway.Model.BusServiceDataStructures
 {
   public class Agency
   {
     public string Id { get; set; }
     public string Name { get; set; }
+    public Uri Url { get; set; }
     public Region Region { get; set; }
 
     public override string ToString()

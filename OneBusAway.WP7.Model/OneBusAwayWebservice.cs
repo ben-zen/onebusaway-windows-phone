@@ -511,27 +511,42 @@ namespace OneBusAway.Model
       };
     }
 
+    private static TransportationMethod ParseTransportationMethod(string method)
+    {
+      int intMethod;
+      if (!int.TryParse(method, out intMethod))
+      {
+        // Handle this parse error.
+      }
+
+      if (intMethod > 7 || intMethod < 0)
+      {
+        // invalid TransportationMethod value.
+      }
+
+      return (TransportationMethod)intMethod;
+    }
+
     private static Route ParseRoute(XElement route, IEnumerable<XElement> agencies, Region region)
     {
+      var agency = (from xmlAgency in agencies
+                    where route.Element("agencyId").Value == xmlAgency.Element("id").Value
+                    select new Agency
+                    {
+                      Id = SafeGetValue(xmlAgency.Element("id")),
+                      Name = SafeGetValue(xmlAgency.Element("name")),
+                      Url = new Uri(SafeGetValue(xmlAgency.Element("url"))),
+                      Region = region
+                    }).First();
       return new Route()
       {
         Id = SafeGetValue(route.Element("id")),
         ShortName = SafeGetValue(route.Element("shortName")),
-        Url = new Uri(SafeGetValue(route.Element("url"))),
-        Description = route.Element("description") != null ?
-              route.Element("description").Value :
-                  (route.Element("longName") != null ?
-                      route.Element("longName").Value : string.Empty),
-
-        Agency =
-              (from agency in agencies
-               where route.Element("agencyId").Value == agency.Element("id").Value
-               select new Agency
-               {
-                 Id = SafeGetValue(agency.Element("id")),
-                 Name = SafeGetValue(agency.Element("name")),
-                 Region = region
-               }).First()
+        LongName = SafeGetValue(route.Element("longName")),
+        Url = (SafeGetValue(route.Element("url")) != String.Empty) ? new Uri(SafeGetValue(route.Element("url"))) : agency.Url,
+        Description = SafeGetValue(route.Element("description")),
+        Kind = ParseTransportationMethod(SafeGetValue(route.Element("type"))),
+        Agency = agency
       };
     }
 

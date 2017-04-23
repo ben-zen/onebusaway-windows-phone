@@ -18,14 +18,27 @@ using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
+  public enum TransportationMethod
+  {
+    Tram,
+    Subway,
+    Rail,
+    Bus,
+    Ferry,
+    CableCar,
+    Gondola,
+    Funicular
+  }
   public class Route
   {
     public string Id { get; set; }
     public string ShortName { get; set; }
+    public string LongName { get; set; }
     public string Description { get; set; }
     public Uri Url { get; set; }
     public Agency Agency { get; set; }
     public Stop ClosestStop { get; set; }
+    public TransportationMethod Kind { get; set; }
 
     public override bool Equals(object obj)
     {

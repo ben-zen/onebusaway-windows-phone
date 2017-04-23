@@ -25,8 +25,8 @@ namespace OneBusAway.View
   public sealed partial class RouteDetails : Page
   {
     #region Properties
-    public Route CurrentRoute { get; private set; }
-    public RouteStops Stops { get; private set; }
+    public RouteVM VM { get; set; }
+    public bool StopsLoaded { get; set; }
     #endregion
     public RouteDetails()
     {
@@ -35,8 +35,12 @@ namespace OneBusAway.View
 
     protected async override void OnNavigatedTo(NavigationEventArgs args)
     {
-      CurrentRoute = (args.Parameter as Route);
-      RecentsVM.Instance.AddRecentRoute(CurrentRoute);
+      // Start the marching ants, once I figure out how to do that.
+      var route = (args.Parameter as Route);
+      VM = await RouteVM.GetVMForRoute(route);
+      StopsLoaded = await VM.LoadStops();
+      RouteStopsViewSource.Source = VM.RouteDirections;
+      RecentsVM.Instance.AddRecentRoute(route);
     }
   }
 }

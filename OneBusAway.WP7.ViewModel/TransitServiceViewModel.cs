@@ -37,7 +37,9 @@ namespace OneBusAway.ViewModel
     }
 
     #endregion
-    #region Constructors
+    #region Constructor, Singleton
+    public static TransitServiceViewModel Instance { get; } = new TransitServiceViewModel();
+
     public TransitServiceViewModel()
     {
       Routes = new List<Route>();

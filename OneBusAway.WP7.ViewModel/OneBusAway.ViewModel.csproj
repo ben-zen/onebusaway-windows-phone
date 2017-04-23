@@ -126,6 +126,7 @@
     <Compile Include="MainPageVM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecentsVM.cs" />
+    <Compile Include="RouteVM.cs" />
     <Compile Include="StopViewModel.cs" />
     <Compile Include="SettingsVM.cs" />
     <Compile Include="StopsMapVM.cs" />

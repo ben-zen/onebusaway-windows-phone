@@ -7,7 +7,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-
+  <Page.Resources>
+    <CollectionViewSource x:Name="RouteStopsViewSource"
+                          IsSourceGrouped="True"
+                          ItemsPath="Stops" />
+  </Page.Resources>
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="Auto" />
@@ -21,28 +25,15 @@
     <TextBlock Grid.Column="0"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind CurrentRoute.ShortName, Mode=OneWay}" />
+               Text="{x:Bind VM.ShortName, Mode=OneWay}" />
     <TextBlock Grid.Column="1"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind CurrentRoute.Description, Mode=OneWay}" />
+               Text="{x:Bind VM.DisplayName, Mode=OneWay}" />
     <ListView Grid.Column="0"
               Grid.ColumnSpan="2"
               Grid.Row="1"
-              SelectionMode="None"
-              ItemsSource="{x:Bind Stops.Stops}">
-      <!-- This should provide a list of stops for this route, ordered in some fashion.
-           I feel like the viewmodels need to be restructured for this all to make sense. -->
-      <ListView.ItemTemplate>
-        <DataTemplate x:DataType="bus:Stop">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
-          </Grid>
-        </DataTemplate>
-      </ListView.ItemTemplate>
-    </ListView>
+              ItemsSource="{Binding Source={StaticResource RouteStopsViewSource}}" />
+              
   </Grid>
 </Page>
