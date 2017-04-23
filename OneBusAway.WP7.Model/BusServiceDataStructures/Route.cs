@@ -18,76 +18,76 @@ using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    public class Route
+  public class Route
+  {
+    public string Id { get; set; }
+    public string ShortName { get; set; }
+    public string Description { get; set; }
+    public Uri Url { get; set; }
+    public Agency Agency { get; set; }
+    public Stop ClosestStop { get; set; }
+
+    public override bool Equals(object obj)
     {
-        public string Id { get; set; }
-        public string ShortName { get; set; }
-        public string Description { get; set; }
-        public Uri Url { get; set; }
-        public Agency Agency { get; set; }
-        public Stop ClosestStop { get; set; }
-
-        public override bool Equals(object obj)
+      if (obj is Route)
+      {
+        Route otherRoute = (Route)obj;
+        if (otherRoute.Id == this.Id)
         {
-            if (obj is Route)
-            {
-                Route otherRoute = (Route)obj;
-                if (otherRoute.Id == this.Id)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
+          return true;
         }
-
-        public override string ToString()
+        else
         {
-            return string.Format("Route: ID='{0}', description='{1}'", ShortName, Description);
+          return false;
         }
+      }
+      else
+      {
+        return false;
+      }
     }
 
-    public class RouteDistanceComparer : IComparer<Route>
+    public override string ToString()
     {
-        private Geopoint center;
-
-        public RouteDistanceComparer(Geopoint center)
-        {
-            this.center = center;
-        }
-
-        public int Compare(Route x, Route y)
-        {
-            if (x.ClosestStop == null && y.ClosestStop == null)
-            {
-                return 0;
-            }
-
-            if (x.ClosestStop == null)
-            {
-                return -1;
-            }
-
-            if (y.ClosestStop == null)
-            {
-                return 1;
-            }
-
-            int result = x.ClosestStop.Location.GetDistanceTo(center).CompareTo(y.ClosestStop.Location.GetDistanceTo(center));
-
-            // If the bus routes have the same closest stop sort by route number
-            if (result == 0)
-            {
-                result = x.ShortName.CompareTo(y.ShortName);
-            }
-
-            return result;
-        }
+      return string.Format("Route: ID='{0}', description='{1}'", ShortName, Description);
     }
+  }
+
+  public class RouteDistanceComparer : IComparer<Route>
+  {
+    private Geopoint center;
+
+    public RouteDistanceComparer(Geopoint center)
+    {
+      this.center = center;
+    }
+
+    public int Compare(Route x, Route y)
+    {
+      if (x.ClosestStop == null && y.ClosestStop == null)
+      {
+        return 0;
+      }
+
+      if (x.ClosestStop == null)
+      {
+        return -1;
+      }
+
+      if (y.ClosestStop == null)
+      {
+        return 1;
+      }
+
+      int result = x.ClosestStop.Location.GetDistanceTo(center).CompareTo(y.ClosestStop.Location.GetDistanceTo(center));
+
+      // If the bus routes have the same closest stop sort by route number
+      if (result == 0)
+      {
+        result = x.ShortName.CompareTo(y.ShortName);
+      }
+
+      return result;
+    }
+  }
 }

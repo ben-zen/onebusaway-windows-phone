@@ -564,6 +564,42 @@ namespace OneBusAway.Model
       };
     }
 
+    private static StopClassification ParseStopClassification(string classification)
+    {
+      var value = StopClassification.Stop;
+      if (classification != null && classification != String.Empty)
+      {
+        switch (classification)
+        {
+          case "0":
+            value = StopClassification.Stop;
+            break;
+          case "1":
+            value = StopClassification.Station;
+            break;
+        }
+      }
+      return value;
+    }
+
+    private static WheelchairAccessibility ParseWheelchairAccessibility(string accessibility)
+    {
+      var value = WheelchairAccessibility.Unknown;
+      if (accessibility != null && accessibility != String.Empty)
+      {
+        switch (accessibility.ToLowerInvariant())
+        {
+          case "accessible":
+            value = WheelchairAccessibility.Available;
+            break;
+          case "not_accessible":
+            value = WheelchairAccessibility.Unavailable;
+            break;
+        }
+      }
+      return value;
+    }
+
     private static Stop ParseStop(XElement stop, List<Route> routes)
     {
       return new Stop
@@ -576,7 +612,11 @@ namespace OneBusAway.Model
           Longitude = double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
         }),
         Name = SafeGetValue(stop.Element("name")),
-        Routes = routes
+        Routes = routes,
+        ParentStationId = SafeGetValue(stop.Element("parentStationId")),
+        Code = SafeGetValue(stop.Element("code")),
+        Accessibility = ParseWheelchairAccessibility(SafeGetValue(stop.Element("wheelchairBoarding"))),
+        Type = ParseStopClassification(SafeGetValue(stop.Element("locationType")))
       };
     }
 

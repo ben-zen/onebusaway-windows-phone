@@ -18,99 +18,124 @@ using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    public class Stop
+  public enum StopClassification
+  {
+    Stop,
+    Station
+  }
+
+  public enum WheelchairAccessibility
+  {
+    Unknown,
+    Available,
+    Unavailable
+  }
+
+  public class Stop
+  {
+    public string Id { get; set; }
+    public string Direction { get; set; }
+    public string Name { get; set; }
+    /// <summary>
+    /// An identifier supplied by the transit authorities in the region to identify the stop; useful
+    /// for communicating with transit authorities about the status of a given stop.
+    /// </summary>
+    public string Code { get; set; }
+    public List<Route> Routes { get; set; }
+    public Coordinate Coordinate { get; set; }
+    /// <summary>
+    /// If Type is Station, this must be empty. If Type is Stop, this stop can be a part of a larger
+    /// Station; there must be another Stop with the same Id as stored in ParentStationId.
+    /// </summary>
+    public string ParentStationId { get; set; }
+    public StopClassification Type { get; set; }
+    public WheelchairAccessibility Accessibility { get; set; }
+
+    public Geopoint Location
     {
-        public string Id { get; set; }
-        public string Direction { get; set; }
-        public string Name { get; set; }
-        public List<Route> Routes { get; set; }
-        public Coordinate Coordinate { get; set; }
-
-        public Geopoint Location
+      get
+      {
+        if (Coordinate != null)
         {
-            get
-            {
-                if (Coordinate != null)
-                {
-                    return new Geopoint (new BasicGeoposition
-                    {
-                        Latitude = Coordinate.Latitude,
-                        Longitude = Coordinate.Longitude
-                    });
-                }
-                else
-                {
-                    return null;
-                }
-            }
-
-            set
-            {
-                if (value != null)
-                {
-                    Coordinate = new Coordinate
-                    {
-                        Latitude = value.Position.Latitude,
-                        Longitude = value.Position.Longitude
-                    };
-                }
-                else
-                {
-                    Coordinate = null;
-                }
-            }
+          return new Geopoint(new BasicGeoposition
+          {
+            Latitude = Coordinate.Latitude,
+            Longitude = Coordinate.Longitude
+          });
         }
-
-        private const double kmPerMile = 1.60934400000644;
-
-        public double CalculateDistanceInMiles(Geopoint location2)
+        else
         {
-            double meters = Location.GetDistanceTo(location2);
-            return meters / (1000.0 * kmPerMile);
+          return null;
         }
+      }
 
-        private static double toRadian(double val)
+      set
+      {
+        if (value != null)
         {
-            return (Math.PI / 180) * val;
+          Coordinate = new Coordinate
+          {
+            Latitude = value.Position.Latitude,
+            Longitude = value.Position.Longitude
+          };
         }
-
-        public override bool Equals(object obj)
+        else
         {
-            if (obj is Stop == false)
-            {
-                return false;
-            }
-
-            return ((Stop)obj).Id == this.Id;
+          Coordinate = null;
         }
-
-        public override string ToString()
-        {
-            return string.Format("Stop: name='{0}'", Name);
-        }
+      }
     }
 
-    public class StopDistanceComparer : IComparer<Stop>
+    private const double kmPerMile = 1.60934400000644;
+
+    public double CalculateDistanceInMiles(Geopoint location2)
     {
-        private Geopoint center;
-
-        public StopDistanceComparer(Geopoint center)
-        {
-            this.center = center;
-        }
-
-        public int Compare(Stop x, Stop y)
-        {
-            int result = x.CalculateDistanceInMiles(center).CompareTo(y.CalculateDistanceInMiles(center));
-
-            // If stops are the same distance sort alphabetically
-            if (result == 0)
-            {
-                result = x.Name.CompareTo(y.Name);
-            }
-
-            return result;
-        }
-        
+      double meters = Location.GetDistanceTo(location2);
+      return meters / (1000.0 * kmPerMile);
     }
+
+    private static double toRadian(double val)
+    {
+      return (Math.PI / 180) * val;
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (obj is Stop == false)
+      {
+        return false;
+      }
+
+      return ((Stop)obj).Id == this.Id;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Stop: name='{0}'", Name);
+    }
+  }
+
+  public class StopDistanceComparer : IComparer<Stop>
+  {
+    private Geopoint center;
+
+    public StopDistanceComparer(Geopoint center)
+    {
+      this.center = center;
+    }
+
+    public int Compare(Stop x, Stop y)
+    {
+      int result = x.CalculateDistanceInMiles(center).CompareTo(y.CalculateDistanceInMiles(center));
+
+      // If stops are the same distance sort alphabetically
+      if (result == 0)
+      {
+        result = x.Name.CompareTo(y.Name);
+      }
+
+      return result;
+    }
+
+  }
 }
