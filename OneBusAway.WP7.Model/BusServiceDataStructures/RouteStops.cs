@@ -12,26 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class RouteStops
     {
-        [DataMember()]
-        public Route route { get; set; }
-        [DataMember()]
-        public string name { get; set; }
-        [DataMember()]
-        public List<Stop> stops { get; set; }
-        [DataMember()]
-        public List<PolyLine> encodedPolylines { get; set; }
+        public Route Route { get; set; }
+        public string Name { get; set; }
+        public List<Stop> Stops { get; set; }
+        public List<PolyLine> EncodedPolylines { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -40,12 +31,12 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 return false;
             }
 
-            return ((RouteStops)obj).name == name;
+            return ((RouteStops)obj).Name == Name;
         }
 
         public override string ToString()
         {
-            return string.Format("RouteStops: name='{0}'", name);
+            return string.Format("RouteStops: name='{0}'", Name);
         }
     }
 
@@ -60,49 +51,49 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
         public int Compare(RouteStops x, RouteStops y)
         {
-            if (x.route == null && y.route == null)
+            if (x.Route == null && y.Route == null)
             {
                 return 0;
             }
 
-            if (x.route == null)
+            if (x.Route == null)
             {
                 return -1;
             }
 
-            if (y.route == null)
+            if (y.Route == null)
             {
                 return 1;
             }
 
-            if (x.route.ClosestStop == null && y.route.ClosestStop == null)
+            if (x.Route.ClosestStop == null && y.Route.ClosestStop == null)
             {
                 return 0;
             }
 
-            if (x.route.ClosestStop == null)
+            if (x.Route.ClosestStop == null)
             {
                 return -1;
             }
 
-            if (y.route.ClosestStop == null)
+            if (y.Route.ClosestStop == null)
             {
                 return 1;
             }
 
-            int result = x.route.ClosestStop.location.GetDistanceTo(center).CompareTo(y.route.ClosestStop.location.GetDistanceTo(center));
+            int result = x.Route.ClosestStop.Location.GetDistanceTo(center).CompareTo(y.Route.ClosestStop.Location.GetDistanceTo(center));
 
             // If the bus routes have the same closest stop sort by route number
             if (result == 0)
             {
-                result = x.route.ShortName.CompareTo(y.route.ShortName);
+                result = x.Route.ShortName.CompareTo(y.Route.ShortName);
             }
 
             // If the bus routes have the same stop and number (this will happen for the two different
             // directions of the same bus route) then sort alphabetically by description
             if (result == 0)
             {
-                result = x.name.CompareTo(y.name);
+                result = x.Name.CompareTo(y.Name);
             }
 
             return result;

@@ -78,7 +78,7 @@ namespace OneBusAway.ViewModel
       {
         if (routeFilter != null)
         {
-          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.routeId == routeFilter.Id));
+          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.RouteId == routeFilter.Id));
         }
         else
         {
@@ -126,9 +126,9 @@ namespace OneBusAway.ViewModel
 
     public async void SwitchToRouteByArrivalAsync(ArrivalAndDeparture arrival, Action uiCallback)
     {
-      operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.routeShortName));
+      operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.RouteShortName));
 
-      Route placeholder = new Route() { Id = arrival.routeId, ShortName = arrival.routeShortName };
+      Route placeholder = new Route() { Id = arrival.RouteId, ShortName = arrival.RouteShortName };
       // This will at least cause the route number to immediately update
       CurrentViewState.CurrentRoute = placeholder;
       CurrentViewState.CurrentRouteDirection = new RouteStops();
@@ -138,10 +138,10 @@ namespace OneBusAway.ViewModel
       stops.ForEach(routeStop =>
       {
               // These aren't always the same, hopefully this comparison will work
-              if (routeStop.name.Contains(arrival.tripHeadsign) || arrival.tripHeadsign.Contains(routeStop.name))
+              if (routeStop.Name.Contains(arrival.TripHeadsign) || arrival.TripHeadsign.Contains(routeStop.Name))
         {
           CurrentViewState.CurrentRouteDirection = routeStop;
-          CurrentViewState.CurrentRoute = routeStop.route;
+          CurrentViewState.CurrentRoute = routeStop.Route;
         }
       }
                   );

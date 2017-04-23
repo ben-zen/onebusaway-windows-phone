@@ -281,7 +281,7 @@ namespace OneBusAway.Model
         var stopsMap = new Dictionary<string, Stop>();
         foreach (Stop s in stops)
         {
-          stopsMap.Add(s.id, s);
+          stopsMap.Add(s.Id, s);
         }
 
         // and put it all together
@@ -290,18 +290,18 @@ namespace OneBusAway.Model
              where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
              select new RouteStops
              {
-               name = SafeGetValue(stopGroup.Descendants("names").First().Element("string")),
-               encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
+               Name = SafeGetValue(stopGroup.Descendants("names").First().Element("string")),
+               EncodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
                                    select new PolyLine
                                    {
-                                     pointsString = SafeGetValue(poly.Element("points")),
-                                     length = SafeGetValue(poly.Element("length"))
+                                     PointsString = SafeGetValue(poly.Element("points")),
+                                     Length = SafeGetValue(poly.Element("length"))
                                    }).ToList<PolyLine>(),
-               stops =
+               Stops =
                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                       select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
 
-               route = routesMap[route.Id]
+               Route = routesMap[route.Id]
 
              });
       }
@@ -322,7 +322,7 @@ namespace OneBusAway.Model
           "{0}/{1}/{2}.xml?minutesAfter={3}&key={4}&Version={5}",
           await WebServiceUrlForLocationAsync(location),
           "arrivals-and-departures-for-stop",
-          stop.id,
+          stop.Id,
           60,
           KEY,
           APIVERSION
@@ -350,7 +350,7 @@ namespace OneBusAway.Model
           "{0}/{1}/{2}.xml?key={3}&Version={4}",
           region.RegionUrl,
           "schedule-for-stop",
-          stop.id,
+          stop.Id,
           KEY,
           APIVERSION
           );
@@ -364,12 +364,12 @@ namespace OneBusAway.Model
         schedules.AddRange(from schedule in xmlResponse.Descendants("stopRouteSchedule")
                            select new RouteSchedule
                            {
-                             route = routes[schedule.Element("routeId").Value],
-                             directions = (from direction in schedule.Descendants("stopRouteDirectionSchedule")
+                             Route = routes[schedule.Element("routeId").Value],
+                             Directions = (from direction in schedule.Descendants("stopRouteDirectionSchedule")
                                            select new DirectionSchedule
                                            {
-                                             tripHeadsign = direction.Element("tripHeadsign").Value,
-                                             trips = (from trip in direction.Descendants("scheduleStopTime")
+                                             TripHeadsign = direction.Element("tripHeadsign").Value,
+                                             Trips = (from trip in direction.Descendants("scheduleStopTime")
                                                       select ParseScheduleStopTime(trip)).ToList()
                                            }).ToList()
                            });
@@ -387,7 +387,7 @@ namespace OneBusAway.Model
           "{0}/{1}/{2}.xml?key={3}&includeSchedule={4}",
           await WebServiceUrlForLocationAsync(location),
           "trip-details",
-          arrival.tripId,
+          arrival.TripId,
           KEY,
           "false"
           );
@@ -440,7 +440,7 @@ namespace OneBusAway.Model
     {
       TripDetails tripDetails = new TripDetails();
 
-      tripDetails.tripId = SafeGetValue(trip.Element("tripId"));
+      tripDetails.TripId = SafeGetValue(trip.Element("tripId"));
 
       XElement statusElement;
       if (trip.Element("tripStatus") != null)
@@ -468,17 +468,17 @@ namespace OneBusAway.Model
         bool success = long.TryParse(serviceDate, out serviceDateLong);
         if (success)
         {
-          tripDetails.serviceDate = UnixTimeToDateTime(serviceDateLong);
+          tripDetails.ServiceDate = UnixTimeToDateTime(serviceDateLong);
           if (string.IsNullOrEmpty(SafeGetValue(statusElement.Element("predicted"))) == false
               && bool.Parse(SafeGetValue(statusElement.Element("predicted"))) == true)
           {
-            tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(statusElement.Element("scheduleDeviation")));
-            tripDetails.closestStopId = SafeGetValue(statusElement.Element("closestStop"));
-            tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(statusElement.Element("closestStopTimeOffset")));
+            tripDetails.ScheduleDeviationInSec = int.Parse(SafeGetValue(statusElement.Element("scheduleDeviation")));
+            tripDetails.ClosestStopId = SafeGetValue(statusElement.Element("closestStop"));
+            tripDetails.ClosestStopTimeOffset = int.Parse(SafeGetValue(statusElement.Element("closestStopTimeOffset")));
 
             if (statusElement.Element("position") != null)
             {
-              tripDetails.location = new Geopoint(new BasicGeoposition
+              tripDetails.Location = new Geopoint(new BasicGeoposition
               {
                 Latitude = double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
                 Longitude = double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
@@ -495,19 +495,19 @@ namespace OneBusAway.Model
     {
       return new ArrivalAndDeparture
       {
-        routeId = SafeGetValue(arrival.Element("routeId")),
-        tripId = SafeGetValue(arrival.Element("tripId")),
-        stopId = SafeGetValue(arrival.Element("stopId")),
-        routeShortName = SafeGetValue(arrival.Element("routeShortName")),
-        tripHeadsign = SafeGetValue(arrival.Element("tripHeadsign")),
-        predictedArrivalTime = arrival.Element("predictedArrivalTime").Value == "0" ?
+        RouteId = SafeGetValue(arrival.Element("routeId")),
+        TripId = SafeGetValue(arrival.Element("tripId")),
+        StopId = SafeGetValue(arrival.Element("stopId")),
+        RouteShortName = SafeGetValue(arrival.Element("routeShortName")),
+        TripHeadsign = SafeGetValue(arrival.Element("tripHeadsign")),
+        PredictedArrivalTime = arrival.Element("predictedArrivalTime").Value == "0" ?
           null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedArrivalTime").Value)),
-        scheduledArrivalTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledArrivalTime").Value)),
-        predictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
+        ScheduledArrivalTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledArrivalTime").Value)),
+        PredictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
           null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedDepartureTime").Value)),
-        scheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
-        status = SafeGetValue(arrival.Element("status")),
-        tripDetails = ParseTripDetails(arrival)
+        ScheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
+        Status = SafeGetValue(arrival.Element("status")),
+        TripDetails = ParseTripDetails(arrival)
       };
     }
 
@@ -557,10 +557,10 @@ namespace OneBusAway.Model
     {
       return new ScheduleStopTime()
       {
-        arrivalTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("arrivalTime"), "0"))),
-        departureTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("departureTime"), "0"))),
-        serviceId = SafeGetValue(trip.Element("serviceId")),
-        tripId = SafeGetValue(trip.Element("tripId"))
+        ArrivalTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("arrivalTime"), "0"))),
+        DepartureTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("departureTime"), "0"))),
+        ServiceId = SafeGetValue(trip.Element("serviceId")),
+        TripId = SafeGetValue(trip.Element("tripId"))
       };
     }
 
@@ -568,15 +568,15 @@ namespace OneBusAway.Model
     {
       return new Stop
       {
-        id = SafeGetValue(stop.Element("id")),
-        direction = SafeGetValue(stop.Element("direction")),
-        location = new Geopoint(new BasicGeoposition
+        Id = SafeGetValue(stop.Element("id")),
+        Direction = SafeGetValue(stop.Element("direction")),
+        Location = new Geopoint(new BasicGeoposition
         {
           Latitude = double.Parse(SafeGetValue(stop.Element("lat")), NumberFormatInfo.InvariantInfo),
           Longitude = double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
         }),
-        name = SafeGetValue(stop.Element("name")),
-        routes = routes
+        Name = SafeGetValue(stop.Element("name")),
+        Routes = routes
       };
     }
 

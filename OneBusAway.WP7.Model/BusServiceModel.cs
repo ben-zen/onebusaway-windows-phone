@@ -56,7 +56,7 @@ namespace OneBusAway.Model
 
       foreach (Stop stop in stops)
       {
-        foreach (Route route in stop.routes)
+        foreach (Route route in stop.Routes)
         {
           if (!routesMap.ContainsKey(route.Id))
           {

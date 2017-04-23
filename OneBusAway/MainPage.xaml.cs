@@ -228,13 +228,13 @@ namespace OneBusAway.View
     private void RouteDirection_Tap(object sender, object e)
     {
       RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
-      VM.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
+      VM.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.Route };
 
-      VM.CurrentViewState.CurrentRoute = routeStops.route;
+      VM.CurrentViewState.CurrentRoute = routeStops.Route;
       VM.CurrentViewState.CurrentRouteDirection = routeStops;
 
-      VM.CurrentViewState.CurrentStop = VM.CurrentViewState.CurrentRouteDirection.stops[0];
-      foreach (Stop stop in VM.CurrentViewState.CurrentRouteDirection.stops)
+      VM.CurrentViewState.CurrentStop = VM.CurrentViewState.CurrentRouteDirection.Stops[0];
+      foreach (Stop stop in VM.CurrentViewState.CurrentRouteDirection.Stops)
       {
         // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
         // at this point during a tombstoning scenario
@@ -280,7 +280,7 @@ namespace OneBusAway.View
 
     private void RecentStopClicked(object sender, ItemClickEventArgs e)
     {
-      var stop = TransitService.Stops.Find(x => x.id == (e.ClickedItem as RecentStop).Id);
+      var stop = TransitService.Stops.Find(x => x.Id == (e.ClickedItem as RecentStop).Id);
       if (stop != null)
       {
         (Window.Current.Content as Frame).Navigate(typeof(StopDetails), e.ClickedItem);
@@ -298,7 +298,7 @@ namespace OneBusAway.View
 
     private void FavoriteStopClicked(object sender, ItemClickEventArgs e)
     {
-      var stop = TransitService.Stops.Find(x => x.id == (e.ClickedItem as FavoriteStop).Id);
+      var stop = TransitService.Stops.Find(x => x.Id == (e.ClickedItem as FavoriteStop).Id);
       if (stop != null)
       {
         (Window.Current.Content as Frame).Navigate(typeof(StopDetails), stop);

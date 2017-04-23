@@ -53,10 +53,10 @@ namespace OneBusAway.View
         string s = Guid.NewGuid().ToString();
         if (VM != null && VM.CurrentViewState != null && VM.CurrentViewState.CurrentStop != null)
         {
-          s = string.Format("DetailsPage-IsFiltered-{0}", VM.CurrentViewState.CurrentStop.id);
+          s = string.Format("DetailsPage-IsFiltered-{0}", VM.CurrentViewState.CurrentStop.Id);
           if (VM.CurrentViewState.CurrentRouteDirection != null && VM.CurrentViewState.CurrentRoute != null)
           {
-            s += string.Format("-{0}-{1}", VM.CurrentViewState.CurrentRoute.Id, VM.CurrentViewState.CurrentRouteDirection.name);
+            s += string.Format("-{0}-{1}", VM.CurrentViewState.CurrentRoute.Id, VM.CurrentViewState.CurrentRouteDirection.Name);
           }
         }
 
@@ -104,7 +104,7 @@ namespace OneBusAway.View
       //calculate distance to current stop and zoom map
       if (CurrentStop != null)
       {
-        Geopoint stoplocation = new Geopoint(CurrentStop.location.Position);
+        Geopoint stoplocation = new Geopoint(CurrentStop.Location.Position);
         double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
         radius = Math.Max(radius, minimumZoomRadius);
         radius = Math.Min(radius, maximumZoomRadius);
@@ -130,7 +130,7 @@ namespace OneBusAway.View
 
     private void appbar_favorite_Click(object sender, RoutedEventArgs e)
     {
-      if (FavoritesVM.Instance.FavoriteStops.Find(x => x.Id == CurrentStop.id) != null)
+      if (FavoritesVM.Instance.FavoriteStops.Find(x => x.Id == CurrentStop.Id) != null)
       {
         FavoritesVM.Instance.RemoveFavoriteStop(CurrentStop);
       }
@@ -230,9 +230,9 @@ namespace OneBusAway.View
     {
       ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
 
-      if (a.tripDetails != null && a.tripDetails.locationKnown == true && a.tripDetails.coordinate != null)
+      if (a.TripDetails != null && a.TripDetails.LocationKnown == true && a.TripDetails.Coordinate != null)
       {
-        Geopoint location = new Geopoint(new BasicGeoposition { Latitude = a.tripDetails.coordinate.Latitude, Longitude = a.tripDetails.coordinate.Longitude });
+        Geopoint location = new Geopoint(new BasicGeoposition { Latitude = a.TripDetails.Coordinate.Latitude, Longitude = a.TripDetails.Coordinate.Longitude });
         DetailsMap.Center = location;
         DetailsMap.ZoomLevel = 17;
       }
@@ -247,7 +247,7 @@ namespace OneBusAway.View
       {
         if (args.OkSelected)
         {
-          await VM.SubscribeToToastNotification(a.stopId, a.tripId, args.Minutes);
+          await VM.SubscribeToToastNotification(a.StopId, a.TripId, args.Minutes);
         }
       };
       await notifyPopup.ShowAsync();

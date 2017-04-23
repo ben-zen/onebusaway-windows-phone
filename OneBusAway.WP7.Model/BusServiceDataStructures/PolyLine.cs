@@ -14,20 +14,15 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class Coordinate
     {
-        [DataMember()]
         public double Latitude { get; set; }
-        [DataMember()]
         public double Longitude { get; set; }
     }
 
-    [DataContract()]
     public class PolyLine
     {
         private List<Coordinate> coordinates;
@@ -37,19 +32,16 @@ namespace OneBusAway.Model.BusServiceDataStructures
             {
                 if (coordinates == null)
                 {
-                    coordinates = DecodeLatLongList(pointsString);
+                    coordinates = DecodeLatLongList(PointsString);
                 }
 
                 return coordinates;
             }
         }
 
-        [DataMember()]
-        public string pointsString { get; set; }
-        [DataMember()]
-        public string length { get; set; }
-        [DataMember()]
-        public string levels { get; set; }
+        public string PointsString { get; set; }
+        public string Length { get; set; }
+        public string Levels { get; set; }
 
         private static List<Coordinate> DecodeLatLongList(string encoded)
         {

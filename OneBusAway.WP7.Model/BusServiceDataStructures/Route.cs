@@ -14,28 +14,17 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Collections;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class Route
     {
-        [DataMember]
         public string Id { get; set; }
-        [DataMember]
         public string ShortName { get; set; }
-        [DataMember]
         public string Description { get; set; }
-        [DataMember]
         public Uri Url { get; set; }
-        [DataMember]
         public Agency Agency { get; set; }
-        [DataMember]
         public Stop ClosestStop { get; set; }
 
         public override bool Equals(object obj)
@@ -90,7 +79,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 return 1;
             }
 
-            int result = x.ClosestStop.location.GetDistanceTo(center).CompareTo(y.ClosestStop.location.GetDistanceTo(center));
+            int result = x.ClosestStop.Location.GetDistanceTo(center).CompareTo(y.ClosestStop.Location.GetDistanceTo(center));
 
             // If the bus routes have the same closest stop sort by route number
             if (result == 0)

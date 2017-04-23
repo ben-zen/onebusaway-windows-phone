@@ -12,20 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class DirectionSchedule
     {
-        [DataMember()]
-        public string tripHeadsign { get; set; }
-        [DataMember()]
-        public List<ScheduleStopTime> trips { get; set; }
+        public string TripHeadsign { get; set; }
+        public List<ScheduleStopTime> Trips { get; set; }
     }
 }

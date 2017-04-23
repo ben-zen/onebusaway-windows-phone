@@ -146,66 +146,14 @@ namespace OneBusAway.View
 
     private T GetStateHelper<T>(string key)
     {
-      //if (PhoneApplicationService.Current.State.ContainsKey(key) == true)
-      //{
-      //  return Deserialize((string)PhoneApplicationService.Current.State[key], typeof(T));
-      //}
-      //else
-      {
-        return default(T);
-      }
+      return default(T);
     }
 
     // Code to execute when the application is deactivated (sent to background)
     // This code will not execute when the application is closing
     void Application_Deactivated(object sender, object e)
     {
-      /*
-      PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(viewState.CurrentRoute);
-      PhoneApplicationService.Current.State["CurrentRoutes"] = Serialize(viewState.CurrentRoutes);
-      PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
-      PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
-      PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
-
-      IsolatedStorageSettings.ApplicationSettings.Save();
-      */
       BusServiceModel.Singleton.SaveCache();
-    }
-
-    private string Serialize(Object obj)
-    {
-      if (obj != null)
-      {
-        Stream stream = new MemoryStream();
-        DataContractSerializer serializer = new DataContractSerializer(obj.GetType());
-        serializer.WriteObject(stream, obj);
-
-        // Reset the stream to the begining
-        stream.Position = 0;
-        return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
-      }
-      else
-      {
-        return null;
-      }
-    }
-
-    private Object Deserialize(string data, Type type)
-    {
-      if (string.IsNullOrEmpty(data) == false)
-      {
-        byte[] byteArray = Encoding.UTF8.GetBytes(data);
-        Stream stream = new MemoryStream(byteArray);
-        DataContractSerializer serializer = new DataContractSerializer(type);
-
-        // Reset the stream to teh begining
-        stream.Position = 0;
-        return serializer.ReadObject(stream);
-      }
-      else
-      {
-        return null;
-      }
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs e)

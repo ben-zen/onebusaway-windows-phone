@@ -14,34 +14,28 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class Stop
     {
-        [DataMember]
-        public string id { get; set; }
-        [DataMember]
-        public string direction { get; set; }
-        [DataMember]
-        public string name { get; set; }
-        public List<Route> routes { get; set; }
-        [DataMember]
-        public Coordinate coordinate { get; set; }
+        public string Id { get; set; }
+        public string Direction { get; set; }
+        public string Name { get; set; }
+        public List<Route> Routes { get; set; }
+        public Coordinate Coordinate { get; set; }
 
-        public Geopoint location
+        public Geopoint Location
         {
             get
             {
-                if (coordinate != null)
+                if (Coordinate != null)
                 {
                     return new Geopoint (new BasicGeoposition
                     {
-                        Latitude = coordinate.Latitude,
-                        Longitude = coordinate.Longitude
+                        Latitude = Coordinate.Latitude,
+                        Longitude = Coordinate.Longitude
                     });
                 }
                 else
@@ -54,7 +48,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
             {
                 if (value != null)
                 {
-                    coordinate = new Coordinate
+                    Coordinate = new Coordinate
                     {
                         Latitude = value.Position.Latitude,
                         Longitude = value.Position.Longitude
@@ -62,7 +56,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 }
                 else
                 {
-                    coordinate = null;
+                    Coordinate = null;
                 }
             }
         }
@@ -71,7 +65,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
         public double CalculateDistanceInMiles(Geopoint location2)
         {
-            double meters = location.GetDistanceTo(location2);
+            double meters = Location.GetDistanceTo(location2);
             return meters / (1000.0 * kmPerMile);
         }
 
@@ -87,12 +81,12 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 return false;
             }
 
-            return ((Stop)obj).id == this.id;
+            return ((Stop)obj).Id == this.Id;
         }
 
         public override string ToString()
         {
-            return string.Format("Stop: name='{0}'", name);
+            return string.Format("Stop: name='{0}'", Name);
         }
     }
 
@@ -112,7 +106,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
             // If stops are the same distance sort alphabetically
             if (result == 0)
             {
-                result = x.name.CompareTo(y.name);
+                result = x.Name.CompareTo(y.Name);
             }
 
             return result;

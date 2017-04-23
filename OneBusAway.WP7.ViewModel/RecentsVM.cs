@@ -64,15 +64,15 @@ namespace OneBusAway.ViewModel
     public void AddRecentStop(Stop stop)
     {
       var time = DateTime.Now;
-      var previousRecentStop = RecentStops.Find(x => (x.Id == stop.id));
+      var previousRecentStop = RecentStops.Find(x => (x.Id == stop.Id));
       if (previousRecentStop != null)
       {
         RecentStops.Remove(previousRecentStop);
       }
       var recentStop = new RecentStop
       {
-        Id = stop.id,
-        Name = stop.name,
+        Id = stop.Id,
+        Name = stop.Name,
         LastAccessed = time
       };
       RecentStops.Insert(0, recentStop);

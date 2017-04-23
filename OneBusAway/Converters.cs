@@ -65,9 +65,9 @@ namespace OneBusAway.View
       Stop stop = value as Stop;
 
       string routes = "Routes: ";
-      if (stop.routes != null)
+      if (stop.Routes != null)
       {
-        stop.routes.ForEach(route => routes += route.ShortName + ", ");
+        stop.Routes.ForEach(route => routes += route.ShortName + ", ");
       }
 
       return routes.Substring(0, routes.Length - 2); // remove the trailing ", "
@@ -261,7 +261,7 @@ namespace OneBusAway.View
         Stop stop = (Stop)value;
 
         string direction = string.Empty;
-        switch (stop.direction)
+        switch (stop.Direction)
         {
           case "S":
             direction = "south";
@@ -288,7 +288,7 @@ namespace OneBusAway.View
             direction = "southeast";
             break;
           default:
-            direction = stop.direction;
+            direction = stop.Direction;
             break;
         }
 
@@ -354,7 +354,7 @@ namespace OneBusAway.View
       {
         ArrivalAndDeparture arrival = (ArrivalAndDeparture)value;
 
-        if (arrival.predictedDepartureTime == null)
+        if (arrival.PredictedDepartureTime == null)
         {
           // There is no predicted departure time
           return Application.Current.Resources["OBASubtleBrush"];
@@ -383,10 +383,10 @@ namespace OneBusAway.View
       {
         RouteStops routeStops = (RouteStops)value;
 
-        if (routeStops.encodedPolylines != null)
+        if (routeStops.EncodedPolylines != null)
         {
           List<Geopath> polylines = new List<Geopath>();
-          foreach (PolyLine pl in routeStops.encodedPolylines)
+          foreach (PolyLine pl in routeStops.EncodedPolylines)
           {
             var coordinates = new List<BasicGeoposition>();
             foreach (var coordinate in pl.Coordinates)

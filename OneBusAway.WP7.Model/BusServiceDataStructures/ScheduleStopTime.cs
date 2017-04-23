@@ -13,23 +13,14 @@
  * limitations under the License.
  */
 using System;
-using System.Runtime.Serialization;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class ScheduleStopTime
     {
-        [DataMember()]
-        public DateTime arrivalTime { get; set; }
-
-        [DataMember()]
-        public DateTime departureTime { get; set ;}
-
-        [DataMember()]
-        public string serviceId { get; set; }
-
-        [DataMember()]
-        public string tripId { get; set; }
+        public DateTime ArrivalTime { get; set; }
+        public DateTime DepartureTime { get; set ;}
+        public string ServiceId { get; set; }
+        public string TripId { get; set; }
     }
 }

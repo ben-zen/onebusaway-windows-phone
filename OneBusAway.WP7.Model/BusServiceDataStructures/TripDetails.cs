@@ -13,30 +13,22 @@
  * limitations under the License.
  */
 using System;
-using System.Runtime.Serialization;
 using System.ComponentModel;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class TripDetails : INotifyPropertyChanged
     {
-        [DataMember()]
-        public string tripId { get; set; }
-        [DataMember()]
-        public DateTime serviceDate { get; set; }
-        [DataMember()]
-        public int? scheduleDeviationInSec { get; set; }
-        [DataMember()]
-        public string closestStopId { get; set; }
-        [DataMember()]
-        public int? closestStopTimeOffset { get; set; }
+        public string TripId { get; set; }
+        public DateTime ServiceDate { get; set; }
+        public int? ScheduleDeviationInSec { get; set; }
+        public string ClosestStopId { get; set; }
+        public int? ClosestStopTimeOffset { get; set; }
 
-        [DataMember]
         private Coordinate coordinatePrivate;
 
-        public Coordinate coordinate 
+        public Coordinate Coordinate 
         {
             get
             {
@@ -47,30 +39,30 @@ namespace OneBusAway.Model.BusServiceDataStructures
             {
                 coordinatePrivate = value;
 
-                OnPropertyChanged("coordinate");
-                OnPropertyChanged("locationKnown");
-                OnPropertyChanged("location");
+                OnPropertyChanged("Coordinate");
+                OnPropertyChanged("LocationKnown");
+                OnPropertyChanged("Location");
             }
         }
 
-        public bool locationKnown
+        public bool LocationKnown
         {
             get
             {
-                return coordinate != null;
+                return Coordinate != null;
             }
         }
 
-        public Geopoint location
+        public Geopoint Location
         {
             get
             {
-                if (coordinate == null) return null;
+                if (Coordinate == null) return null;
 
                 return new Geopoint (new BasicGeoposition
                 {
-                    Latitude = coordinate.Latitude,
-                    Longitude = coordinate.Longitude
+                    Latitude = Coordinate.Latitude,
+                    Longitude = Coordinate.Longitude
                 });
             }
 
@@ -78,7 +70,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
             {
                 if (value != null)
                 {
-                    coordinate = new Coordinate
+                    Coordinate = new Coordinate
                     {
                         Latitude = value.Position.Latitude,
                         Longitude = value.Position.Longitude
@@ -86,7 +78,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 }
                 else
                 {
-                    coordinate = null;
+                    Coordinate = null;
                 }
             }
         }

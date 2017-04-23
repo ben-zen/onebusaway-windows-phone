@@ -12,24 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class RouteSchedule
     {
-        [DataMember()]
-        public Route route { get; set; }
-        [DataMember()]
-        public List<DirectionSchedule> directions { get; set; }
+        public Route Route { get; set; }
+        public List<DirectionSchedule> Directions { get; set; }
 
         public override string ToString()
         {
-            string s = string.Format("RouteSchedule: route='{0}'", route);
-            foreach (DirectionSchedule direction in directions)
+            string s = string.Format("RouteSchedule: route='{0}'", Route);
+            foreach (DirectionSchedule direction in Directions)
             {
                 s += string.Format(", direction='{0}'", direction);
             }

@@ -74,7 +74,7 @@ namespace OneBusAway.View
       foreach (object item in StopsMapItemsControl.Items)
       {
         Stop stop = item as Stop;
-        if (stop != null && stop.id == selectedStopId)
+        if (stop != null && stop.Id == selectedStopId)
         {
           /*if (selectedStopId.Equals(StopInfoBox.Tag))
           {

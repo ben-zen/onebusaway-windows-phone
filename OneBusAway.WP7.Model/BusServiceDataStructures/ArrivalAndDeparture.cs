@@ -14,63 +14,51 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
 using System.ComponentModel;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
     public class ArrivalAndDeparture : INotifyPropertyChanged
     {
-        [DataMember()]
-        public string routeId { get; set; }
-        [DataMember()]
-        public string routeShortName { get; set; }
-        [DataMember()]
-        public string tripId { get; set; }
-        [DataMember()]
-        public string tripHeadsign { get; set; }
-        [DataMember()]
-        public string stopId { get; set; }
+        public string RouteId { get; set; }
+        public string RouteShortName { get; set; }
+        public string TripId { get; set; }
+        public string TripHeadsign { get; set; }
+        public string StopId { get; set; }
 
-        [DataMember()]
-        public DateTime? predictedArrivalTime 
+        public DateTime? PredictedArrivalTime 
         {
             get { return privatePredictedArrivalTime; }
             set 
             { 
                 privatePredictedArrivalTime = value;
-                OnPropertyChanged("predictedArrivalTime");
+                OnPropertyChanged("PredictedArrivalTime");
             }
         }
         private DateTime? privatePredictedArrivalTime;
         
-        [DataMember()]
-        public DateTime scheduledArrivalTime { get; set; }
+        public DateTime ScheduledArrivalTime { get; set; }
         
-        [DataMember()]
-        public DateTime? predictedDepartureTime 
+        public DateTime? PredictedDepartureTime 
         {
             get { return privatePredictedDepartureTime; }
             set
             {
                 privatePredictedDepartureTime = value;
-                OnPropertyChanged("predictedDepartureTime");
-                OnPropertyChanged("nextKnownDeparture");
-                OnPropertyChanged("busDelay");
+                OnPropertyChanged("PredictedDepartureTime");
+                OnPropertyChanged("NextKnownDeparture");
+                OnPropertyChanged("BusDelay");
             }
         }
         private DateTime? privatePredictedDepartureTime;
 
-        public TimeSpan? busDelay
+        public TimeSpan? BusDelay
         {
             get
             {
-                if (predictedDepartureTime != null)
+                if (PredictedDepartureTime != null)
                 {
-                    return (DateTime)predictedDepartureTime - scheduledDepartureTime;
+                    return (DateTime)PredictedDepartureTime - ScheduledDepartureTime;
                 }
                 else
                 {
@@ -79,18 +67,15 @@ namespace OneBusAway.Model.BusServiceDataStructures
             }
         }
 
-        [DataMember()]
-        public DateTime scheduledDepartureTime { get; set; }
-        [DataMember()]
-        public string status { get; set; }
-        [DataMember()]
-        public TripDetails tripDetails { get; set; }
+        public DateTime ScheduledDepartureTime { get; set; }
+        public string Status { get; set; }
+        public TripDetails TripDetails { get; set; }
 
-        public DateTime nextKnownDeparture
+        public DateTime NextKnownDeparture
         {
             get
             {
-                return predictedDepartureTime != null ? (DateTime)predictedDepartureTime : scheduledDepartureTime;
+                return PredictedDepartureTime != null ? (DateTime)PredictedDepartureTime : ScheduledDepartureTime;
             }
         }
 
@@ -98,9 +83,9 @@ namespace OneBusAway.Model.BusServiceDataStructures
         {
             return string.Format(
                 "Arrival: Route='{0}', Destination='{1}', NextArrival='{2}'",
-                routeShortName,
-                tripHeadsign,
-                nextKnownDeparture.ToString("HH:mm")
+                RouteShortName,
+                TripHeadsign,
+                NextKnownDeparture.ToString("HH:mm")
                 );
         }
 
@@ -111,8 +96,8 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 return false;
             }
 
-            return ((ArrivalAndDeparture)obj).tripId == this.tripId 
-                && ((ArrivalAndDeparture)obj).routeId == this.routeId;
+            return ((ArrivalAndDeparture)obj).TripId == this.TripId 
+                && ((ArrivalAndDeparture)obj).RouteId == this.RouteId;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -130,7 +115,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
     {
         public int Compare(ArrivalAndDeparture x, ArrivalAndDeparture y)
         {
-            return x.nextKnownDeparture.CompareTo(y.nextKnownDeparture);
+            return x.NextKnownDeparture.CompareTo(y.NextKnownDeparture);
         }
     }
 }

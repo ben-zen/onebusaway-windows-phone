@@ -70,11 +70,11 @@ namespace OneBusAway.View
     {
       if (e.AddedItems.Count > 0)
       {
-        VM.CurrentViewState.CurrentRoute = ((RouteStops)e.AddedItems[0]).route;
+        VM.CurrentViewState.CurrentRoute = ((RouteStops)e.AddedItems[0]).Route;
         VM.CurrentViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
 
-        VM.CurrentViewState.CurrentStop = VM.CurrentViewState.CurrentRouteDirection.stops[0];
-        foreach (Stop stop in VM.CurrentViewState.CurrentRouteDirection.stops)
+        VM.CurrentViewState.CurrentStop = VM.CurrentViewState.CurrentRouteDirection.Stops[0];
+        foreach (Stop stop in VM.CurrentViewState.CurrentRouteDirection.Stops)
         {
           // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
           // at this point during a tombstoning scenario
