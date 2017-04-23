@@ -37,10 +37,6 @@ namespace OneBusAway.ViewModel
     }
 
     #endregion
-    #region Private variables
-    private BusServiceModel _busService;
-
-    #endregion
     #region Constructors
     public TransitServiceViewModel()
     {

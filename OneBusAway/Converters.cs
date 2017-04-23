@@ -67,7 +67,7 @@ namespace OneBusAway.View
       string routes = "Routes: ";
       if (stop.routes != null)
       {
-        stop.routes.ForEach(route => routes += route.shortName + ", ");
+        stop.routes.ForEach(route => routes += route.ShortName + ", ");
       }
 
       return routes.Substring(0, routes.Length - 2); // remove the trailing ", "
@@ -95,7 +95,7 @@ namespace OneBusAway.View
       }
       else
       {
-        stop = ((Route)value).closestStop;
+        stop = ((Route)value).ClosestStop;
       }
 
       AViewModel viewModel = parameter as AViewModel;
@@ -132,7 +132,7 @@ namespace OneBusAway.View
       }
       else
       {
-        stop = ((Route)value).closestStop;
+        stop = ((Route)value).ClosestStop;
       }
 
       AViewModel viewModel = parameter as AViewModel;
@@ -305,47 +305,6 @@ namespace OneBusAway.View
       return null;
     }
   }
-
-  /// <summary>   
-  /// A type converter for visibility and boolean values.   
-  /// </summary>   
-  public class FavoriteToVisibilityConverter : IValueConverter
-  {
-    public object Convert(
-        object value,
-        Type targetType,
-        object parameter,
-        string culture)
-    {
-      if (value is FavoriteRouteAndStop)
-      {
-        FavoriteRouteAndStop fav = value as FavoriteRouteAndStop;
-        return fav.route == null ? Visibility.Visible : Visibility.Collapsed;
-      }
-      else
-      {
-        return null;
-      }
-    }
-
-    public object ConvertBack(
-        object value,
-        Type targetType,
-        object parameter,
-        string culture)
-    {
-      if (value is Visibility)
-      {
-        Visibility visibility = (Visibility)value;
-        return (visibility == Visibility.Visible);
-      }
-      else
-      {
-        return null;
-      }
-    }
-  }
-
 
   /// <summary>   
   /// A type converter for visibility and boolean values.   

@@ -20,17 +20,18 @@ using System.Runtime.Serialization;
 
 namespace OneBusAway.Model.BusServiceDataStructures
 {
-    [DataContract()]
-    public class Agency
-    {
-        [DataMember()]
-        public string id { get; set; }
-        [DataMember()]
-        public string name { get; set; }
+  [DataContract()]
+  public class Agency
+  {
+    [DataMember()]
+    public string Id { get; set; }
+    [DataMember()]
+    public string Name { get; set; }
+    public Region Region { get; set; }
 
-        public override string ToString()
-        {
-            return string.Format("Agency: name='{0}'", name);
-        }
+    public override string ToString()
+    {
+      return string.Format("Agency: name='{0}'", Name);
     }
+  }
 }

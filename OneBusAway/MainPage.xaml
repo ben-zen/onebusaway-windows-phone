@@ -65,11 +65,11 @@
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{x:Bind shortName, Mode=OneWay}"
+                <TextBlock Text="{x:Bind ShortName, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Left"
                            Grid.Column="0" />
-                <TextBlock Text="{x:Bind description, Mode=OneWay}"
+                <TextBlock Text="{x:Bind Description, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Right"
                            Margin="8,0,0,0"
@@ -111,29 +111,65 @@
         </Grid>
       </PivotItem>
       <PivotItem Header="recent">
-        <ListView x:Name="RecentsListBox" 
-                  ItemsSource="{x:Bind VM.Recents, Mode=OneWay}" 
-                  SelectionChanged="RecentsListBox_SelectionChanged"
-                  SelectionMode="None">
-          <ListView.ItemTemplate>
-            <DataTemplate x:DataType="appdata:RecentRouteAndStop">
-              <Grid>
-                <TextBlock Text="{x:Bind Title, Mode=OneWay}" />
-              </Grid>
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
+        <Pivot>
+          <PivotItem Header="Routes">
+            <ListView ItemsSource="{x:Bind Recents.RecentRoutes, Mode=OneWay}"
+                      SelectionMode="None"
+                      ItemClick="RecentRouteClicked">
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="appdata:RecentRoute">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="5*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                    <TextBlock Grid.Column="1"
+                               Text="{x:Bind Description, Mode=OneWay}" />
+                  </Grid>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
+          </PivotItem>
+          <PivotItem Header="Stops">
+            <ListView ItemsSource="{x:Bind Recents.RecentStops, Mode=OneWay}"
+                      SelectionMode="None"
+                      ItemClick="RecentStopClicked">
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="appdata:RecentStop">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="5*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{x:Bind Name, Mode=OneWay}" />
+                  </Grid>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
+          </PivotItem>
+        </Pivot>
       </PivotItem>
       <PivotItem Header="favorites">
         <Pivot>
+          <PivotItem Header="Routes">
+            <ListView ItemsSource="{x:Bind Favorites.FavoriteRoutes, Mode=OneWay}"
+                      SelectionMode="None"
+                      ItemClick="FavoriteRouteClicked" />
+          </PivotItem>
           <PivotItem Header="Stops">
             <ListView ItemsSource="{x:Bind Favorites.FavoriteStops, Mode=OneWay}"
                       SelectionMode="None"
-                      ItemClick="StopsListClick"
-                      ItemTemplate="{StaticResource StopListEntry}" />
-          </PivotItem>
-          <PivotItem Header="Routes">
-            <ListView />
+                      ItemClick="FavoriteStopClicked">
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="appdata:FavoriteStop">
+                  <Grid>
+                    
+                  </Grid>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
           </PivotItem>
         </Pivot>
       </PivotItem>

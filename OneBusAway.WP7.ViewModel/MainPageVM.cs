@@ -62,7 +62,6 @@ namespace OneBusAway.ViewModel
           new ObservableCollection<DisplayRoute>(),
           new ObservableCollection<DisplayRoute>());
       directionHelper = new Dictionary<string, ObservableCollection<RouteStops>>();
-      Recents = new ObservableCollection<FavoriteRouteAndStop>();
     }
 
     #endregion
@@ -84,18 +83,6 @@ namespace OneBusAway.ViewModel
     private IDictionary<string, ObservableCollection<RouteStops>> directionHelper;
 
     public BufferedReference<ObservableCollection<DisplayRoute>> DisplayRouteForLocation { get; private set; }
-
-    private ObservableCollection<FavoriteRouteAndStop> recents;
-    public ObservableCollection<FavoriteRouteAndStop> Recents
-    {
-      get { return recents; }
-
-      private set
-      {
-        recents = value;
-        OnPropertyChanged("Recents");
-      }
-    }
 
     #endregion
 

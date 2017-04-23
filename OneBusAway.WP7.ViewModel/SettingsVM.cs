@@ -151,7 +151,7 @@ namespace OneBusAway.ViewModel
 
     public void Clear()
     {
-      this.appDataModel.DeleteAllFavorites(FavoriteType.Recent);
+      // Needs to clear the recents from the data model.
       this.BusServiceModel.ClearCache();
     }
   }

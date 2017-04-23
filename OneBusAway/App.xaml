@@ -28,7 +28,6 @@
     <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />
     <view:DelayColorConverter x:Key="DelayColorConverter" />
     <view:DistanceConverter x:Key="DistanceConverter" />
-    <view:FavoriteToVisibilityConverter x:Key="FavoriteToVisibilityConverter" />
     <view:LateEarlyConverter x:Key="LateEarlyConverter" />
     <view:LowercaseConverter x:Key="LowercaseConverter" />
     <view:MaxZoomConverter x:Key="MaxZoomConverter" />

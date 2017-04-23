@@ -154,9 +154,10 @@ namespace OneBusAway.Model
 
     public async Task<List<Route>> RoutesForLocationAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
     {
+      var region = await ClosestRegionAsync(location);
       string requestUrl = string.Format(
           "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
-          WebServiceUrlForLocationAsync(location),
+          region.RegionUrl,
           "routes-for-location",
           KEY,
           location.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
@@ -181,7 +182,7 @@ namespace OneBusAway.Model
       {
         var xmlResponse = XDocument.Parse(response);
         routes.AddRange(from route in xmlResponse.Descendants("route")
-                        select ParseRoute(route, xmlResponse.Descendants("agency")));
+                        select ParseRoute(route, xmlResponse.Descendants("agency"), region));
       }
       catch (Exception ex)
       {
@@ -196,10 +197,10 @@ namespace OneBusAway.Model
 
       // ditto for the search radius -- nearest 50 meters for caching
       int roundedRadius = (int)(Math.Round(radiusInMeters / 50.0) * 50);
-
+      var region = await ClosestRegionAsync(location);
       string requestString = string.Format(
           "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&Version={6}",
-          await WebServiceUrlForLocationAsync(location),
+          region.RegionUrl,
           "stops-for-location",
           KEY,
           roundedLocation.Position.Latitude.ToString(NumberFormatInfo.InvariantInfo),
@@ -234,7 +235,7 @@ namespace OneBusAway.Model
       try
       {
 
-        IDictionary<string, Route> routesMap = ParseAllRoutes(xResponse);
+        IDictionary<string, Route> routesMap = ParseAllRoutes(xResponse, region);
 
         stops.AddRange(from stop in xResponse.Descendants("stop")
                        select ParseStop(
@@ -252,11 +253,12 @@ namespace OneBusAway.Model
 
     public async Task<List<RouteStops>> StopsForRouteAsync(Geopoint location, Route route)
     {
+      var region = await ClosestRegionAsync(location);
       string requestUrl = string.Format(
           "{0}/{1}/{2}.xml?key={3}&Version={4}",
-          await WebServiceUrlForLocationAsync(location),
+          region.RegionUrl,
           "stops-for-route",
-          route.id,
+          route.Id,
           KEY,
           APIVERSION
           );
@@ -265,7 +267,7 @@ namespace OneBusAway.Model
       var xResponse = XDocument.Parse(response);
       try
       {
-        var routesMap = ParseAllRoutes(xResponse);
+        var routesMap = ParseAllRoutes(xResponse, region);
 
         // parse all the stops, using previously parsed Route objects
         var stops =
@@ -299,7 +301,7 @@ namespace OneBusAway.Model
                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                       select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
 
-               route = routesMap[route.id]
+               route = routesMap[route.Id]
 
              });
       }
@@ -343,9 +345,10 @@ namespace OneBusAway.Model
 
     public async Task<List<RouteSchedule>> GetScheduleForStopAsync(Geopoint location, Stop stop)
     {
+      var region = await ClosestRegionAsync(location);
       string requestUrl = string.Format(
           "{0}/{1}/{2}.xml?key={3}&Version={4}",
-          await WebServiceUrlForLocationAsync(location),
+          region.RegionUrl,
           "schedule-for-stop",
           stop.id,
           KEY,
@@ -357,7 +360,7 @@ namespace OneBusAway.Model
       try
       {
         var xmlResponse = XDocument.Parse(response);
-        var routes = ParseAllRoutes(xmlResponse);
+        var routes = ParseAllRoutes(xmlResponse, region);
         schedules.AddRange(from schedule in xmlResponse.Descendants("stopRouteSchedule")
                            select new RouteSchedule
                            {
@@ -508,25 +511,26 @@ namespace OneBusAway.Model
       };
     }
 
-    private static Route ParseRoute(XElement route, IEnumerable<XElement> agencies)
+    private static Route ParseRoute(XElement route, IEnumerable<XElement> agencies, Region region)
     {
       return new Route()
       {
-        id = SafeGetValue(route.Element("id")),
-        shortName = SafeGetValue(route.Element("shortName")),
-        url = SafeGetValue(route.Element("url")),
-        description = route.Element("description") != null ?
+        Id = SafeGetValue(route.Element("id")),
+        ShortName = SafeGetValue(route.Element("shortName")),
+        Url = new Uri(SafeGetValue(route.Element("url"))),
+        Description = route.Element("description") != null ?
               route.Element("description").Value :
                   (route.Element("longName") != null ?
                       route.Element("longName").Value : string.Empty),
 
-        agency =
+        Agency =
               (from agency in agencies
                where route.Element("agencyId").Value == agency.Element("id").Value
                select new Agency
                {
-                 id = SafeGetValue(agency.Element("id")),
-                 name = SafeGetValue(agency.Element("name"))
+                 Id = SafeGetValue(agency.Element("id")),
+                 Name = SafeGetValue(agency.Element("name")),
+                 Region = region
                }).First()
       };
     }
@@ -536,15 +540,15 @@ namespace OneBusAway.Model
     /// </summary>
     /// <param name="xmlDoc"></param>
     /// <returns>A map of route id to route object</returns>
-    private static IDictionary<string, Route> ParseAllRoutes(XDocument xmlDoc)
+    private static IDictionary<string, Route> ParseAllRoutes(XDocument xmlDoc, Region region)
     {
       IList<Route> routes =
           (from route in xmlDoc.Descendants("route")
-           select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
+           select ParseRoute(route, xmlDoc.Descendants("agency"), region)).ToList<Route>();
       IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
       foreach (Route r in routes)
       {
-        routesMap.Add(r.id, r);
+        routesMap.Add(r.Id, r);
       }
       return routesMap;
     }

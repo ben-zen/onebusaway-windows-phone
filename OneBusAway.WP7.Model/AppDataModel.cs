@@ -33,8 +33,6 @@ namespace OneBusAway.Model
     #region Private Variables
 
     private const string _dbFileName = "storage.db";
-    private bool initialized;
-    private Object initializeLock;
 
     #endregion
 
@@ -45,18 +43,48 @@ namespace OneBusAway.Model
     public DbSet<RecentRoute> RecentRoutes { get; private set; }
     public DbSet<RecentStop> RecentStops { get; private set; }
     #endregion
-
-     #region Constructor/Initialize/Singleton
-
-    public static AppDataModel Singleton = new AppDataModel();
-
-    // Constructor is public for testing purposes
-    public AppDataModel()
+    #region Public methods
+    public async void AddRecentRoute(RecentRoute route)
     {
-      initialized = false;
-      initializeLock = new Object();
+      // First check if a route already exists in the RecentRoutes set.
+      var pastRecent = (object)null; // await RecentRoutes.FindAsync(route.Id);
+      if (pastRecent != null)
+      {
+        // RecentRoutes.Remove(pastRecent);
+      }
+      // RecentRoutes.Add(route);
+      // await SaveChangesAsync();
     }
 
+    public void AddRecentStop(RecentStop stop)
+    {
+
+    }
+
+    public async void ClearRecentRoutes()
+    {
+      RecentRoutes.RemoveRange(await RecentRoutes.ToListAsync());
+      await SaveChangesAsync();
+    }
+
+    public void ClearRecentStops()
+    {
+
+    }
+    #endregion
+    #region Constructor/Initialize/Singleton
+
+    public static AppDataModel Instance { get; } = new AppDataModel();
+
+    // Constructor is public for testing purposes
+    private AppDataModel()
+    {
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      optionsBuilder.UseSqlite("Data Source=" + _dbFileName);
+    }
     #endregion
   }
 }

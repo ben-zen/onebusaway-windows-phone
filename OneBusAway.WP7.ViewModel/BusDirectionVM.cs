@@ -65,7 +65,7 @@ namespace OneBusAway.ViewModel
       pendingRouteDirectionsCount += routes.Count;
       foreach (Route route in routes)
       {
-        operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
+        operationTracker.WaitForOperation("StopsForRoute_" + route.Id, string.Format("Looking up details for bus {0}...", route.ShortName));
         var stops = await BusServiceModel.StopsForRouteAsync(await LocationTracker.Tracker.GetLocationAsync(), route);
         stops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
         if (LocationTracker.Tracker.LocationKnown)

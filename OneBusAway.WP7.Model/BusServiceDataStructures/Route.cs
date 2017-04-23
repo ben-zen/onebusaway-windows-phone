@@ -26,24 +26,24 @@ namespace OneBusAway.Model.BusServiceDataStructures
     public class Route
     {
         [DataMember]
-        public string id { get; set; }
+        public string Id { get; set; }
         [DataMember]
-        public string shortName { get; set; }
+        public string ShortName { get; set; }
         [DataMember]
-        public string description { get; set; }
+        public string Description { get; set; }
         [DataMember]
-        public string url { get; set; }
+        public Uri Url { get; set; }
         [DataMember]
-        public Agency agency { get; set; }
+        public Agency Agency { get; set; }
         [DataMember]
-        public Stop closestStop { get; set; }
+        public Stop ClosestStop { get; set; }
 
         public override bool Equals(object obj)
         {
             if (obj is Route)
             {
                 Route otherRoute = (Route)obj;
-                if (otherRoute.id == this.id)
+                if (otherRoute.Id == this.Id)
                 {
                     return true;
                 }
@@ -60,7 +60,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
         public override string ToString()
         {
-            return string.Format("Route: ID='{0}', description='{1}'", shortName, description);
+            return string.Format("Route: ID='{0}', description='{1}'", ShortName, Description);
         }
     }
 
@@ -75,27 +75,27 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
         public int Compare(Route x, Route y)
         {
-            if (x.closestStop == null && y.closestStop == null)
+            if (x.ClosestStop == null && y.ClosestStop == null)
             {
                 return 0;
             }
 
-            if (x.closestStop == null)
+            if (x.ClosestStop == null)
             {
                 return -1;
             }
 
-            if (y.closestStop == null)
+            if (y.ClosestStop == null)
             {
                 return 1;
             }
 
-            int result = x.closestStop.location.GetDistanceTo(center).CompareTo(y.closestStop.location.GetDistanceTo(center));
+            int result = x.ClosestStop.location.GetDistanceTo(center).CompareTo(y.ClosestStop.location.GetDistanceTo(center));
 
             // If the bus routes have the same closest stop sort by route number
             if (result == 0)
             {
-                result = x.shortName.CompareTo(y.shortName);
+                result = x.ShortName.CompareTo(y.ShortName);
             }
 
             return result;

@@ -78,7 +78,7 @@ namespace OneBusAway.ViewModel
       {
         if (routeFilter != null)
         {
-          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.routeId == routeFilter.id));
+          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.routeId == routeFilter.Id));
         }
         else
         {
@@ -128,7 +128,7 @@ namespace OneBusAway.ViewModel
     {
       operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.routeShortName));
 
-      Route placeholder = new Route() { id = arrival.routeId, shortName = arrival.routeShortName };
+      Route placeholder = new Route() { Id = arrival.routeId, ShortName = arrival.routeShortName };
       // This will at least cause the route number to immediately update
       CurrentViewState.CurrentRoute = placeholder;
       CurrentViewState.CurrentRouteDirection = new RouteStops();

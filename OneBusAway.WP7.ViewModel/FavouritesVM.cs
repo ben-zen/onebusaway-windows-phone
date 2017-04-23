@@ -24,22 +24,12 @@ namespace OneBusAway.ViewModel
 {
   public class FavoritesVM : INotifyPropertyChanged
   {
-    private AppDataModel DataModel { get; set; } = new AppDataModel();
-    private static FavoritesVM _instance = null;
-    public static FavoritesVM Instance
-    {
-      get
-      {
-        if (_instance == null)
-        {
-          _instance = new FavoritesVM();
-        }
-        return _instance;
-      }
-    }
+    private AppDataModel DataModel { get; } = AppDataModel.Instance;
+    public static FavoritesVM Instance { get; } = new FavoritesVM();
 
-    private List<Route> _favoriteRoutes;
-    public List<Route> FavoriteRoutes
+
+    private List<FavoriteRoute> _favoriteRoutes;
+    public List<FavoriteRoute> FavoriteRoutes
     {
       get => _favoriteRoutes;
       set
@@ -49,8 +39,8 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    private List<Stop> _favoriteStops;
-    public List<Stop> FavoriteStops
+    private List<FavoriteStop> _favoriteStops;
+    public List<FavoriteStop> FavoriteStops
     {
       get => _favoriteStops;
       set
@@ -84,12 +74,12 @@ namespace OneBusAway.ViewModel
 
     private FavoritesVM()
     {
-      FavoriteRoutes = new List<Route>();
-      FavoriteStops = new List<Stop>();
+      FavoriteRoutes = new List<FavoriteRoute>();
+      FavoriteStops = new List<FavoriteStop>();
       Initialize();
     }
 
-    private async void Initialize()
+    private void Initialize()
     {
     }
 

@@ -21,11 +21,11 @@
     <TextBlock Grid.Column="0"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind CurrentRoute.shortName, Mode=OneWay}" />
+               Text="{x:Bind CurrentRoute.ShortName, Mode=OneWay}" />
     <TextBlock Grid.Column="1"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind CurrentRoute.description, Mode=OneWay}" />
+               Text="{x:Bind CurrentRoute.Description, Mode=OneWay}" />
     <ListView Grid.Column="0"
               Grid.ColumnSpan="2"
               Grid.Row="1"

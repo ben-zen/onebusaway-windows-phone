@@ -29,6 +29,7 @@ namespace OneBusAway.View
   public partial class MainPage : Page
   {
     public FavoritesVM Favorites => FavoritesVM.Instance;
+    public RecentsVM Recents => RecentsVM.Instance;
     public MainPageVM VM => (App.Current as App).MainPageVM;
     public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
 
@@ -136,36 +137,6 @@ namespace OneBusAway.View
       if (VM.operationTracker.Loading == false)
       {
         VM.LoadInfoForLocation(true);
-      }
-    }
-
-    private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (e.AddedItems.Count > 0)
-      {
-        FavoriteRouteAndStop favorite = (FavoriteRouteAndStop)e.AddedItems[0];
-        VM.CurrentViewState.CurrentRoute = favorite.route;
-        VM.CurrentViewState.CurrentStop = favorite.stop;
-        VM.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
-
-        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
-      }
-    }
-
-    private void RecentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      FavoritesListBox_SelectionChanged(sender, e);
-    }
-
-    private void StopsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      if (e.AddedItems.Count > 0)
-      {
-        VM.CurrentViewState.CurrentRoute = null;
-        VM.CurrentViewState.CurrentRouteDirection = null;
-        VM.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
-
-        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
       }
     }
 
@@ -296,6 +267,42 @@ namespace OneBusAway.View
     private void RouteListClick(object sender, ItemClickEventArgs e)
     {
       (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), e.ClickedItem);
+    }
+
+    private void RecentRouteClicked(object sender, ItemClickEventArgs e)
+    {
+      var route = TransitService.Routes.Find((x) => x.Id == (e.ClickedItem as RecentRoute).Id);
+      if (route != null)
+      {
+        (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), route);
+      }
+    }
+
+    private void RecentStopClicked(object sender, ItemClickEventArgs e)
+    {
+      var stop = TransitService.Stops.Find(x => x.id == (e.ClickedItem as RecentStop).Id);
+      if (stop != null)
+      {
+        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), e.ClickedItem);
+      }
+    }
+
+    private void FavoriteRouteClicked(object sender, ItemClickEventArgs e)
+    {
+      var route = TransitService.Routes.Find(x => x.Id == (e.ClickedItem as FavoriteRoute).Id);
+      if (route != null)
+      {
+        (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), route);
+      }
+    }
+
+    private void FavoriteStopClicked(object sender, ItemClickEventArgs e)
+    {
+      var stop = TransitService.Stops.Find(x => x.id == (e.ClickedItem as FavoriteStop).Id);
+      if (stop != null)
+      {
+        (Window.Current.Content as Frame).Navigate(typeof(StopDetails), stop);
+      }
     }
   }
 }

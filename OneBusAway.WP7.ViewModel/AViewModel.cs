@@ -45,7 +45,7 @@ namespace OneBusAway.ViewModel
 
     protected BusServiceModel BusServiceModel => BusServiceModel.Singleton;
 
-    protected AppDataModel appDataModel => AppDataModel.Singleton;
+    protected AppDataModel appDataModel => AppDataModel.Instance;
 
     protected LocationModel locationModel => LocationModel.Singleton;
 

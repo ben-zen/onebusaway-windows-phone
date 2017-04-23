@@ -1,4 +1,5 @@
 ﻿using OneBusAway.Model.BusServiceDataStructures;
+using OneBusAway.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,7 +36,7 @@ namespace OneBusAway.View
     protected async override void OnNavigatedTo(NavigationEventArgs args)
     {
       CurrentRoute = (args.Parameter as Route);
-
+      RecentsVM.Instance.AddRecentRoute(CurrentRoute);
     }
   }
 }

@@ -56,7 +56,7 @@ namespace OneBusAway.View
           s = string.Format("DetailsPage-IsFiltered-{0}", VM.CurrentViewState.CurrentStop.id);
           if (VM.CurrentViewState.CurrentRouteDirection != null && VM.CurrentViewState.CurrentRoute != null)
           {
-            s += string.Format("-{0}-{1}", VM.CurrentViewState.CurrentRoute.id, VM.CurrentViewState.CurrentRouteDirection.name);
+            s += string.Format("-{0}-{1}", VM.CurrentViewState.CurrentRoute.Id, VM.CurrentViewState.CurrentRouteDirection.name);
           }
         }
 
@@ -88,11 +88,10 @@ namespace OneBusAway.View
     protected async override void OnNavigatedTo(NavigationEventArgs e)
     {
       base.OnNavigatedTo(e);
-
       
       busArrivalUpdateTimer.Start();
       CurrentStop = e.Parameter as Stop;
-      
+      RecentsVM.Instance.AddRecentStop(CurrentStop);
 
       VM.LoadArrivalsForStopAsync(CurrentStop, null);
 
@@ -131,7 +130,7 @@ namespace OneBusAway.View
 
     private void appbar_favorite_Click(object sender, RoutedEventArgs e)
     {
-      if (FavoritesVM.Instance.FavoriteStops.Contains(CurrentStop))
+      if (FavoritesVM.Instance.FavoriteStops.Find(x => x.Id == CurrentStop.id) != null)
       {
         FavoritesVM.Instance.RemoveFavoriteStop(CurrentStop);
       }

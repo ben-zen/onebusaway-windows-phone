@@ -58,12 +58,12 @@ namespace OneBusAway.Model
       {
         foreach (Route route in stop.routes)
         {
-          if (!routesMap.ContainsKey(route.id))
+          if (!routesMap.ContainsKey(route.Id))
           {
             // the stops are sorted in distance order.
             // so if we haven't already seen this route, then this is the closest stop.
-            route.closestStop = stop;
-            routesMap.Add(route.id, route);
+            route.ClosestStop = stop;
+            routesMap.Add(route.Id, route);
           }
         }
       }

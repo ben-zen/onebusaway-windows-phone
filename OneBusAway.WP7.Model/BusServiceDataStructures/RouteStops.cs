@@ -75,27 +75,27 @@ namespace OneBusAway.Model.BusServiceDataStructures
                 return 1;
             }
 
-            if (x.route.closestStop == null && y.route.closestStop == null)
+            if (x.route.ClosestStop == null && y.route.ClosestStop == null)
             {
                 return 0;
             }
 
-            if (x.route.closestStop == null)
+            if (x.route.ClosestStop == null)
             {
                 return -1;
             }
 
-            if (y.route.closestStop == null)
+            if (y.route.ClosestStop == null)
             {
                 return 1;
             }
 
-            int result = x.route.closestStop.location.GetDistanceTo(center).CompareTo(y.route.closestStop.location.GetDistanceTo(center));
+            int result = x.route.ClosestStop.location.GetDistanceTo(center).CompareTo(y.route.ClosestStop.location.GetDistanceTo(center));
 
             // If the bus routes have the same closest stop sort by route number
             if (result == 0)
             {
-                result = x.route.shortName.CompareTo(y.route.shortName);
+                result = x.route.ShortName.CompareTo(y.route.ShortName);
             }
 
             // If the bus routes have the same stop and number (this will happen for the two different

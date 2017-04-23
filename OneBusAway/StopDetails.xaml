@@ -60,16 +60,16 @@
                    Grid.Row="1" 
                    TextAlignment="Right"
                    HorizontalAlignment="Stretch"
-                   Text="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource LateEarlyConverter}}" 
-                   Foreground="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource DelayColorConverter}}" />
+                   Text="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource LateEarlyConverter}}" />
+        <!-- Foreground="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource DelayColorConverter}}" /> -->
         <TextBlock Grid.Column="2" 
                    Grid.Row="0" 
                    Grid.RowSpan="2" 
                    TextAlignment="Right" 
                    VerticalAlignment="Top" 
                    Margin="0,-3,0,0"
-                   Text="{x:Bind nextKnownDeparture, Converter={StaticResource DateTimeDeltaConverter}}" 
-                   Foreground="{Binding Converter={StaticResource DelayColorConverter}}" />
+                   Text="{x:Bind nextKnownDeparture, Converter={StaticResource DateTimeDeltaConverter}}" />
+        <!-- Foreground="{Binding Converter={StaticResource DelayColorConverter}}" /> -->
       </Grid>
     </DataTemplate>
 
