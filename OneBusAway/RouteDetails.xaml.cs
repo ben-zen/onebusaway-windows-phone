@@ -42,5 +42,11 @@ namespace OneBusAway.View
       RouteStopsViewSource.Source = VM.RouteDirections;
       RecentsVM.Instance.AddRecentRoute(route);
     }
+
+    private void StopClicked(object sender, ItemClickEventArgs e)
+    {
+      var stop = e.ClickedItem as Stop;
+      (Window.Current.Content as Frame).Navigate(typeof(StopDetails), stop);
+    }
   }
 }
