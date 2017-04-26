@@ -37,6 +37,10 @@
     <view:StopRoutesConverter x:Key="StopRoutesConverter" />
     <view:VisibilityConverter x:Key="VisibilityConverter" />
 
+    <Style x:Key="FullWidthListViewItemStyle" TargetType="ListViewItem">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
     <!--<ResourceDictionary x:Key="ControlStyles">
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Resources/ControlStyles.xaml"/>

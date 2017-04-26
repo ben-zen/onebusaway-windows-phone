@@ -128,7 +128,7 @@ namespace OneBusAway.ViewModel
     {
       operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.RouteShortName));
 
-      Route placeholder = new Route() { Id = arrival.RouteId, ShortName = arrival.RouteShortName };
+      var placeholder = Route.GetRouteForId(arrival.RouteId);
       // This will at least cause the route number to immediately update
       CurrentViewState.CurrentRoute = placeholder;
       CurrentViewState.CurrentRouteDirection = new RouteStops();

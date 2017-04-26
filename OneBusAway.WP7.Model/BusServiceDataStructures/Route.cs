@@ -12,8 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+using OneBusAway.Model;
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.BusServiceDataStructures
@@ -31,15 +33,60 @@ namespace OneBusAway.Model.BusServiceDataStructures
   }
   public class Route
   {
-    public string Id { get; set; }
-    public string ShortName { get; set; }
-    public string LongName { get; set; }
-    public string Description { get; set; }
-    public Uri Url { get; set; }
-    public Agency Agency { get; set; }
+    #region Properties
+    public string Id { get; private set; }
+    public string ShortName { get; private set; }
+    public string LongName { get; private set; }
+    public string Description { get; private set; }
+    public Uri Url { get; private set; }
+    public Agency Agency { get; private set; }
     public Stop ClosestStop { get; set; }
-    public TransportationMethod Kind { get; set; }
+    public TransportationMethod Kind { get; private set; }
+    #endregion
+    #region Parsers and accessor
 
+    private static TransportationMethod ParseTransportationMethod(string method)
+    {
+      int intMethod;
+      if (!int.TryParse(method, out intMethod))
+      {
+        // Handle this parse error.
+      }
+
+      if (intMethod > 7 || intMethod < 0)
+      {
+        // invalid TransportationMethod value.
+      }
+
+      return (TransportationMethod)intMethod;
+    }
+    private static List<Route> _routes = new List<Route>();
+    public static Route GetRouteForXML(XElement xRoute, Agency agency)
+    {
+      var route = _routes.Find(x => x.Id == xRoute.Element("id").Value);
+      if (route == null)
+      {
+        route = new Route
+        {
+          Id = xRoute.Element("id").Value,
+          ShortName = XmlUtilities.SafeGetValue(xRoute.Element("shortName")),
+          LongName = XmlUtilities.SafeGetValue(xRoute.Element("longName")),
+          Url = (XmlUtilities.SafeGetValue(xRoute.Element("url")) != String.Empty) ? new Uri(XmlUtilities.SafeGetValue(xRoute.Element("url"))) : agency.Url,
+          Description = XmlUtilities.SafeGetValue(xRoute.Element("description")),
+          Kind = ParseTransportationMethod(XmlUtilities.SafeGetValue(xRoute.Element("type"))),
+          Agency = agency
+        };
+        _routes.Add(route);
+      }
+      return route;
+    }
+
+    public static Route GetRouteForId(string id)
+    {
+      return _routes.Find(x => x.Id == id);
+    }
+
+    #endregion
     public override bool Equals(object obj)
     {
       if (obj is Route)

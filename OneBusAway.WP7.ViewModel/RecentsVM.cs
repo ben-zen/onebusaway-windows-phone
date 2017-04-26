@@ -54,7 +54,7 @@ namespace OneBusAway.ViewModel
         Description = route.Description,
         LastAccessed = time,
         AgencyName = route.Agency.Name,
-        TransitServiceUri = new Uri(route.Agency.Region.RegionUrl)
+        //TransitServiceUri = new Uri(route.Agency.Region.RegionUrl)
       };
       RecentRoutes.Insert(0, recentRoute);
       DataModel.AddRecentRoute(recentRoute);
@@ -73,7 +73,8 @@ namespace OneBusAway.ViewModel
       {
         Id = stop.Id,
         Name = stop.Name,
-        LastAccessed = time
+        LastAccessed = time,
+        Direction = stop.Direction
       };
       RecentStops.Insert(0, recentStop);
       DataModel.AddRecentStop(recentStop);

@@ -43,7 +43,7 @@
                     Grid.Column="0" 
                     Grid.Row="0" 
                     Grid.RowSpan="2" 
-                    Text="{x:Bind routeShortName}" 
+                    Text="{x:Bind RouteShortName}" 
                     FontSize="{ThemeResource TextStyleLargeFontSize}" 
                     VerticalAlignment="Top"
                     Margin="0,-3,5,0"
@@ -52,15 +52,15 @@
                    Grid.Row="0"     
                    TextAlignment="Left"
                    HorizontalAlignment="Stretch"
-                   Text="{x:Bind tripHeadsign}" />
+                   Text="{x:Bind TripHeadsign}" />
         <TextBlock Grid.Column="1" 
                    Grid.Row="1" 
-                   Text="{x:Bind scheduledDepartureTime, Mode=OneWay, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" />
+                   Text="{x:Bind ScheduledDepartureTime, Mode=OneWay, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" />
         <TextBlock Grid.Column="1" 
                    Grid.Row="1" 
                    TextAlignment="Right"
                    HorizontalAlignment="Stretch"
-                   Text="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource LateEarlyConverter}}" />
+                   Text="{x:Bind BusDelay, Mode=OneWay, Converter={StaticResource LateEarlyConverter}}" />
         <!-- Foreground="{x:Bind busDelay, Mode=OneWay, Converter={StaticResource DelayColorConverter}}" /> -->
         <TextBlock Grid.Column="2" 
                    Grid.Row="0" 
@@ -68,7 +68,7 @@
                    TextAlignment="Right" 
                    VerticalAlignment="Top" 
                    Margin="0,-3,0,0"
-                   Text="{x:Bind nextKnownDeparture, Converter={StaticResource DateTimeDeltaConverter}}" />
+                   Text="{x:Bind NextKnownDeparture, Converter={StaticResource DateTimeDeltaConverter}}" />
         <!-- Foreground="{Binding Converter={StaticResource DelayColorConverter}}" /> -->
       </Grid>
     </DataTemplate>
@@ -91,12 +91,12 @@
                Grid.Row="0"
                x:Name="RouteName"
                Margin="4"
-               Text="{x:Bind CurrentStop.direction, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
+               Text="{x:Bind CurrentStop.Direction, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
     <TextBlock Grid.Column="1"
                Grid.Row="0"
                x:Name="RouteInfo"
                Margin="4"
-               Text="{x:Bind CurrentStop.name, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
+               Text="{x:Bind CurrentStop.Name, FallbackValue='', TargetNullValue='', Mode=OneWay}" />
     <maps:MapControl x:Name="DetailsMap"
                      Grid.Row="1"
                      Grid.Column="0"
@@ -138,7 +138,13 @@
               Grid.ColumnSpan="2"
               ItemsSource="{x:Bind VM.ArrivalsForStop, Mode=OneWay}" 
               ItemTemplate="{StaticResource RouteTemplate}" 
-              SelectionChanged="ArrivalsListBox_SelectionChanged" />
+              SelectionChanged="ArrivalsListBox_SelectionChanged">
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+      </ListView.ItemContainerStyle>
+    </ListView>
     <TextBlock x:Name="NoResultsTextBlock"
                Text="no results"
                Grid.Row="2"

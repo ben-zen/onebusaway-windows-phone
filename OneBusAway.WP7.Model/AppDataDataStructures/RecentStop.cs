@@ -15,6 +15,7 @@ namespace OneBusAway.Model.AppDataDataStructures
     /// </summary>
     public string Id { get; set; }
     public string Name { get; set; }
+    public string Direction { get; set; }
 
     public Uri TransitServiceUri { get; set; }
     public string TransitServiceName { get; set; }

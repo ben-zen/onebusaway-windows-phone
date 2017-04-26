@@ -72,7 +72,6 @@ namespace OneBusAway.ViewModel
         routeVM = new RouteVM(route);
         _routes.Add(routeVM);
       }
-
       return routeVM;
     }
     #endregion
