@@ -37,7 +37,7 @@ namespace OneBusAway.Model.BusServiceDataStructures
 
             try
             {
-                return (T)Convert.ChangeType(childNode.Value.Trim(), typeof(T), CultureInfo.CurrentCulture);
+                return (T)Convert.ChangeType(childNode.Value.Trim(), typeof(T), CultureInfo.InvariantCulture);
             }
             catch
             {
