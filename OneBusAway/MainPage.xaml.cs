@@ -134,10 +134,7 @@ namespace OneBusAway.View
 
     private void appbar_refresh_Click(object sender, RoutedEventArgs e)
     {
-      if (VM.operationTracker.Loading == false)
-      {
-        VM.LoadInfoForLocation(true);
-      }
+      VM.LoadInfoForLocation(true);
     }
 
     private void appbar_search_Click(object sender, RoutedEventArgs e)

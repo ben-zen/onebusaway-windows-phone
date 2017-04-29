@@ -24,6 +24,8 @@
 
     <view:BoolToFavoriteButtonLabelConverter x:Key="BoolToFavoriteButtonLabelConverter"/>
     <view:BoolToFavoriteIconConverter x:Key="BoolToFavoriteIconConverter" />
+    <view:BoolToFilterButtonLabelConverter x:Key="BoolToFilterButtonLabelConverter" />
+    <view:BoolToFilterIconConverter x:Key="BoolToFilterIconConverter" />
     <view:CollectionEmptyToVisibilityConverter x:Key="CollectionEmptyToVisibilityConverter" />
     <view:ColorAlphaConverter x:Key="ColorAlphaConverter" />
     <view:DateTimeConverter x:Key="DateTimeConverter" />

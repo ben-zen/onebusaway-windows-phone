@@ -675,11 +675,7 @@ namespace OneBusAway.View
       var isFavorite = (bool)value;
       return new SymbolIcon((isFavorite) ? Symbol.UnFavorite : Symbol.Favorite);
     }
-
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-      throw new NotImplementedException();
-    }
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
   }
 
   public class BoolToFavoriteButtonLabelConverter : IValueConverter
@@ -689,11 +685,19 @@ namespace OneBusAway.View
       var resources = ResourceLoader.GetForCurrentView();
       return ((bool)value) ? resources.GetString("UnFavoriteLabel") : resources.GetString("FavoriteLabel");
     }
-
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-      throw new NotImplementedException();
-    }
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
+  }
+  #endregion
+  #region Filter converters
+  public class BoolToFilterButtonLabelConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language) => ResourceLoader.GetForCurrentView().GetString(((bool)value) ? "ClearFilterLabel" : "FilterLabel");
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
+  }
+  public class BoolToFilterIconConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language) => new SymbolIcon(((bool) value)? Symbol.Cancel : Symbol.Filter);
+    public object ConvertBack(object value, Type targetType, object parameter, string language) => throw new NotImplementedException();
   }
   #endregion
 }

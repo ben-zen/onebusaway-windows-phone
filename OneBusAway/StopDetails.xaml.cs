@@ -32,39 +32,13 @@ namespace OneBusAway.View
     private Uri unfilterRoutesIcon = new Uri("/Images/appbar.add.rest.png", UriKind.Relative);
     private Uri filterRoutesIcon = new Uri("/Images/appbar.minus.rest.png", UriKind.Relative);
 
-    private string unfilterRoutesText = "all routes";
-    private string filterRoutesText = "filter routes";
-    private string addFavoriteText = "add";
-    private string deleteFavoriteText = "delete";
-
     private DispatcherTimer busArrivalUpdateTimer;
-
-    private bool isFavorite;
-    private bool isFiltered;
 
     private const double minimumZoomRadius = 100 * 0.009 * 0.001; // 100 meters in degrees
     private const double maximumZoomRadius = 250 * 0.009; // 250 km in degrees
 
     #region Properties
-    private string isFilteredStateId
-    {
-      get
-      {
-        string s = Guid.NewGuid().ToString();
-        if (VM != null && VM.CurrentViewState != null && VM.CurrentViewState.CurrentStop != null)
-        {
-          s = string.Format("DetailsPage-IsFiltered-{0}", VM.CurrentViewState.CurrentStop.Id);
-          if (VM.CurrentViewState.CurrentRouteDirection != null && VM.CurrentViewState.CurrentRoute != null)
-          {
-            s += string.Format("-{0}-{1}", VM.CurrentViewState.CurrentRoute.Id, VM.CurrentViewState.CurrentRouteDirection.Name);
-          }
-        }
-
-        return s;
-      }
-    }
-
-    public StopViewModel VM => (App.Current as App).ActiveStop;
+    public StopViewModel VM { get; private set; }
     public Stop CurrentStop { get; set; }
     #endregion
 
@@ -73,16 +47,9 @@ namespace OneBusAway.View
     {
       InitializeComponent();
 
-      //Loaded += new RoutedEventHandler(DetailsPage_Loaded);
-      //Unloaded += new RoutedEventHandler(DetailsPage_Unloaded);
-
       busArrivalUpdateTimer = new DispatcherTimer();
       busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
       busArrivalUpdateTimer.Tick += new EventHandler<object>(busArrivalUpdateTimer_Tick);
-
-#if SCREENSHOT
-            SystemTray.IsVisible = false;
-#endif
     }
 
     protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -93,12 +60,13 @@ namespace OneBusAway.View
       CurrentStop = e.Parameter as Stop;
       RecentsVM.Instance.AddRecentStop(CurrentStop);
 
-      VM.LoadArrivalsForStopAsync(CurrentStop, null);
+      VM = StopViewModel.GetVMForStop(CurrentStop);
+      VM.RefreshArrivalsAsync();
 
       // When we enter this page after tombstoning often the location won't be available when the map
       // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
       // so we need to explicitly set the center once the location is known.
-      var location = await VM.LocationTracker.GetLocationAsync();
+      var location = await LocationTracker.Tracker.GetLocationAsync();
       DetailsMap.Center = location;
 
       //calculate distance to current stop and zoom map
@@ -115,22 +83,19 @@ namespace OneBusAway.View
 
     void busArrivalUpdateTimer_Tick(object sender, object e)
     {
-      VM.RefreshArrivalsForStopAsync(CurrentStop);
+      VM.RefreshArrivalsAsync();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
       base.OnNavigatedFrom(e);
-
       busArrivalUpdateTimer.Stop();
-      // PhoneApplicationService.Current.State[isFilteredStateId] = isFiltered;
-
       RouteInfo.DataContext = null;
     }
 
     private void appbar_favorite_Click(object sender, RoutedEventArgs e)
     {
-      if (FavoritesVM.Instance.FavoriteStops.Find(x => x.Id == CurrentStop.Id) != null)
+      if (VM.IsFavorite)
       {
         FavoritesVM.Instance.RemoveFavoriteStop(CurrentStop);
       }
@@ -138,49 +103,17 @@ namespace OneBusAway.View
       {
         FavoritesVM.Instance.AddFavoriteStop(CurrentStop);
       }
-
-      SetFavoriteIcon();
     }
 
-    private void appbar_allroutes_Click(object sender, EventArgs e)
+    private void appbar_filter_Click(object sender, RoutedEventArgs e)
     {
-      if (isFiltered == true)
+      if (VM.IsFiltered)
       {
         VM.ChangeFilterForArrivals(null);
-        isFiltered = false;
       }
       else
       {
-        VM.ChangeFilterForArrivals(VM.CurrentViewState.CurrentRoute);
-        isFiltered = true;
-      }
-
-      //SetFilterRoutesIcon();
-    }
-
-    /*private void SetFilterRoutesIcon()
-    {
-      if (isFiltered == false)
-      {
-        appbar_filter.IconUri = filterRoutesIcon;
-        appbar_allroutes.Text = filterRoutesText;
-      }
-      else
-      {
-        appbar_allroutes.IconUri = unfilterRoutesIcon;
-        appbar_allroutes.Text = unfilterRoutesText;
-      }
-    }*/
-
-    private void SetFavoriteIcon()
-    {
-      if (isFavorite == true)
-      {
-        appbar_favorite.Label = deleteFavoriteText;
-      }
-      else
-      {
-        appbar_favorite.Label = addFavoriteText;
+        FlyoutBase.ShowAttachedFlyout((sender as AppBarButton));
       }
     }
 
@@ -189,41 +122,11 @@ namespace OneBusAway.View
       if (e.AddedItems.Count != 0)
       {
         ArrivalAndDeparture arrival = (ArrivalAndDeparture)e.AddedItems[0];
-        VM.SwitchToRouteByArrivalAsync(arrival, () => { });
+        VM.ChangeFilterForArrivals(Route.GetRouteForId(arrival.RouteId));
       }
     }
 
-    private void BusStopPushpin_Click(object sender, RoutedEventArgs e)
-    {
-      if (sender is Button)
-      {
-        string selectedStopId = (string)((Button)sender).Tag;
-
-        Stop selectedStop = null;
-        /*foreach (object item in BusStopItemsControl.Items)
-        {
-          Stop stop = item as Stop;
-          if (stop != null && stop.id == selectedStopId)
-          {
-            selectedStop = stop;
-            VM.SwitchToStop(selectedStop);
-
-            break;
-          }
-        }*/
-
-        Debug.Assert(selectedStop != null);
-
-      }
-    }
-
-    private void appbar_refresh_Click(object sender, RoutedEventArgs e)
-    {
-      if (VM.operationTracker.Loading == false && VM.CurrentViewState.CurrentStop != null)
-      {
-        VM.LoadArrivalsForStopAsync(VM.CurrentViewState.CurrentStop);
-      }
-    }
+    private void appbar_refresh_Click(object sender, RoutedEventArgs e) => VM.RefreshArrivalsAsync();
 
     private void ZoomToBus_Click(object sender, RoutedEventArgs e)
     {

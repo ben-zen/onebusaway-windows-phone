@@ -239,11 +239,14 @@
   <data name="UnFavoriteLabel" xml:space="preserve">
     <value>Unfavorite</value>
   </data>
-  <data name="UnFilterLabel" xml:space="preserve">
-    <value>Unfilter</value>
+  <data name="ClearFilterLabel" xml:space="preserve">
+    <value>Clear filter</value>
   </data>
   <data name="VersionString" xml:space="preserve">
     <value>v{0}.{1}.{2}.{3}</value>
     <comment>Version string for the application. {0} is the major version, {1} is the minor version, {2} is the revision, and {3} is the build.</comment>
+  </data>
+  <data name="StopDetails_AppBar_Filter_FlyoutText.Text" xml:space="preserve">
+    <value>Check back for more filtering options in future releases.</value>
   </data>
 </root>

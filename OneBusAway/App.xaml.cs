@@ -69,19 +69,6 @@ namespace OneBusAway.View
       }
     }
 
-    private StopViewModel _activeStop = null;
-    public StopViewModel ActiveStop
-    {
-      get
-      {
-        if (_activeStop == null)
-        {
-          _activeStop = new StopViewModel();
-        }
-        return _activeStop;
-      }
-    }
-
     private SettingsVM _settings = null;
     public SettingsVM Settings
     {

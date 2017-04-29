@@ -28,10 +28,6 @@ namespace OneBusAway.ViewModel
     public AViewModel(BusServiceModel busServiceModel = null, AppDataModel appDataModel = null, ILocationModel locationModel = null)
     {
 
-      if (!IsInDesignMode)
-      {
-        operationTracker = new AsyncOperationTracker();
-      }
     }
 
     #endregion
@@ -48,14 +44,6 @@ namespace OneBusAway.ViewModel
     protected AppDataModel appDataModel => AppDataModel.Instance;
 
     protected LocationModel locationModel => LocationModel.Singleton;
-
-    protected bool IsInDesignMode
-    {
-      get
-      {
-        return IsInDesignModeStatic;
-      }
-    }
 
     /// <summary>
     /// Subclasses should queue and dequeue their async calls onto this object to tie into the Loading property.
@@ -114,33 +102,6 @@ namespace OneBusAway.ViewModel
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-
-    private static bool? isInDesignModeStatic = null;
-    public static bool IsInDesignModeStatic // Convenient method that can be accessed out of an inherited class
-    {
-      get
-      {
-        if (isInDesignModeStatic.HasValue)
-        {
-          // only do the check once and use the last value forever
-          return isInDesignModeStatic.Value;
-        }
-        try
-        {
-          var isoStor = ApplicationData.Current.LocalSettings.Values.ContainsKey("asasdasd");
-          isInDesignModeStatic = false;
-          return isInDesignModeStatic.Value;
-        }
-        catch (Exception)
-        {
-          // Toss out any errors we get
-        }
-        // If we get here that means we got an error
-        isInDesignModeStatic = true;
-        return isInDesignModeStatic.Value;
-      }
-    }
-
 
     #endregion
 

@@ -150,31 +150,7 @@ namespace OneBusAway.View
 
     private void NavigateToDetailsPage(Stop stop)
     {
-      VM.CurrentViewState.CurrentStop = stop;
-      VM.CurrentViewState.CurrentRoute = null;
-      VM.CurrentViewState.CurrentRouteDirection = null;
-
-      (App.Current as App).RootFrame.Navigate(typeof(StopDetails), null);
+      (App.Current as App).RootFrame.Navigate(typeof(StopDetails), stop);
     }
-
-    /*private void PopupBtn_Click(object sender, RoutedEventArgs e)
-    {
-      string selectedStopId = StopInfoBox.Tag as string;
-
-      foreach (object item in StopsMapItemsControl.Items)
-      {
-        Stop stop = item as Stop;
-        if (stop != null && stop.id == selectedStopId)
-        {
-          // Hide the pop-up for when they return
-          StopInfoBox.Visibility = Visibility.Collapsed;
-          StopInfoBox.Tag = null;
-
-          NavigateToDetailsPage(stop);
-
-          break;
-        }
-      }
-    } */
   }
 }

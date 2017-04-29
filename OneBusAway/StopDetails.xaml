@@ -156,7 +156,21 @@
 
   <Page.BottomAppBar>
     <CommandBar>
-      <AppBarButton x:Uid="StopDetails_AppBar_Filter" x:Name="appbar_filter" Icon="Filter" Label="Filter" /> <!-- Click="appbar_allroutes_click" /> -->
+      <AppBarButton x:Uid="StopDetails_AppBar_Filter"
+                    Icon="{x:Bind VM.IsFiltered, Mode=OneWay, Converter={StaticResource BoolToFilterIconConverter}}"
+                    Label="{x:Bind VM.IsFiltered, Mode=OneWay, Converter={StaticResource BoolToFilterButtonLabelConverter}}"
+                    Click="appbar_filter_Click">
+        <FlyoutBase.AttachedFlyout>
+          <Flyout>
+            <TextBlock x:Uid="StopDetails_AppBar_Filter_FlyoutText"
+                       Text="Check back for more filtering options in future releases."
+                       TextWrapping="WrapWholeWords"
+                       Style="{ThemeResource BodyTextBlockStyle}" />
+          </Flyout>
+        </FlyoutBase.AttachedFlyout>
+      </AppBarButton>
+
+      <!-- Click="appbar_allroutes_click" /> -->
       <AppBarButton x:Uid="StopDetails_AppBar_Favorite"
                     x:Name="appbar_favorite"
                     Icon="{x:Bind VM.IsFavorite, Converter={StaticResource BoolToFavoriteIconConverter}}"

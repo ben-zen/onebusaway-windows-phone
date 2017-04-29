@@ -18,19 +18,29 @@ using OneBusAway.Model.BusServiceDataStructures;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace OneBusAway.ViewModel
 {
-  public class StopViewModel : AViewModel
+  public class StopViewModel : INotifyPropertyChanged
   {
 
-    #region Private Variables and Properties
-
-    private Route routeFilter;
-    private List<ArrivalAndDeparture> _unfilteredArrivals;
+    #region Private Variables, Properties, and Methods
+    private Stop _stop;
+    private Route _routeFilter;
+    private Route RouteFilter
+    {
+      get => _routeFilter;
+      set
+      {
+        _routeFilter = value;
+        OnPropertyChanged("IsFiltered");
+      }
+    }
+    private List<ArrivalAndDeparture> _unfilteredArrivals = new List<ArrivalAndDeparture>();
     private List<ArrivalAndDeparture> UnfilteredArrivals
     {
       get
@@ -43,9 +53,11 @@ namespace OneBusAway.ViewModel
         FilterArrivals();
       }
     }
-    private Object arrivalsLock;
+    private Object arrivalsLock = new object();
     private TripService tripService;
     private bool resultsLoaded;
+
+    private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     #endregion
 
@@ -54,19 +66,31 @@ namespace OneBusAway.ViewModel
     // TODO: We need to convert the VM's to a Singleton, or add a Dispose method
     // currently a new VM is created every time a new route details page is opened
     // and the old event hanlders keep getting called, wasting perf
-    public static StopViewModel Singleton = new StopViewModel();
-
-    public StopViewModel(BusServiceModel busServiceModel = null, AppDataModel appDataModel = null)
-        : base(busServiceModel, appDataModel)
+    private static List<StopViewModel> _stops = new List<StopViewModel>();
+    public static StopViewModel GetVMForStop(Stop stop)
     {
+      var stopVM = _stops.Find(x => x.Id == stop.Id);
+      if (stopVM == null)
+      {
+        stopVM = new StopViewModel(stop);
+        _stops.Add(stopVM);
+      }
+      return stopVM;
+    }
+
+    internal StopViewModel(Stop stop)
+    {
+      _stop = stop;
+      Id = stop.Id;
+      Direction = stop.Direction;
+      Name = stop.Name;
+
       Initialize();
     }
 
     private void Initialize()
     {
-      UnfilteredArrivals = new List<ArrivalAndDeparture>();
-      routeFilter = null;
-      arrivalsLock = new Object();
+      RouteFilter = null;
       tripService = TripServiceFactory.Singleton.TripService;
       resultsLoaded = false;
     }
@@ -76,9 +100,9 @@ namespace OneBusAway.ViewModel
       var filteredArrivals = new List<ArrivalAndDeparture>();
       if (UnfilteredArrivals != null)
       {
-        if (routeFilter != null)
+        if (RouteFilter != null)
         {
-          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.RouteId == routeFilter.Id));
+          filteredArrivals.AddRange(UnfilteredArrivals.Where(arrival => arrival.RouteId == RouteFilter.Id));
         }
         else
         {
@@ -92,7 +116,13 @@ namespace OneBusAway.ViewModel
 
     #region Public Properties
 
-    private List<ArrivalAndDeparture> _arrivalsForStop;
+    public string Id { get; private set; }
+    public string Direction { get; private set; }
+    public string Name { get; private set; }
+    public string Code { get; private set; }
+    public List<RouteVM> Routes { get; private set; }
+    public List<Agency> Agencies { get; private set; }
+    private List<ArrivalAndDeparture> _arrivalsForStop = new List<ArrivalAndDeparture>();
     public List<ArrivalAndDeparture> ArrivalsForStop
     {
       get
@@ -111,9 +141,10 @@ namespace OneBusAway.ViewModel
     {
       get
       {
-        return FavoritesVM.Instance.FavoriteStops.Any(x => x.Id == CurrentViewState.CurrentStop.Id);
+        return FavoritesVM.Instance.FavoriteStops.Any(x => x.Id == Id);
       }
     }
+    public bool IsFiltered => RouteFilter != null;
 
 
     public bool NoResultsAvailable
@@ -124,6 +155,8 @@ namespace OneBusAway.ViewModel
       }
     }
 
+    public event PropertyChangedEventHandler PropertyChanged;
+
     #endregion
 
     #region Public Methods
@@ -133,62 +166,17 @@ namespace OneBusAway.ViewModel
       return await tripService.StartSubscriptionAsync(stopId, tripId, minutes);
     }
 
-    public async void SwitchToRouteByArrivalAsync(ArrivalAndDeparture arrival, Action uiCallback)
+    public async void RefreshArrivalsAsync()
     {
-      operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.RouteShortName));
-
-      var placeholder = Route.GetRouteForId(arrival.RouteId);
-      // This will at least cause the route number to immediately update
-      CurrentViewState.CurrentRoute = placeholder;
-      CurrentViewState.CurrentRouteDirection = new RouteStops();
-
-      var stops = await BusServiceModel.StopsForRouteAsync(LocationTracker.CurrentLocation, placeholder);
-
-      stops.ForEach(routeStop =>
-      {
-              // These aren't always the same, hopefully this comparison will work
-              if (routeStop.Name.Contains(arrival.TripHeadsign) || arrival.TripHeadsign.Contains(routeStop.Name))
-        {
-          CurrentViewState.CurrentRouteDirection = routeStop;
-          CurrentViewState.CurrentRoute = routeStop.Route;
-        }
-      }
-                  );
-
-      ChangeFilterForArrivals(placeholder);
-    }
-
-    public void SwitchToStop(Stop stop)
-    {
-      CurrentViewState.CurrentStop = stop;
-      LoadArrivalsForStopAsync(stop);
-    }
-
-    public async void LoadArrivalsForStopAsync(Stop stop, Route routeFilter = null)
-    {
-      UnfilteredArrivals = null;
-
-      this.routeFilter = routeFilter;
-      RefreshArrivalsForStopAsync(stop);
-
-      // We've sent our first call off, set resultsLoaded to true
-      resultsLoaded = true;
-    }
-
-    public async void RefreshArrivalsForStopAsync(Stop stop)
-    {
-      if (stop != null)
-      {
-        var location = await LocationTracker.GetLocationAsync();
-        var arrivals = await BusServiceModel.ArrivalsForStopAsync(location, stop);
-        var refreshedArrivals = ArrivalsForStop.Intersect(arrivals).Union(arrivals); // First, remove any elements that are not already present, then add any that were not already found.
-        UnfilteredArrivals = new List<ArrivalAndDeparture>(refreshedArrivals);
-      }
+      var location = await LocationTracker.Tracker.GetLocationAsync();
+      var arrivals = await BusServiceModel.Singleton.ArrivalsForStopAsync(location, _stop);
+      var refreshedArrivals = ArrivalsForStop.Intersect(arrivals).Union(arrivals); // First, remove any elements that are not already present, then add any that were not already found.
+      UnfilteredArrivals = new List<ArrivalAndDeparture>(refreshedArrivals);
     }
 
     public void ChangeFilterForArrivals(Route routeFilter)
     {
-      this.routeFilter = routeFilter;
+      RouteFilter = routeFilter;
       FilterArrivals();
     }
     #endregion
