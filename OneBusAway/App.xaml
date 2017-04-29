@@ -22,6 +22,8 @@
   <Application.Resources>
     <x:String x:Key="MapCredentials"></x:String>
 
+    <view:BoolToFavoriteButtonLabelConverter x:Key="BoolToFavoriteButtonLabelConverter"/>
+    <view:BoolToFavoriteIconConverter x:Key="BoolToFavoriteIconConverter" />
     <view:CollectionEmptyToVisibilityConverter x:Key="CollectionEmptyToVisibilityConverter" />
     <view:ColorAlphaConverter x:Key="ColorAlphaConverter" />
     <view:DateTimeConverter x:Key="DateTimeConverter" />
@@ -31,6 +33,7 @@
     <view:LateEarlyConverter x:Key="LateEarlyConverter" />
     <view:LowercaseConverter x:Key="LowercaseConverter" />
     <view:MaxZoomConverter x:Key="MaxZoomConverter" />
+    <view:PackageVersionToStringConverter x:Key="PackageVersionToStringConverter" />
     <view:PivotNameConverter x:Key="PivotNameConverter" />
     <view:ShortDistanceConverter x:Key="ShortDistanceConverter" />
     <view:StopDirectionConverter x:Key="StopDirectionConverter" />

@@ -64,7 +64,7 @@ namespace OneBusAway.View
       }
     }
 
-    public StopViewModel VM => (App.Current as App).RouteDetails;
+    public StopViewModel VM => (App.Current as App).ActiveStop;
     public Stop CurrentStop { get; set; }
     #endregion
 
@@ -221,7 +221,6 @@ namespace OneBusAway.View
     {
       if (VM.operationTracker.Loading == false && VM.CurrentViewState.CurrentStop != null)
       {
-        NoResultsTextBlock.Visibility = Visibility.Collapsed;
         VM.LoadArrivalsForStopAsync(VM.CurrentViewState.CurrentStop);
       }
     }

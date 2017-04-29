@@ -147,4 +147,103 @@
     <value>Stops</value>
     <comment>Title for the Stops pivot.</comment>
   </data>
+  <data name="AboutPage_Credits.Text" xml:space="preserve">
+    <value>Windows 10 app built by Ben Lewis. Original Windows Phone app by Rob Smith, Shawn Henry, Michael Friedman, and David Robinson.</value>
+  </data>
+  <data name="AboutPage_FeedbackButton.Content" xml:space="preserve">
+    <value>Send feedback</value>
+    <comment>Text for a button to send a feedback email about the app.</comment>
+  </data>
+  <data name="AboutPage_OneBusAwayLink.Content" xml:space="preserve">
+    <value>OneBusAway Project</value>
+  </data>
+  <data name="AboutPage_ProjectPageButton.Content" xml:space="preserve">
+    <value>GitHub App Project Page</value>
+  </data>
+  <data name="AboutPage_Title.Text" xml:space="preserve">
+    <value>About OneBusAway</value>
+    <comment>Title of the About page.</comment>
+  </data>
+  <data name="DirectionFormatText" xml:space="preserve">
+    <value>Direction: {0}</value>
+  </data>
+  <data name="DirectionText_E" xml:space="preserve">
+    <value>East</value>
+  </data>
+  <data name="DirectionText_N" xml:space="preserve">
+    <value>North</value>
+  </data>
+  <data name="DirectionText_NE" xml:space="preserve">
+    <value>Northeast</value>
+  </data>
+  <data name="DirectionText_NW" xml:space="preserve">
+    <value>Northwest</value>
+  </data>
+  <data name="DirectionText_S" xml:space="preserve">
+    <value>South</value>
+  </data>
+  <data name="DirectionText_SE" xml:space="preserve">
+    <value>Southeast</value>
+  </data>
+  <data name="DirectionText_SW" xml:space="preserve">
+    <value>Southwest</value>
+  </data>
+  <data name="DirectionText_W" xml:space="preserve">
+    <value>West</value>
+  </data>
+  <data name="FavoriteLabel" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="FilterLabel" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="LateEarlyText_Early" xml:space="preserve">
+    <value>{0} min early.</value>
+    <comment>Text for showing how early a bus is. {0} is how many minutes.</comment>
+  </data>
+  <data name="LateEarlyText_Late" xml:space="preserve">
+    <value>{0} min late.</value>
+    <comment>Text for showing how late a bus is. {0} is how many minutes.</comment>
+  </data>
+  <data name="LateEarlyText_OnTime" xml:space="preserve">
+    <value>On time.</value>
+    <comment>Text for showing that a bus is on time.</comment>
+  </data>
+  <data name="LateEarlyText_Unknown" xml:space="preserve">
+    <value>Unknown.</value>
+    <comment>Text for showing that a bus' arrival time is unknown.</comment>
+  </data>
+  <data name="MainPage_AppBar_AboutButton.Label" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="MainPage_AppBar_RefreshButton.Label" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="MainPage_AppBar_SearchButton.Label" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="MainPage_AppBar_SettingsButton.Label" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="RefreshLabel" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="StopDetails_NoResults.Text" xml:space="preserve">
+    <value>No results.</value>
+    <comment>Text shown when a stop has no arrivals returned.</comment>
+  </data>
+  <data name="TimePresentation_Minutes" xml:space="preserve">
+    <value>{0} min</value>
+    <comment>Displays a period of time. {0} is minutes.</comment>
+  </data>
+  <data name="UnFavoriteLabel" xml:space="preserve">
+    <value>Unfavorite</value>
+  </data>
+  <data name="UnFilterLabel" xml:space="preserve">
+    <value>Unfilter</value>
+  </data>
+  <data name="VersionString" xml:space="preserve">
+    <value>v{0}.{1}.{2}.{3}</value>
+    <comment>Version string for the application. {0} is the major version, {1} is the minor version, {2} is the revision, and {3} is the build.</comment>
+  </data>
 </root>

@@ -147,4 +147,103 @@
     <value>Arrêts</value>
     <comment>Title for the Stops pivot.</comment>
   </data>
+  <data name="AboutPage_Credits.Text" xml:space="preserve">
+    <value>Appli Windows 10 réalisé par Ben Lewis. L'appli originale Windows Phone crée par Rob Smith, Shawn Henry, Michael Friedman, et David Robinson.</value>
+  </data>
+  <data name="AboutPage_FeedbackButton.Content" xml:space="preserve">
+    <value>Envoyer les commentaires</value>
+    <comment>Text for a button to send a feedback email about the app.</comment>
+  </data>
+  <data name="AboutPage_OneBusAwayLink.Content" xml:space="preserve">
+    <value>Site web du projet OneBusAway</value>
+  </data>
+  <data name="AboutPage_ProjectPageButton.Content" xml:space="preserve">
+    <value>Site web du projet de l'appli sur GitHub</value>
+  </data>
+  <data name="AboutPage_Title.Text" xml:space="preserve">
+    <value>À propos de OneBusAway</value>
+    <comment>Title for the About page.</comment>
+  </data>
+  <data name="DirectionFormatText" xml:space="preserve">
+    <value>Direction: {0}</value>
+  </data>
+  <data name="DirectionText_E" xml:space="preserve">
+    <value>Est</value>
+  </data>
+  <data name="DirectionText_N" xml:space="preserve">
+    <value>Nord</value>
+  </data>
+  <data name="DirectionText_NE" xml:space="preserve">
+    <value>Nord-est</value>
+  </data>
+  <data name="DirectionText_NW" xml:space="preserve">
+    <value>Nord-ouest</value>
+  </data>
+  <data name="DirectionText_S" xml:space="preserve">
+    <value>Sud</value>
+  </data>
+  <data name="DirectionText_SE" xml:space="preserve">
+    <value>Sud-est</value>
+  </data>
+  <data name="DirectionText_SW" xml:space="preserve">
+    <value>Sud-ouest</value>
+  </data>
+  <data name="DirectionText_W" xml:space="preserve">
+    <value>Ouest</value>
+  </data>
+  <data name="FavoriteLabel" xml:space="preserve">
+    <value>Ajouter aux favoris</value>
+  </data>
+  <data name="FilterLabel" xml:space="preserve">
+    <value>Ajouter un filtre</value>
+  </data>
+  <data name="LateEarlyText_Early" xml:space="preserve">
+    <value>{0} min en avance.</value>
+    <comment>Text for showing how early a bus is. {0} is how many minutes.</comment>
+  </data>
+  <data name="LateEarlyText_Late" xml:space="preserve">
+    <value>{0} min en rétard.</value>
+    <comment>Text for showing how late a bus is. {0} is how many minutes.</comment>
+  </data>
+  <data name="LateEarlyText_OnTime" xml:space="preserve">
+    <value>À l'heure.</value>
+    <comment>Text for showing that a bus is on time.</comment>
+  </data>
+  <data name="LateEarlyText_Unknown" xml:space="preserve">
+    <value>Inconnu.</value>
+    <comment>Text for showing that a bus' arrival time is unknown.</comment>
+  </data>
+  <data name="MainPage_AppBar_AboutButton.Label" xml:space="preserve">
+    <value>À propos</value>
+  </data>
+  <data name="MainPage_AppBar_RefreshButton.Label" xml:space="preserve">
+    <value>Refraîchir</value>
+  </data>
+  <data name="MainPage_AppBar_SearchButton.Label" xml:space="preserve">
+    <value>Chercher</value>
+  </data>
+  <data name="MainPage_AppBar_SettingsButton.Label" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="RefreshLabel" xml:space="preserve">
+    <value>Refraîchir</value>
+  </data>
+  <data name="StopDetails_NoResults.Text" xml:space="preserve">
+    <value>Aucun résultat.</value>
+    <comment>Text shown when a stop has no arrivals returned.</comment>
+  </data>
+  <data name="TimePresentation_Minutes" xml:space="preserve">
+    <value>{0} min</value>
+    <comment>Displays a period of time. {0} is minutes.</comment>
+  </data>
+  <data name="UnFavoriteLabel" xml:space="preserve">
+    <value>Supprimer des favoris</value>
+  </data>
+  <data name="UnFilterLabel" xml:space="preserve">
+    <value>Enlèver le filtre</value>
+  </data>
+  <data name="VersionString" xml:space="preserve">
+    <value>v{0}.{1}.{2}.{3}</value>
+    <comment>Version string for the application. {0} is the major version, {1} is the minor version, {2} is the revision, and {3} is the build.</comment>
+  </data>
 </root>

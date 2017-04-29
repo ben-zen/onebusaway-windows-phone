@@ -107,6 +107,15 @@ namespace OneBusAway.ViewModel
       }
     }
 
+    public bool IsFavorite
+    {
+      get
+      {
+        return FavoritesVM.Instance.FavoriteStops.Any(x => x.Id == CurrentViewState.CurrentStop.Id);
+      }
+    }
+
+
     public bool NoResultsAvailable
     {
       get

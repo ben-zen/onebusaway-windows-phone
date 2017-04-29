@@ -25,11 +25,13 @@
     <TextBlock Grid.Column="0"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind VM.ShortName, Mode=OneWay}" />
+               Text="{x:Bind VM.ShortName, Mode=OneWay}"
+               Style="{ThemeResource TitleTextBlockStyle}"/>
     <TextBlock Grid.Column="1"
                Grid.Row="0"
                Margin="4"
-               Text="{x:Bind VM.DisplayName, Mode=OneWay}" />
+               Text="{x:Bind VM.DisplayName, Mode=OneWay}" 
+               Style="{ThemeResource TitleTextBlockStyle}"/>
     <Pivot Grid.Column="0"
            Grid.ColumnSpan="2"
            Grid.Row="1"
@@ -58,9 +60,13 @@
                     <ColumnDefinition Width="Auto" />
                   </Grid.ColumnDefinitions>
                   <TextBlock Grid.Column="0"
-                             Text="{x:Bind Name, Mode=OneWay}" />
+                             Margin="4"
+                             Text="{x:Bind Name, Mode=OneWay}"
+                             Style="{ThemeResource BodyTextBlockStyle}"/>
                   <TextBlock Grid.Column="1"
-                             Text="{x:Bind Direction, Mode=OneWay}" />
+                             Margin="4"
+                             Text="{x:Bind Direction, Mode=OneWay}"
+                             Style="{ThemeResource BodyTextBlockStyle}"/>
                 </Grid>
               </DataTemplate>
             </ListView.ItemTemplate>

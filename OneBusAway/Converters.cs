@@ -20,9 +20,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Resources;
 using Windows.Devices.Geolocation;
 using Windows.UI;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
@@ -172,7 +175,7 @@ namespace OneBusAway.View
 
         int delta = (int)((dateTimeToConvert - DateTime.UtcNow).TotalMinutes);
 
-        return string.Format("{0} mins", delta);
+        return string.Format(ResourceLoader.GetForCurrentView().GetString("TimePresentation_Minutes"), delta);
       }
       else
       {
@@ -226,23 +229,23 @@ namespace OneBusAway.View
         if (delayedMinutes > 0)
         {
           // Bus is running late
-          return string.Format("{0} min late", Math.Abs(delayedMinutes));
+          return string.Format(ResourceLoader.GetForCurrentView().GetString("LateEarlyText_Late"), Math.Abs(delayedMinutes));
         }
         else if (delayedMinutes == 0)
         {
           // Bus is on time
-          return "on time";
+          return ResourceLoader.GetForCurrentView().GetString("LateEarlyText_OnTime");
         }
         else
         {
           // Bus is running early
-          return string.Format("{0} min early", Math.Abs(delayedMinutes));
+          return string.Format(ResourceLoader.GetForCurrentView().GetString("LateEarlyText_Early"), Math.Abs(delayedMinutes));
         }
       }
       else
       {
         // We don't have a predicted arrival time
-        return string.Format("unknown");
+        return ResourceLoader.GetForCurrentView().GetString("LateEarlyText_Unknown");
       }
     }
 
@@ -259,40 +262,26 @@ namespace OneBusAway.View
       if (value is Stop)
       {
         Stop stop = (Stop)value;
-
+        var resources = ResourceLoader.GetForCurrentView();
         string direction = string.Empty;
         switch (stop.Direction)
         {
           case "S":
-            direction = "south";
-            break;
           case "SW":
-            direction = "southwest";
-            break;
           case "W":
-            direction = "west";
-            break;
           case "NW":
-            direction = "northwest";
-            break;
           case "N":
-            direction = "north";
-            break;
           case "NE":
-            direction = "northeast";
-            break;
           case "E":
-            direction = "east";
-            break;
           case "SE":
-            direction = "southeast";
+            direction = resources.GetString(string.Format("DirectionString_{0}", stop.Direction));
             break;
           default:
             direction = stop.Direction;
             break;
         }
 
-        return string.Format("Direction: {0}", direction);
+        return string.Format(resources.GetString("DirectionFormatText"), direction);
       }
       else
       {
@@ -662,4 +651,49 @@ namespace OneBusAway.View
       return null;
     }
   }
+
+  public class PackageVersionToStringConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+      var version = (PackageVersion)value;
+      var versionStringTemplate = ResourceLoader.GetForCurrentView().GetString("VersionString");
+      return string.Format(versionStringTemplate, version.Major, version.Minor, version.Revision, version.Build);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+  #region Favorites converters
+  public class BoolToFavoriteIconConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+      var isFavorite = (bool)value;
+      return new SymbolIcon((isFavorite) ? Symbol.UnFavorite : Symbol.Favorite);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+      throw new NotImplementedException();
+    }
+  }
+
+  public class BoolToFavoriteButtonLabelConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+      var resources = ResourceLoader.GetForCurrentView();
+      return ((bool)value) ? resources.GetString("UnFavoriteLabel") : resources.GetString("FavoriteLabel");
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+      throw new NotImplementedException();
+    }
+  }
+  #endregion
 }

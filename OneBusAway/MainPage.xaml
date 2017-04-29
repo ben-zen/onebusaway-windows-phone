@@ -204,21 +204,21 @@
   <Page.BottomAppBar>
     <CommandBar ClosedDisplayMode="Compact">
       <CommandBar.PrimaryCommands>
-        <AppBarButton x:Name="appbar_center"
+        <AppBarButton x:Uid="MainPage_AppBar_RefreshButton"
                       Click="appbar_refresh_Click"
                       Icon="Refresh" 
                       Label="Refresh" />
-        <AppBarButton x:Name="appbar_search"
+        <AppBarButton x:Uid="MainPage_AppBar_SearchButton"
                       Click="appbar_search_Click"
                       Icon="Find"
                       Label="Search" />
       </CommandBar.PrimaryCommands>
       <CommandBar.SecondaryCommands>
-        <AppBarButton x:Name="appbar_settings"
+        <AppBarButton x:Uid="MainPage_AppBar_SettingsButton"
                       Click="appbar_settings_Click"
                       Icon="Setting"
                       Label="Settings" />
-        <AppBarButton x:Name="appbar_about"
+        <AppBarButton x:Uid="MainPage_AppBar_AboutButton"
                       Click="appbar_about_Click"
                       Icon="Help"
                       Label="About" />

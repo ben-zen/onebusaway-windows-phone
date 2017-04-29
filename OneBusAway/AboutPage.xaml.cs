@@ -23,15 +23,10 @@ namespace OneBusAway.View
 {
   public partial class AboutPage : Page
   {
+    public PackageVersion VersionData => Package.Current.Id.Version;
     public AboutPage()
     {
       InitializeComponent();
-      var version = Package.Current.Id.Version;
-      VersionTextBlock.Text = "Version " + string.Format("{0}.{1}.{2}.{3}",version.Major, version.Minor, version.Build, version.Revision);
-
-#if SCREENSHOT
-            SystemTray.IsVisible = false;
-#endif
     }
 
     // Methods overridden for analytics purposes

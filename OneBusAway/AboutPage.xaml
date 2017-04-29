@@ -20,71 +20,51 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480">
-
-  <!--LayoutRoot is the root grid where all page content is placed-->
-  <Grid x:Name="LayoutRoot" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-    <Image 
-      HorizontalAlignment="Center"  
-      Stretch="None" 
-      VerticalAlignment="Top" 
-      Source="/SplashImage.png" />
-    <HyperlinkButton 
-            Content="send feedback" 
-            Height="72" 
-            HorizontalAlignment="Left" 
-            Margin="121,520,0,0" 
-            Name="FeedbackButton" 
-            VerticalAlignment="Top" 
-            Width="236"
-            NavigateUri="mailto:wp7@onebusaway.org?subject=OneBusAway%20for%20Windows%20Phone"
-            />
-    <HyperlinkButton 
-            Height="73" 
-            HorizontalAlignment="Left" 
-            Margin="63,374,0,0" 
-            Name="AddressBlock" 
-            NavigateUri="https://onebusaway.org" 
-            VerticalAlignment="Top" 
-            FontSize="48" 
-            Width="350"
-            />
-    <StackPanel VerticalAlignment="Bottom">
-      <TextBlock
-                HorizontalAlignment="Stretch"
-                TextAlignment="Center"
-                Text=
-                "Windows Phone app by Rob Smith, Shawn Henry, Michael Friedman, and David Robinson" 
-                TextWrapping="Wrap"
-                Margin="10,10,10,0"
-                />
-      <HyperlinkButton 
-                HorizontalAlignment="Center" 
-              Content="Github Project Page"
-                NavigateUri="https://github.com/OneBusAway/onebusaway-windows-phone" 
-				FontSize="15.5"
-                Margin="10"
-                />
-    </StackPanel>
-    <TextBlock 
-          Height="30"
-          HorizontalAlignment="Right"
-          Margin="0,10,14,0"
-          Name="VersionTextBlock"
-          Text="Version 1.0"
-          VerticalAlignment="Top" />
+  <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <TextBlock x:Uid="AboutPage_Title"
+               Grid.Row="0"
+               HorizontalAlignment="Left"
+               Text="_About OneBusAway_"
+               Style="{ThemeResource TitleTextBlockStyle}" />
+    <TextBlock Grid.Row="1"
+               HorizontalAlignment="Right"
+               Text="{x:Bind VersionData, Converter={StaticResource PackageVersionToStringConverter}, Mode=OneTime}"
+               Style="{ThemeResource BodyTextBlockStyle}" />
+    <Image Grid.Row="2"
+           HorizontalAlignment="Center"  
+           Stretch="None" 
+           VerticalAlignment="Top" 
+           Source="/SplashImage.png" />
+    <HyperlinkButton x:Uid="AboutPage_FeedbackButton"
+                     Grid.Row="3"
+                     Content="send feedback" 
+                     HorizontalAlignment="Center"
+                     NavigateUri="mailto:wp7@onebusaway.org?subject=OneBusAway%20for%20Windows%2010" />
+    <HyperlinkButton x:Uid="AboutPage_OneBusAwayLink"
+                     Grid.Row="4"
+                     HorizontalAlignment="Left"
+                     Margin="4"
+                     NavigateUri="https://onebusaway.org" />
+    <HyperlinkButton x:Uid="AboutPage_ProjectPageButton"
+                     Grid.Row="5"
+                     Content="Github Project Page"
+                     HorizontalAlignment="Center" 
+                     NavigateUri="https://github.com/OneBusAway/onebusaway-windows-phone" 
+                     Margin="4" />
+    <TextBlock x:Uid="AboutPage_Credits"
+               Grid.Row="6"
+               HorizontalAlignment="Stretch"
+               TextAlignment="Center"
+               Text="Windows 10 app built by Ben Lewis. Original Windows Phone app by Rob Smith, Shawn Henry, Michael Friedman, and David Robinson." 
+               TextWrapping="Wrap"
+               Margin="4" />
   </Grid>
-
-  <!--Sample code showing usage of ApplicationBar-->
-  <!--<phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton IconUri="/Images/appbar_button1.png" Text="Button 1"/>
-            <shell:ApplicationBarIconButton IconUri="/Images/appbar_button2.png" Text="Button 2"/>
-            <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
-                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
-            </shell:ApplicationBar.MenuItems>
-        </shell:ApplicationBar>
-    </phone:PhoneApplicationPage.ApplicationBar>-->
-
 </Page>
