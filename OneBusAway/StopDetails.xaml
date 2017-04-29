@@ -162,6 +162,14 @@
                     Click="appbar_filter_Click">
         <FlyoutBase.AttachedFlyout>
           <Flyout>
+            <Flyout.FlyoutPresenterStyle>
+              <Style TargetType="FlyoutPresenter">
+                <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                <Setter Property="IsTabStop" Value="True"/>
+                <Setter Property="TabNavigation" Value="Cycle"/>
+              </Style>
+            </Flyout.FlyoutPresenterStyle>
             <TextBlock x:Uid="StopDetails_AppBar_Filter_FlyoutText"
                        Text="Check back for more filtering options in future releases."
                        TextWrapping="WrapWholeWords"
