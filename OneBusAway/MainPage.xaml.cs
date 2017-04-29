@@ -31,6 +31,7 @@ namespace OneBusAway.View
     public FavoritesVM Favorites => FavoritesVM.Instance;
     public RecentsVM Recents => RecentsVM.Instance;
     public MainPageVM VM => (App.Current as App).MainPageVM;
+    public RouteListVM RouteList => RouteListVM.Instance;
     public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
 
     private bool firstLoad;
@@ -102,17 +103,18 @@ namespace OneBusAway.View
         await modal.ShowAsync();
       }
       */
-      var location = await VM.LocationTracker.GetLocationAsync();
+      var location = await LocationTracker.Tracker.GetLocationAsync();
       StopsMap.Center = location;
     }
 
     #region Navigation
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
       base.OnNavigatedTo(e);
-
       navigatedAway = false;
+      await RouteList.RefreshRoutes();
+      await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() => Bindings.Update()));
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -132,9 +134,9 @@ namespace OneBusAway.View
 
     #region UI element event handlers
 
-    private void appbar_refresh_Click(object sender, RoutedEventArgs e)
+    private async void appbar_refresh_Click(object sender, RoutedEventArgs e)
     {
-      VM.LoadInfoForLocation(true);
+      await RouteList.RefreshRoutes();
     }
 
     private void appbar_search_Click(object sender, RoutedEventArgs e)
@@ -245,14 +247,6 @@ namespace OneBusAway.View
 
       (Window.Current.Content as Frame).Navigate(typeof(StopDetails), null);
     }
-
-    private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-      //we bind the DataContext only when the pivot is naivgated to. This improves perf if Favs or Recent are the first pivots
-      FrameworkElement selectedElement = ((sender as Pivot).SelectedItem as PivotItem).Content as FrameworkElement;
-      selectedElement.DataContext = VM;
-    }
-
     #endregion
 
 
@@ -266,9 +260,9 @@ namespace OneBusAway.View
       (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), e.ClickedItem);
     }
 
-    private void RecentRouteClicked(object sender, ItemClickEventArgs e)
+    private async void RecentRouteClicked(object sender, ItemClickEventArgs e)
     {
-      var route = TransitService.Routes.Find((x) => x.Id == (e.ClickedItem as RecentRoute).Id);
+      var route = await RouteList.GetVMForRouteIdAsync((e.ClickedItem as RecentRoute).Id);
       if (route != null)
       {
         (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), route);
@@ -284,9 +278,9 @@ namespace OneBusAway.View
       }
     }
 
-    private void FavoriteRouteClicked(object sender, ItemClickEventArgs e)
+    private async void FavoriteRouteClicked(object sender, ItemClickEventArgs e)
     {
-      var route = TransitService.Routes.Find(x => x.Id == (e.ClickedItem as FavoriteRoute).Id);
+      var route = await RouteList.GetVMForRouteIdAsync((e.ClickedItem as FavoriteRoute).Id);
       if (route != null)
       {
         (Window.Current.Content as Frame).Navigate(typeof(RouteDetails), route);

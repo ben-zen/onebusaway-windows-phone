@@ -110,7 +110,8 @@ namespace OneBusAway.ViewModel
     private NotificationData NotifyData;
 
     #region Constructor and Initialization
-    public TripService(NotificationFlagType notificationTypes)
+    public static TripService Instance { get; } = new TripService(NotificationFlagType.Raw | NotificationFlagType.Tile | NotificationFlagType.Toast);
+    private TripService(NotificationFlagType notificationTypes)
     {
       NotifyData = new NotificationData();
 

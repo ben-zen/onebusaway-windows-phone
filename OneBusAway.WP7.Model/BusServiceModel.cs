@@ -102,7 +102,10 @@ namespace OneBusAway.Model
       var routes = GetRoutesFromStops(stops, location);
       return new Tuple<List<Stop>, List<Route>>(stops, routes);
     }
-
+    public async Task<Route> GetRouteForIdAsync(Geopoint location, string routeId)
+    {
+      return await webservice.GetRouteForIdAsync(location, routeId);
+    }
     public async Task<List<Stop>> StopsForLocationAsync(Geopoint location, int radiusInMeters, int maxCount = -1, bool invalidateCache = false)
     {
       return await webservice.StopsForLocationAsync(location,

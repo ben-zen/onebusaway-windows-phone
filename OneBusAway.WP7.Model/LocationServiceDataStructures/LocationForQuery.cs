@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System.Runtime.Serialization;
 using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model.LocationServiceDataStructures
@@ -25,16 +24,11 @@ namespace OneBusAway.Model.LocationServiceDataStructures
         Unknown = 0
     };
 
-    [DataContract]
     public class LocationForQuery
     {
-        [DataMember]
         public string Name { get; set; }
-        [DataMember]
         public Geopoint Location { get; set; }
-        [DataMember]
         public Confidence Confidence { get; set; }
-        [DataMember]
         public GeoboundingBox BoundingBox { get; set; }
     }
 }

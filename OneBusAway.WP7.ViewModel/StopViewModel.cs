@@ -16,12 +16,11 @@ using OneBusAway.Model;
 using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.BusServiceDataStructures;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Web.Http;
 
 namespace OneBusAway.ViewModel
 {
@@ -30,7 +29,7 @@ namespace OneBusAway.ViewModel
 
     #region Private Variables, Properties, and Methods
     private Stop _stop;
-    private Route _routeFilter;
+    private Route _routeFilter = null;
     private Route RouteFilter
     {
       get => _routeFilter;
@@ -54,8 +53,6 @@ namespace OneBusAway.ViewModel
       }
     }
     private Object arrivalsLock = new object();
-    private TripService tripService;
-    private bool resultsLoaded;
 
     private void OnPropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
@@ -84,15 +81,6 @@ namespace OneBusAway.ViewModel
       Id = stop.Id;
       Direction = stop.Direction;
       Name = stop.Name;
-
-      Initialize();
-    }
-
-    private void Initialize()
-    {
-      RouteFilter = null;
-      tripService = TripServiceFactory.Singleton.TripService;
-      resultsLoaded = false;
     }
 
     private void FilterArrivals()
@@ -163,15 +151,22 @@ namespace OneBusAway.ViewModel
 
     public async Task<bool> SubscribeToToastNotification(string stopId, string tripId, int minutes)
     {
-      return await tripService.StartSubscriptionAsync(stopId, tripId, minutes);
+      return await TripService.Instance.StartSubscriptionAsync(stopId, tripId, minutes);
     }
 
     public async void RefreshArrivalsAsync()
     {
       var location = await LocationTracker.Tracker.GetLocationAsync();
-      var arrivals = await BusServiceModel.Singleton.ArrivalsForStopAsync(location, _stop);
-      var refreshedArrivals = ArrivalsForStop.Intersect(arrivals).Union(arrivals); // First, remove any elements that are not already present, then add any that were not already found.
-      UnfilteredArrivals = new List<ArrivalAndDeparture>(refreshedArrivals);
+      try
+      {
+        var arrivals = await BusServiceModel.Singleton.ArrivalsForStopAsync(location, _stop);
+        var refreshedArrivals = ArrivalsForStop.Intersect(arrivals).Union(arrivals); // First, remove any elements that are not already present, then add any that were not already found.
+        UnfilteredArrivals = new List<ArrivalAndDeparture>(refreshedArrivals);
+      }
+      catch (Exception /* e */)
+      {
+        // We might be under lock, we might have had some other network failure. Consider creating a new piece of UI to show this.
+      }
     }
 
     public void ChangeFilterForArrivals(Route routeFilter)

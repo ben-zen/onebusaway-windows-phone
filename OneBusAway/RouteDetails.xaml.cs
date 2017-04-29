@@ -36,8 +36,12 @@ namespace OneBusAway.View
     protected async override void OnNavigatedTo(NavigationEventArgs args)
     {
       // Start the marching ants, once I figure out how to do that.
-      var route = (args.Parameter as Route);
-      VM = await RouteVM.GetVMForRoute(route);
+      var route = (args.Parameter as RouteVM);
+      if (route == null)
+      {
+        route = await RouteListVM.Instance.GetVMForRouteIdAsync(RecentsVM.Instance.RecentRoutes.First().Id);
+      }
+      VM = route;
       StopsLoaded = await VM.LoadStops();
       RouteStopsViewSource.Source = VM.RouteDirections;
       RecentsVM.Instance.AddRecentRoute(route);

@@ -20,7 +20,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:appdata="using:OneBusAway.Model.AppDataDataStructures"
     xmlns:bus="using:OneBusAway.Model.BusServiceDataStructures"
-    xmlns:view="using:OneBusAway.View"
+    xmlns:vm="using:OneBusAway.ViewModel"
     xmlns:m="using:Windows.UI.Xaml.Controls.Maps">
 
   <Page.Resources>
@@ -47,9 +47,9 @@
   </Page.Resources>
 
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Pivot Name="PC" SelectionChanged="PC_SelectionChanged">
+    <Pivot>
       <PivotItem x:Uid="MainPage_RoutesPivot" Header="routes">
-        <ListView ItemsSource="{x:Bind TransitService.Routes, Mode=OneWay}"
+        <ListView ItemsSource="{x:Bind RouteList.Routes, Mode=OneWay}"
                   HorizontalAlignment="Stretch"
                   HorizontalContentAlignment="Stretch"
                   IsItemClickEnabled="True"
@@ -57,7 +57,7 @@
                   ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                   SelectionMode="None">
           <ListView.ItemTemplate>
-            <DataTemplate x:DataType="bus:Route">
+            <DataTemplate x:DataType="vm:RouteVM">
               <Grid Margin="0,4"
                     HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
@@ -68,9 +68,9 @@
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Left"
                            Grid.Column="0" />
-                <TextBlock Text="{x:Bind Description, Mode=OneWay}"
+                <TextBlock Text="{x:Bind DisplayName, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
-                           HorizontalAlignment="Right"
+                           HorizontalAlignment="Left"
                            Margin="8,0,0,0"
                            Grid.Column="1" />
               </Grid>

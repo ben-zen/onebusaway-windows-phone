@@ -33,11 +33,8 @@ namespace OneBusAway.ViewModel
   {
 
     #region Private Variables
-
     private int maxRoutes = 30;
     private int maxStops = 30;
-    private Object displayRouteLock;
-
     #endregion
 
     #region Constructors
@@ -56,11 +53,7 @@ namespace OneBusAway.ViewModel
 
     private void Initialize()
     {
-      displayRouteLock = new Object();
       StopsForLocation = new List<Stop>();
-      DisplayRouteForLocation = new BufferedReference<ObservableCollection<DisplayRoute>>(
-          new ObservableCollection<DisplayRoute>(),
-          new ObservableCollection<DisplayRoute>());
       directionHelper = new Dictionary<string, ObservableCollection<RouteStops>>();
     }
 
@@ -81,40 +74,9 @@ namespace OneBusAway.ViewModel
     }
 
     private IDictionary<string, ObservableCollection<RouteStops>> directionHelper;
-
-    public BufferedReference<ObservableCollection<DisplayRoute>> DisplayRouteForLocation { get; private set; }
-
     #endregion
 
     #region Public Methods
-
-    public void LoadInfoForLocation()
-    {
-      LoadInfoForLocation(false);
-    }
-
-    /// <summary>
-    /// Call the OBA webservice to load stops and routes for the current location.
-    /// </summary>
-    /// <param name="radiusInMeters"></param>
-    /// <param name="invalidateCache">If true, will discard any cached result and requery the server</param>
-    public async void LoadInfoForLocation(bool invalidateCache)
-    {
-      StopsForLocation.Clear();
-
-      DisplayRouteForLocation.Working.Clear();
-
-      operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
-      try
-      {
-        var location = await LocationTracker.Tracker.GetLocationAsync();
-        var info = await BusServiceModel.CombinedInfoForLocationAsync(location, defaultSearchRadius, -1, invalidateCache);
-      }
-      catch (Exception e)
-      {
-        // Display an error, something else?
-      }
-    }
 
     public async Task<bool> SearchByRouteAsync(string routeNumber)
     {

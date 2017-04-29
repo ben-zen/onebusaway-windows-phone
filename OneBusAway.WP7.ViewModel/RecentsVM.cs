@@ -39,7 +39,7 @@ namespace OneBusAway.ViewModel
 
     #endregion
     #region Public methods
-    public void AddRecentRoute(Route route)
+    public void AddRecentRoute(RouteVM route)
     {
       var time = DateTime.Now;
       var previousRecentRoute = RecentRoutes.Find((x) => (x.Id == route.Id) && (route.Agency.Name == x.AgencyName));

@@ -152,6 +152,26 @@ namespace OneBusAway.Model
       public abstract void ParseResults(XDocument result, Exception error);
     }
 
+    public async Task<Route> GetRouteForIdAsync(Geopoint location, string routeId)
+    {
+      var region = await ClosestRegionAsync(location);
+      string requestUrl = string.Format("{0}/{1}/{2}.xml?key={3}",
+                                        region.RegionUrl,
+                                        "route",
+                                        routeId,
+                                        KEY);
+      var response = await client.GetStringAsync(requestUrl);
+      Route route = null;
+      try
+      {
+        var xmlResponse = XDocument.Parse(response);
+        route = ParseRoute(xmlResponse.Descendants("route").First(), xmlResponse.Descendants("agencies"), region);
+      }
+      catch (Exception /* e */)
+      { }
+      return route;
+    }
+
     public async Task<List<Route>> RoutesForLocationAsync(Geopoint location, string query, int radiusInMeters, int maxCount)
     {
       var region = await ClosestRegionAsync(location);

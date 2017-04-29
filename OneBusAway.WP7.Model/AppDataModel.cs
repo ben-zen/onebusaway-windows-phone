@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.EventArgs;
 using System;
-using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
 using System.IO;

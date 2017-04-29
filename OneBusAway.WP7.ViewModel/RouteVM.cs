@@ -34,7 +34,7 @@ namespace OneBusAway.ViewModel
     public string DisplayName => (LongName != null && LongName != String.Empty) ? LongName : Description;
     public Uri InformationUrl { get; set; }
     public TransportationMethod Kind { get; set; }
-    public string AgencyId { get; set; }
+    public Agency Agency { get; set; }
     private List<RouteStops> _routeDirections;
     public List<RouteStops> RouteDirections
     {
@@ -48,7 +48,7 @@ namespace OneBusAway.ViewModel
 
     public event PropertyChangedEventHandler PropertyChanged;
     #endregion
-    #region Constructor, Instance accessor
+    #region Constructor
     internal RouteVM(Route route)
     {
       Id = route.Id;
@@ -57,22 +57,9 @@ namespace OneBusAway.ViewModel
       Description = route.Description;
       InformationUrl = route.Url;
       Kind = route.Kind;
-      AgencyId = route.Agency.Id;
+      Agency = route.Agency;
       RouteDirections = new List<RouteStops>();
       _serviceRoute = route;
-    }
-
-    private static List<RouteVM> _routes = new List<RouteVM>();
-    public static async Task<RouteVM> GetVMForRoute(Route route)
-    {
-      // First, search the list of RouteVMs for this route.
-      var routeVM = _routes.Find(x => x.Id == route.Id);
-      if (routeVM == null)
-      {
-        routeVM = new RouteVM(route);
-        _routes.Add(routeVM);
-      }
-      return routeVM;
     }
     #endregion
     #region Public methods
