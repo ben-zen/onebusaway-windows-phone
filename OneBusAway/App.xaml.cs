@@ -61,6 +61,8 @@ namespace OneBusAway.View
       }
     }
 
+    public RouteListVM RouteList { get; } = new RouteListVM();
+
     private SettingsVM _settings = null;
     public SettingsVM Settings
     {

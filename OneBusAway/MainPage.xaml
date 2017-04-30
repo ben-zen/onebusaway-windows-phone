@@ -49,7 +49,7 @@
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <Pivot>
       <PivotItem x:Uid="MainPage_RoutesPivot" Header="routes">
-        <ListView ItemsSource="{x:Bind RouteList.Routes, Mode=OneWay}"
+        <ListView ItemsSource="{x:Bind TransitService.RouteVMs, Mode=OneWay}"
                   HorizontalAlignment="Stretch"
                   HorizontalContentAlignment="Stretch"
                   IsItemClickEnabled="True"

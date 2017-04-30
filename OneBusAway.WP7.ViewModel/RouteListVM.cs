@@ -49,9 +49,8 @@ namespace OneBusAway.ViewModel
       return route;
     }
 
-    public async Task<bool> RefreshRoutes()
+    public async void RefreshRoutes()
     {
-      var result = false;
       try
       {
         var location = await LocationTracker.Tracker.GetLocationAsync();
@@ -61,18 +60,16 @@ namespace OneBusAway.ViewModel
           await GetVMForRoute(route);
         }
         OnPropertyChanged("Routes");
-        result = true;
       }
       catch (Exception /* e */)
       {
         // Report an error through some service?
       }
-      return result;
     }
     #endregion
     #region Constructor, accessor
     public static RouteListVM Instance { get; } = new RouteListVM();
-    private RouteListVM()
+    public RouteListVM()
     {
     }
     #endregion

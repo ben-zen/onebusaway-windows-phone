@@ -31,7 +31,7 @@ namespace OneBusAway.View
     public FavoritesVM Favorites => FavoritesVM.Instance;
     public RecentsVM Recents => RecentsVM.Instance;
     public MainPageVM VM => (App.Current as App).MainPageVM;
-    public RouteListVM RouteList => RouteListVM.Instance;
+    public RouteListVM RouteList => (App.Current as App).RouteList;
     public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
 
     private bool firstLoad;
@@ -113,8 +113,6 @@ namespace OneBusAway.View
     {
       base.OnNavigatedTo(e);
       navigatedAway = false;
-      await RouteList.RefreshRoutes();
-      await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, new Windows.UI.Core.DispatchedHandler(() => Bindings.Update()));
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -136,7 +134,7 @@ namespace OneBusAway.View
 
     private async void appbar_refresh_Click(object sender, RoutedEventArgs e)
     {
-      await RouteList.RefreshRoutes();
+      TransitService.RefreshContent();
     }
 
     private void appbar_search_Click(object sender, RoutedEventArgs e)
