@@ -30,15 +30,10 @@ namespace OneBusAway.ViewModel
     private Geopoint previousQuery;
 
     #region Constructors
-
-    public StopsMapVM()
+    public static StopsMapVM Instance { get; } = new StopsMapVM();
+ 
+    internal StopsMapVM()
         : base()
-    {
-      Initialize();
-    }
-
-    public StopsMapVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
-        : base(busServiceModel, appDataModel)
     {
       Initialize();
     }

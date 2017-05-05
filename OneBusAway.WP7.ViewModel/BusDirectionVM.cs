@@ -38,12 +38,6 @@ namespace OneBusAway.ViewModel
       Initialize();
     }
 
-    public BusDirectionVM(BusServiceModel busServiceModel)
-        : base(busServiceModel)
-    {
-      Initialize();
-    }
-
     private void Initialize()
     {
       routeDirectionsLock = new Object();

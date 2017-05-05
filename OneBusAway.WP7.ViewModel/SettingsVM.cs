@@ -31,13 +31,10 @@ namespace OneBusAway.ViewModel
   {
 
     #region Constructors
-    public SettingsVM()
-        : base()
-    {
-    }
+    public static SettingsVM Instance { get; } = new SettingsVM();
 
-    public SettingsVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
-        : base(busServiceModel, appDataModel)
+    internal SettingsVM()
+        : base()
     {
     }
 

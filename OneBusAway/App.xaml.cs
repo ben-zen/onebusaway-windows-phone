@@ -48,59 +48,8 @@ namespace OneBusAway.View
       }
     }
 
-    private MainPageVM _mainPageVM = null;
-    public MainPageVM MainPageVM
-    {
-      get
-      {
-        if (_mainPageVM == null)
-        {
-          _mainPageVM = new MainPageVM();
-        }
-        return _mainPageVM;
-      }
-    }
-
     public RouteListVM RouteList { get; } = new RouteListVM();
 
-    private SettingsVM _settings = null;
-    public SettingsVM Settings
-    {
-      get
-      {
-        if (_settings == null)
-        {
-          _settings = new SettingsVM();
-        }
-        return _settings;
-      }
-    }
-
-    private StopsMapVM _stopsMap = null;
-    public StopsMapVM StopsMap
-    {
-      get
-      {
-        if (_stopsMap == null)
-        {
-          _stopsMap = new StopsMapVM();
-        }
-        return _stopsMap;
-      }
-    }
-
-    private TransitServiceViewModel _transitService = null;
-    public TransitServiceViewModel TransitService
-    {
-      get
-      {
-        if (_transitService == null)
-        {
-          _transitService = new TransitServiceViewModel();
-        }
-        return _transitService;
-      }
-    }
     #endregion
     public App()
     {

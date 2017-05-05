@@ -30,9 +30,9 @@ namespace OneBusAway.View
   {
     public FavoritesVM Favorites => FavoritesVM.Instance;
     public RecentsVM Recents => RecentsVM.Instance;
-    public MainPageVM VM => (App.Current as App).MainPageVM;
+    public MainPageVM VM => MainPageVM.Instance;
     public RouteListVM RouteList => (App.Current as App).RouteList;
-    public TransitServiceViewModel TransitService => (App.Current as App).TransitService;
+    public TransitServiceViewModel TransitService => TransitServiceViewModel.Instance;
 
     private bool firstLoad;
     private bool navigatedAway;

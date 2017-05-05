@@ -25,10 +25,7 @@ namespace OneBusAway.View
 {
   public partial class SettingsPage : Page
   {
-    public SettingsVM VM
-    {
-      get => (Application.Current as App).Settings;
-    }
+    public SettingsVM VM => SettingsVM.Instance;
 
     public SettingsPage()
         : base()

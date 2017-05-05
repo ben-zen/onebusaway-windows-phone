@@ -49,13 +49,7 @@ namespace OneBusAway.View
 
     #region Properties
 
-    public StopsMapVM VM
-    {
-      get
-      {
-        return (App.Current as App).StopsMap;
-      }
-    }
+    public StopsMapVM VM => StopsMapVM.Instance;
 
     #endregion
 

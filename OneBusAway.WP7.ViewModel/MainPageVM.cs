@@ -38,15 +38,10 @@ namespace OneBusAway.ViewModel
     #endregion
 
     #region Constructors
+    public static MainPageVM Instance { get; } = new MainPageVM();
 
-    public MainPageVM()
+    private MainPageVM()
         : base()
-    {
-      Initialize();
-    }
-
-    public MainPageVM(BusServiceModel busServiceModel, AppDataModel appDataModel)
-        : base(busServiceModel, appDataModel)
     {
       Initialize();
     }
