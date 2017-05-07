@@ -17,7 +17,7 @@ using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.ViewModel;
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -68,16 +68,25 @@ namespace OneBusAway.View
       // so we need to explicitly set the center once the location is known.
       var location = await LocationTracker.Tracker.GetLocationAsync();
       DetailsMap.Center = location;
+      DetailsMap.ZoomLevel = 17;
 
-      //calculate distance to current stop and zoom map
+      // If we're able to do a more precise job, let's figure that out now.
       if (CurrentStop != null)
       {
-        Geopoint stoplocation = new Geopoint(CurrentStop.Location.Position);
-        double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
-        radius = Math.Max(radius, minimumZoomRadius);
-        radius = Math.Min(radius, maximumZoomRadius);
-
-        await DetailsMap.TrySetViewAsync(stoplocation, radius);
+        if (CurrentStop.Location.GetDistanceTo(location) < 30)
+        {
+          var positions = new List<BasicGeoposition> { location.Position, CurrentStop.Location.Position };
+          var boundingBox = GeoboundingBox.TryCompute(positions);
+          if (boundingBox != null)
+          {
+            await DetailsMap.TrySetViewBoundsAsync(boundingBox, null, Windows.UI.Xaml.Controls.Maps.MapAnimationKind.Bow);
+          }
+        }
+        else
+        {
+          // We're too far away to reasonably show how to get to the bus stop.
+          DetailsMap.Center = CurrentStop.Location;
+        }
       }
     }
 
