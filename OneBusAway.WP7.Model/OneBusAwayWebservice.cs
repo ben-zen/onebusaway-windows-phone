@@ -25,6 +25,7 @@ using System.Xml.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
 using Windows.Devices.Geolocation;
 using Windows.Storage;
 
@@ -54,18 +55,26 @@ namespace OneBusAway.Model
     // Ex: multiplier = 2, we round to the nearest 0.5
     // Ex: multipler = 3, we round to the nearest 0.33
     private const int multiplier = 3;
-
-    private HttpClient client;
-
     #endregion
 
     #region Constructor
 
     public OneBusAwayWebservice()
     {
-      client = new HttpClient();
+
     }
 
+    #endregion
+
+    #region Private utility methods
+    private HttpClient GetHttpClient()
+    {
+      var client = new HttpClient();
+      var packageId = Package.Current.Id;
+      var version = packageId.Version;
+      client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue(packageId.Name, string.Format("{0}.{1}.{2}.{3}", version.Major, version.Minor, version.Revision, version.Build)));
+      return client;
+    }
     #endregion
 
     #region OneBusAway service calls
@@ -160,7 +169,12 @@ namespace OneBusAway.Model
                                         "route",
                                         routeId,
                                         KEY);
-      var response = await client.GetStringAsync(requestUrl);
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
+
       Route route = null;
       try
       {
@@ -195,8 +209,12 @@ namespace OneBusAway.Model
       {
         requestUrl += string.Format("&maxCount={0}", maxCount);
       }
+      string response;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
 
-      var response = await client.GetStringAsync(requestUrl);
       var routes = new List<Route>();
       try
       {
@@ -241,7 +259,11 @@ namespace OneBusAway.Model
 
       Uri requestUri = new Uri(requestString);
 
-      var response = await client.GetStringAsync(requestString);
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestString);
+      }
 
       var xResponse = XDocument.Parse(response);
       IEnumerable<XElement> descendants = xResponse.Descendants("data");
@@ -282,7 +304,12 @@ namespace OneBusAway.Model
           KEY,
           APIVERSION
           );
-      var response = await client.GetStringAsync(requestUrl);
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
+
       var routeStops = new List<RouteStops>();
       var xResponse = XDocument.Parse(response);
       try
@@ -348,7 +375,12 @@ namespace OneBusAway.Model
           APIVERSION
           );
 
-      var response = await client.GetStringAsync(requestUrl);
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
+
       var arrivals = new List<ArrivalAndDeparture>();
       try
       {
@@ -374,8 +406,12 @@ namespace OneBusAway.Model
           KEY,
           APIVERSION
           );
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
 
-      var response = await client.GetStringAsync(requestUrl);
       var schedules = new List<RouteSchedule>();
       try
       {
@@ -411,8 +447,12 @@ namespace OneBusAway.Model
           KEY,
           "false"
           );
+      string response = null;
+      using (var client = GetHttpClient())
+      {
+        response = await client.GetStringAsync(requestUrl);
+      }
 
-      var response = await client.GetStringAsync(requestUrl);
       var xmlResponse = XDocument.Parse(response);
       var detail = (from trip in xmlResponse.Descendants("entry")
                     select ParseTripDetails(trip)).First();

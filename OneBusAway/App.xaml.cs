@@ -95,6 +95,7 @@ namespace OneBusAway.View
       {
         // Créez un Frame utilisable comme contexte de navigation et naviguez jusqu'à la première page
         rootFrame = new Frame();
+        rootFrame.CacheSize = 3;
 
         rootFrame.NavigationFailed += OnNavigationFailed;
 

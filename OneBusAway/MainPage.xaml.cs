@@ -28,12 +28,14 @@ namespace OneBusAway.View
 {
   public partial class MainPage : Page
   {
+    #region Properties
     public FavoritesVM Favorites => FavoritesVM.Instance;
     public RecentsVM Recents => RecentsVM.Instance;
     public MainPageVM VM => MainPageVM.Instance;
     public RouteListVM RouteList => (App.Current as App).RouteList;
     public TransitServiceViewModel TransitService => TransitServiceViewModel.Instance;
-
+    #endregion
+    #region Private members
     private bool firstLoad;
     private bool navigatedAway;
     private Object navigationLock;
@@ -42,6 +44,7 @@ namespace OneBusAway.View
         "Search by stop number: 11132\r\n" +
         "Find a landmark: Space Needle\r\n" +
         "Or an address: 1 Microsoft Way";
+    #endregion
 
     public MainPage()
         : base()
@@ -52,12 +55,12 @@ namespace OneBusAway.View
       navigatedAway = false;
       navigationLock = new Object();
 
-      this.Loaded += new RoutedEventHandler(MainPage_Loaded);
+      Loaded += MainPage_Loaded;
     }
 
     async void MainPage_Loaded(object sender, RoutedEventArgs e)
     {
-
+      Loaded -= MainPage_Loaded;
       if (firstLoad == true)
       {
         // Since this is the first load, pull down the bus and stop info
@@ -127,7 +130,6 @@ namespace OneBusAway.View
       IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"] = (MainPagePivots)PC.SelectedIndex;
       */
     }
-
     #endregion
 
     #region UI element event handlers

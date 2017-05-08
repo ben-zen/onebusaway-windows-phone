@@ -13,15 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<Page
-    x:Class="OneBusAway.View.MainPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:appdata="using:OneBusAway.Model.AppDataDataStructures"
-    xmlns:bus="using:OneBusAway.Model.BusServiceDataStructures"
-    xmlns:vm="using:OneBusAway.ViewModel"
-    xmlns:m="using:Windows.UI.Xaml.Controls.Maps">
+<Page x:Class="OneBusAway.View.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:appdata="using:OneBusAway.Model.AppDataDataStructures"
+      xmlns:bus="using:OneBusAway.Model.BusServiceDataStructures"
+      xmlns:vm="using:OneBusAway.ViewModel"
+      xmlns:m="using:Windows.UI.Xaml.Controls.Maps"
+      NavigationCacheMode="Enabled">
 
   <Page.Resources>
     <DataTemplate x:Key="PushpinTemplate">
@@ -89,16 +88,16 @@
                         MapServiceToken="{StaticResource MapCredentials}"
                         ZoomInteractionMode="GestureOnly"
                         ZoomLevel="17">
-              <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
-                <m:MapItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="bus:Stop">
-                    <TextBlock m:MapControl.Location="{x:Bind Location, Mode=OneWay}"
+            <m:MapItemsControl ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
+              <m:MapItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="bus:Stop">
+                  <TextBlock m:MapControl.Location="{x:Bind Location, Mode=OneWay}"
                                m:MapControl.NormalizedAnchorPoint="0.5,0.5"
                                Text="{x:Bind Name, Mode=OneWay}"
                                Style="{ThemeResource CaptionTextBlockStyle}"/>
-                  </DataTemplate>
-                </m:MapItemsControl.ItemTemplate>
-              </m:MapItemsControl>
+                </DataTemplate>
+              </m:MapItemsControl.ItemTemplate>
+            </m:MapItemsControl>
           </m:MapControl>
           <ListView Grid.Row="1"
                     x:Name="StopsListBox"
@@ -173,7 +172,7 @@
               <ListView.ItemTemplate>
                 <DataTemplate x:DataType="appdata:FavoriteStop">
                   <Grid>
-                    
+
                   </Grid>
                 </DataTemplate>
               </ListView.ItemTemplate>

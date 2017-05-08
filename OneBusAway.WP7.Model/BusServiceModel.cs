@@ -15,6 +15,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Xml.Linq;
 using System.IO;
@@ -26,7 +27,56 @@ using Windows.Devices.Geolocation;
 
 namespace OneBusAway.Model
 {
-  public class BusServiceModel : IBusServiceModel
+  public class WebserviceParsingException : Exception
+  {
+    public string RequestUrl { get; private set; }
+    public string ServerResponse { get; private set; }
+
+    public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
+        : base("There was an error parsing the server response", innerException)
+    {
+      this.RequestUrl = requestUrl;
+      this.ServerResponse = serverResponse;
+    }
+
+    public override string ToString()
+    {
+      return string.Format(
+          "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
+          base.ToString(),
+          RequestUrl,
+          ServerResponse
+          );
+    }
+  }
+
+  public class WebserviceResponseException : Exception
+  {
+    public string RequestUrl { get; private set; }
+    public string ServerResponse { get; private set; }
+    public HttpStatusCode ServerStatusCode { get; private set; }
+
+    public WebserviceResponseException(HttpStatusCode serverStatusCode, string requestUrl, string serverResponse, Exception innerException)
+        : base("We were able to contact the webservice but the service returned an error", innerException)
+    {
+      this.RequestUrl = requestUrl;
+      this.ServerResponse = serverResponse;
+      this.ServerStatusCode = serverStatusCode;
+    }
+
+    public override string ToString()
+    {
+      return string.Format(
+          "{0}\r\nHttpErrorCode: '{1}'\r\nRequestURL: '{2}'\r\nResponse:\r\n{3}",
+          base.ToString(),
+          ServerStatusCode,
+          RequestUrl,
+          ServerResponse
+          );
+    }
+  }
+
+  public class BusServiceModel
   {
     private OneBusAwayWebservice webservice;
 

@@ -51,7 +51,7 @@ namespace OneBusAway.Model
     }
   }
 
-  public class LocationModel : ILocationModel
+  public class LocationModel
   {
     #region Private Variables
 
@@ -63,6 +63,8 @@ namespace OneBusAway.Model
 
     public static LocationModel Singleton = new LocationModel();
 
+    private LocationModel()
+    { }
     #endregion
 
     #region Public Members

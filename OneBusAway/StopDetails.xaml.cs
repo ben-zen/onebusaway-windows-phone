@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 using OneBusAway.Model;
-using OneBusAway.Model.AppDataDataStructures;
 using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.ViewModel;
 using System;
@@ -73,7 +72,7 @@ namespace OneBusAway.View
       // If we're able to do a more precise job, let's figure that out now.
       if (CurrentStop != null)
       {
-        if (CurrentStop.Location.GetDistanceTo(location) < 30)
+        if (CurrentStop.Location.GetDistanceTo(location) < 3)
         {
           var positions = new List<BasicGeoposition> { location.Position, CurrentStop.Location.Position };
           var boundingBox = GeoboundingBox.TryCompute(positions);
