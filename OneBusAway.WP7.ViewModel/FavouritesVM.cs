@@ -50,9 +50,13 @@ namespace OneBusAway.ViewModel
       }
     }
 
-    public void AddFavoriteRoute(Route route)
+    public async void AddFavoriteRoute(Route route)
     {
-      throw new NotImplementedException();
+      if (!FavoriteRoutes.Any(x => x.Id == route.Id))
+      {
+        await DataModel.AddFavoriteRoute(route);
+        // refresh the favorites list.
+      }
     }
 
     public void AddFavoriteStop(Stop stop)

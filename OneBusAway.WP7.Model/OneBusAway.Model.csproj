@@ -120,6 +120,7 @@
     <Compile Include="AppDataDataStructures\FavoriteStop.cs" />
     <Compile Include="AppDataDataStructures\RecentRoute.cs" />
     <Compile Include="AppDataDataStructures\RecentStop.cs" />
+    <Compile Include="AppDataDataStructures\ReportingServiceInstance.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
     <Compile Include="BusServiceDataStructures\BindableBase.cs" />

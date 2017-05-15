@@ -1,4 +1,4 @@
-﻿/* Copyright 2013 Shawn Henry, Rob Smith, and Michael Friedman
+﻿/* Copyright (C) 2017 Ben Lewis, 2013 Shawn Henry, Rob Smith, and Michael Friedman.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

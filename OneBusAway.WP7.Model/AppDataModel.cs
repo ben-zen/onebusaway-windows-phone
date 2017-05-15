@@ -14,6 +14,7 @@
  */
 using Microsoft.EntityFrameworkCore;
 using OneBusAway.Model.AppDataDataStructures;
+using OneBusAway.Model.BusServiceDataStructures;
 using OneBusAway.Model.EventArgs;
 using System;
 using System.Collections.Generic;
@@ -41,8 +42,31 @@ namespace OneBusAway.Model
     public DbSet<FavoriteStop> FavoriteStops { get; private set; }
     public DbSet<RecentRoute> RecentRoutes { get; private set; }
     public DbSet<RecentStop> RecentStops { get; private set; }
+    public DbSet<ReportingServiceInstance> ReportingServices { get; private set; }
     #endregion
     #region Public methods
+    public async Task<bool> AddFavoriteRoute(Route route)
+    {
+      var added = false;
+      if (!(await FavoriteRoutes.AnyAsync(x => x.Id == route.Id)))
+      {
+        // Get the correct ReportingServiceInstance for this Route.
+        // Note that Id is not actually guaranteed to be unique, when we go multi-service. This needs to be addressed.
+        var favorite = new FavoriteRoute
+        {
+          Id = route.Id,
+          ShortName = route.ShortName,
+          LongName = route.LongName,
+          Description = route.Description,
+          Kind = route.Kind,
+          Url = route.Url,
+          ServiceInstance = null
+        };
+        added = true;
+      }
+      return added;
+    }
+
     public async void AddRecentRoute(RecentRoute route)
     {
       // First check if a route already exists in the RecentRoutes set.
