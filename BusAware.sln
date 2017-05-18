@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusAware", "OneBusAway\BusAware.csproj", "{76A8A31D-418B-4337-83C5-3C907CF78028}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.ViewModel", "OneBusAway.WP7.ViewModel\OneBusAway.ViewModel.csproj", "{DC166C05-0C82-4EE8-AD6A-CB2B4D310F49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.ViewModel", "OneBusAway.ViewModel\OneBusAway.ViewModel.csproj", "{DC166C05-0C82-4EE8-AD6A-CB2B4D310F49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.Model", "OneBusAway.WP7.Model\OneBusAway.Model.csproj", "{27F32D02-93CF-44E5-BE93-45F4E2A62B85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.Model", "OneBusAway.Model\OneBusAway.Model.csproj", "{27F32D02-93CF-44E5-BE93-45F4E2A62B85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
