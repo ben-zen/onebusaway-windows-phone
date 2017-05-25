@@ -45,61 +45,60 @@
     </DataTemplate>
   </Page.Resources>
 
-  <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Pivot>
-      <PivotItem x:Uid="MainPage_RoutesPivot" Header="routes">
-        <ListView ItemsSource="{x:Bind TransitService.RouteVMs, Mode=OneWay}"
+  <Pivot Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <PivotItem x:Uid="MainPage_RoutesPivot" Header="routes">
+      <ListView ItemsSource="{x:Bind TransitService.RouteVMs, Mode=OneWay}"
                   HorizontalAlignment="Stretch"
                   HorizontalContentAlignment="Stretch"
                   IsItemClickEnabled="True"
                   ItemClick="RouteListClick"
                   ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                   SelectionMode="None">
-          <ListView.ItemTemplate>
-            <DataTemplate x:DataType="vm:RouteVM">
-              <Grid Margin="0,4"
+        <ListView.ItemTemplate>
+          <DataTemplate x:DataType="vm:RouteVM">
+            <Grid Margin="0,4"
                     HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto" />
-                  <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{x:Bind ShortName, Mode=OneWay}"
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="{x:Bind ShortName, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Left"
                            Grid.Column="0" />
-                <TextBlock Text="{x:Bind DisplayName, Mode=OneWay}"
+              <TextBlock Text="{x:Bind DisplayName, Mode=OneWay}"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            HorizontalAlignment="Left"
                            Margin="8,0,0,0"
                            Grid.Column="1" />
-              </Grid>
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
-      </PivotItem>
-      <PivotItem x:Uid="MainPage_StopsPivot" Header="stops">
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <m:MapControl x:Name="StopsMap"
+            </Grid>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+    </PivotItem>
+    <PivotItem x:Uid="MainPage_StopsPivot" Header="stops">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <m:MapControl x:Name="StopsMap"
                         WatermarkMode="Automatic"
                         MapServiceToken="{StaticResource MapCredentials}"
                         ZoomInteractionMode="GestureOnly"
                         ZoomLevel="17">
-            <m:MapItemsControl ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
-              <m:MapItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="bus:Stop">
-                  <TextBlock m:MapControl.Location="{x:Bind Location, Mode=OneWay}"
+          <m:MapItemsControl ItemsSource="{x:Bind TransitService.Stops, Mode=OneWay}">
+            <m:MapItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="bus:Stop">
+                <TextBlock m:MapControl.Location="{x:Bind Location, Mode=OneWay}"
                                m:MapControl.NormalizedAnchorPoint="0.5,0.5"
                                Text="{x:Bind Name, Mode=OneWay}"
                                Style="{ThemeResource CaptionTextBlockStyle}"/>
-                </DataTemplate>
-              </m:MapItemsControl.ItemTemplate>
-            </m:MapItemsControl>
-          </m:MapControl>
-          <ListView Grid.Row="1"
+              </DataTemplate>
+            </m:MapItemsControl.ItemTemplate>
+          </m:MapItemsControl>
+        </m:MapControl>
+        <ListView Grid.Row="1"
                     x:Name="StopsListBox"
                     IsItemClickEnabled="True"
                     ItemClick="StopsListClick"
@@ -107,99 +106,80 @@
                     ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                     ItemTemplate="{StaticResource StopListEntry}"
                     SelectionMode="None" />
-        </Grid>
-      </PivotItem>
-      <PivotItem x:Uid="MainPage_RecentsPivot" Header="recent">
-        <Pivot>
-          <PivotItem x:Uid="MainPage_RecentRoutesPivot" Header="Routes">
-            <ListView ItemsSource="{x:Bind Recents.RecentRoutes, Mode=OneWay}"
+      </Grid>
+    </PivotItem>
+    <PivotItem x:Uid="MainPage_RecentsPivot" Header="recent">
+      <Pivot>
+        <PivotItem x:Uid="MainPage_RecentRoutesPivot" Header="Routes">
+          <ListView ItemsSource="{x:Bind Recents.RecentRoutes, Mode=OneWay}"
                       SelectionMode="None"
                       ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                       ItemClick="RecentRouteClicked">
-              <ListView.ItemTemplate>
-                <DataTemplate x:DataType="appdata:RecentRoute">
-                  <Grid>
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*" />
-                      <ColumnDefinition Width="5*" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
-                    <TextBlock Grid.Column="1"
+            <ListView.ItemTemplate>
+              <DataTemplate x:DataType="appdata:RecentRoute">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="5*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                  <TextBlock Grid.Column="1"
                                Text="{x:Bind Description, Mode=OneWay}" />
-                  </Grid>
-                </DataTemplate>
-              </ListView.ItemTemplate>
-            </ListView>
-          </PivotItem>
-          <PivotItem x:Uid="MainPage_RecentStopsPivot" Header="Stops">
-            <ListView ItemsSource="{x:Bind Recents.RecentStops, Mode=OneWay}"
+                </Grid>
+              </DataTemplate>
+            </ListView.ItemTemplate>
+          </ListView>
+        </PivotItem>
+        <PivotItem x:Uid="MainPage_RecentStopsPivot" Header="Stops">
+          <ListView ItemsSource="{x:Bind Recents.RecentStops, Mode=OneWay}"
                       SelectionMode="None"
                       ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                       ItemClick="RecentStopClicked">
-              <ListView.ItemTemplate>
-                <DataTemplate x:DataType="appdata:RecentStop">
-                  <Grid>
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="*" />
-                      <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
+            <ListView.ItemTemplate>
+              <DataTemplate x:DataType="appdata:RecentStop">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Grid.Column="0"
                                HorizontalAlignment="Left"
                                Text="{x:Bind Name, Mode=OneWay}"/>
-                    <TextBlock Grid.Column="1"
+                  <TextBlock Grid.Column="1"
                                HorizontalAlignment="Right"
                                Text="{x:Bind Direction, Mode=OneWay}" />
-                  </Grid>
-                </DataTemplate>
-              </ListView.ItemTemplate>
-            </ListView>
-          </PivotItem>
-        </Pivot>
-      </PivotItem>
-      <PivotItem x:Uid="MainPage_FavoritesPivot" Header="favorites">
-        <Pivot>
-          <PivotItem x:Uid="MainPage_FavoriteRoutesPivot"  Header="Routes">
-            <ListView ItemsSource="{x:Bind Favorites.FavoriteRoutes, Mode=OneWay}"
+                </Grid>
+              </DataTemplate>
+            </ListView.ItemTemplate>
+          </ListView>
+        </PivotItem>
+      </Pivot>
+    </PivotItem>
+    <PivotItem x:Uid="MainPage_FavoritesPivot" Header="favorites">
+      <Pivot>
+        <PivotItem x:Uid="MainPage_FavoriteRoutesPivot"  Header="Routes">
+          <ListView ItemsSource="{x:Bind Favorites.FavoriteRoutes, Mode=OneWay}"
                       SelectionMode="None"
                       ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                       ItemClick="FavoriteRouteClicked" />
-          </PivotItem>
-          <PivotItem x:Uid="MainPage_FavoriteStopsPivot" Header="Stops">
-            <ListView ItemsSource="{x:Bind Favorites.FavoriteStops, Mode=OneWay}"
+        </PivotItem>
+        <PivotItem x:Uid="MainPage_FavoriteStopsPivot" Header="Stops">
+          <ListView ItemsSource="{x:Bind Favorites.FavoriteStops, Mode=OneWay}"
                       SelectionMode="None"
                       ItemContainerStyle="{StaticResource FullWidthListViewItemStyle}"
                       ItemClick="FavoriteStopClicked">
-              <ListView.ItemTemplate>
-                <DataTemplate x:DataType="appdata:FavoriteStop">
-                  <Grid>
+            <ListView.ItemTemplate>
+              <DataTemplate x:DataType="appdata:FavoriteStop">
+                <Grid>
 
-                  </Grid>
-                </DataTemplate>
-              </ListView.ItemTemplate>
-            </ListView>
-          </PivotItem>
-        </Pivot>
-      </PivotItem>
-    </Pivot>
-
-    <StackPanel x:Name="SearchPanel" 
-                Opacity="0"
-                Height="80" 
-                VerticalAlignment="Top" 
-                RenderTransformOrigin="0.5,0.5">
-      <StackPanel.RenderTransform>
-        <CompositeTransform TranslateY="-75"/>
-      </StackPanel.RenderTransform>
-      <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="CurrencyAmountAndSymbol" />
-      <TextBlock 
-				Text="By route number, stop number, location, or address" FontSize="16" HorizontalAlignment="Center">
-        <TextBlock.RenderTransform>
-          <CompositeTransform TranslateY="-14"/>
-        </TextBlock.RenderTransform>
-      </TextBlock>
-    </StackPanel>
-  </Grid>
-
+                </Grid>
+              </DataTemplate>
+            </ListView.ItemTemplate>
+          </ListView>
+        </PivotItem>
+      </Pivot>
+    </PivotItem>
+  </Pivot>
   <Page.BottomAppBar>
     <CommandBar ClosedDisplayMode="Compact">
       <CommandBar.PrimaryCommands>
