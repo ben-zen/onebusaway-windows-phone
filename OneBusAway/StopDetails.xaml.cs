@@ -37,7 +37,19 @@ namespace OneBusAway.View
     private const double maximumZoomRadius = 250 * 0.009; // 250 km in degrees
 
     #region Properties
-    public StopViewModel VM { get; private set; }
+    private static readonly DependencyProperty _stopViewModelProperty =
+      DependencyProperty.Register("VM", typeof(StopViewModel), typeof(StopDetails), null);
+    public StopViewModel VM
+    {
+      get
+      {
+        return (StopViewModel)GetValue(_stopViewModelProperty);
+      }
+      private set
+      {
+        SetValue(_stopViewModelProperty, value);
+      }
+    }
     public Stop CurrentStop { get; set; }
     #endregion
 

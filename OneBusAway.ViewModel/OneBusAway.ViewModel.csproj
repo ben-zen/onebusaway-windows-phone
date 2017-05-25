@@ -145,7 +145,7 @@
     <EmbeddedResource Include="Properties\OneBusAway.ViewModel.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OneBusAway.WP7.Model\OneBusAway.Model.csproj">
+    <ProjectReference Include="..\OneBusAway.Model\OneBusAway.Model.csproj">
       <Project>{27f32d02-93cf-44e5-be93-45f4e2a62b85}</Project>
       <Name>OneBusAway.Model</Name>
     </ProjectReference>
