@@ -141,31 +141,7 @@ namespace OneBusAway.View
 
     private void appbar_search_Click(object sender, RoutedEventArgs e)
     {
-      if (SearchPanel.Opacity == 0)
-      {
-        SearchInputBox.Focus(FocusState.Programmatic);
-        SearchInputBox.SelectAll();
-      }
-      else
-      {
-        ProcessSearch(SearchInputBox.Text);
-      }
-    }
-
-
-    private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
-    {
-      this.Focus(FocusState.Programmatic);
-    }
-
-    private void SearchInputBox_KeyUp(object sender, object e)
-    {
-      string searchString = SearchInputBox.Text;
-
-      /*if (e.Key == Key.Enter)
-      {
-        ProcessSearch(searchString);
-      }*/
+      (Window.Current.Content as Frame).Navigate(typeof(SearchPage), null);
     }
 
     private async void ProcessSearch(string searchString)

@@ -249,4 +249,12 @@
   <data name="StopDetails_AppBar_Filter_FlyoutText.Text" xml:space="preserve">
     <value>Revenir pour trouver plus des options de filtrer les arrivés dans des versions prochaines.</value>
   </data>
+  <data name="SearchPage_SearchBox.Header" xml:space="preserve">
+    <value>Chercher</value>
+    <comment>Header text for the search box on the search page.</comment>
+  </data>
+  <data name="SearchPage_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Entrer un nombre routier, une addresse, ou un carrefour.</value>
+    <comment>Text that explains what can be searched for using the search box.</comment>
+  </data>
 </root>

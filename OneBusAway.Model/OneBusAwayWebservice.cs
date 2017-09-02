@@ -31,6 +31,14 @@ using Windows.Storage;
 
 namespace OneBusAway.Model
 {
+  public class ServiceRegionUnavailableException : Exception
+  {
+    public Region ClosestRegion { get; set; }
+    public ServiceRegionUnavailableException() : base("No local region.")
+    {
+    }
+  }
+
   internal class OneBusAwayWebservice
   {
 
@@ -792,6 +800,11 @@ namespace OneBusAway.Model
                            let distance = region.DistanceFrom(location)
                            orderby distance ascending
                            select region);
+      var closestRegion = sortedRegions.First();
+      if (closestRegion.DistanceFrom(location) > 150000)
+      {
+        throw new ServiceRegionUnavailableException { ClosestRegion = closestRegion };
+      }
       return sortedRegions.First();
     }
 

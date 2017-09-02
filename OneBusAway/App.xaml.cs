@@ -31,6 +31,7 @@ namespace OneBusAway.View
   {
     private bool previouslyLaunched = false; // On Phone, any time the app is launched from the tile or the app list, OnLaunched is called. This helps determine when the app was already running.
     private ViewState viewState = ViewState.Instance;
+    private bool failureEncountered = false;
 
     #region Properties
     public Frame RootFrame { get; private set; }
@@ -54,7 +55,7 @@ namespace OneBusAway.View
     public App()
     {
       InitializeComponent();
-      //UnhandledException += new UnhandledExceptionEventHandler(unhandledException_ErrorHandler);
+      UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionEncountered);
       Suspending += OnSuspending;
     }
 
@@ -147,6 +148,21 @@ namespace OneBusAway.View
       {
         // A navigation has failed; break into the debugger
         System.Diagnostics.Debugger.Break();
+      }
+    }
+
+    private void UnhandledExceptionEncountered(object sender, UnhandledExceptionEventArgs e)
+    {
+      if (e.Exception is ServiceRegionUnavailableException)
+      {
+        var regionUnavailable = e.Exception as ServiceRegionUnavailableException;
+        // Check if we've already alerted the user that this region is inaccessible.
+        if (!failureEncountered)
+        {
+          failureEncountered = true;
+          var errorDialog = new ErrorDialog();
+        }
+        e.Handled = true;
       }
     }
   }
